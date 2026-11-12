@@ -1,0 +1,41 @@
+name: Build Manga 99 APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install Cordova and Build APK
+        run: |
+          npm install -g cordova
+          cordova create app com.abhay.manga99 "Manga 99"
+          rm -rf app/www/*
+          cp -r *.html *.css *.js assets images app/www/ 2>/dev/null || true
+          cp index.html app/www/
+          cd app
+          cordova platform add android
+          cordova build android
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Manga-99-APK
+          path: app/platforms/android/app/build/outputs/apk/debug/app-debug.apk

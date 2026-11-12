@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Manga 99 — Read & Publish Manga</title>
+  <meta name="application-name" content="Manga 99" />
+  <meta name="apple-mobile-web-app-title" content="Manga 99" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#0a0a0c" />
+  <link id="pwa-manifest" rel="manifest" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root { --bg: #0a0a0c; --card: #131318; --border: #23232c; --accent: #ef4444; --gold: #f59e0b; }
+    * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+    body { background: var(--bg); color: #f4f4f6; font-family: 'Plus Jakarta Sans', sans-serif; overscroll-behavior-y: none; user-select: none; }
+    input, textarea, select { user-select: text; }
+    .brand-font { font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.04em; }
+    .glass { background: rgba(19, 19, 24, 0.88); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .manga-card { transition: transform .22s ease, box-shadow .22s ease; }
+    .manga-card:active { transform: scale(0.97); }
+    .manga-card:hover { transform: translateY(-4px); box-shadow: 0 12px 28px rgba(239,68,68,.18); }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-in { animation: fadeIn 0.25s ease forwards; }
+  </style>
+</head>
+<body class="min-h-screen pb-24 md:pb-10">
+  <!-- TOP NAVBAR -->
+  <header class="glass sticky top-0 z-40 px-4 py-3">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-3">
+      <div onclick="switchTab('home')" class="flex items-center gap-2.5 cursor-pointer shrink-0">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-red-600 to-rose-700 flex items-center justify-center shadow-lg shadow-red-600/30 border border-red-400/30">
+          <span class="brand-font text-xl text-white leading-none">99</span>
+        </div>
+        <div class="leading-none">
+          <span class="brand-font text-2xl tracking-wider text-white">MANGA <span class="text-red-500">99</span></span>
+          <p class="text-[10px] text-zinc-400 font-medium tracking-widest uppercase">Official App</p>
+        </div>
+      </div>
+
+      <div class="flex-1 max-w-md hidden sm:block">
+        <div class="relative">
+          <i data-lucide="search" class="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+          <input id="searchInput" oninput="renderHome()" type="text" placeholder="Search manga, author, genre..."
+            class="w-full bg-zinc-900/90 border border-zinc-800 rounded-full pl-10 pr-4 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-red-500">
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button onclick="openAppGuide()" class="flex items-center gap-1.5 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-full text-xs font-semibold transition">
+          <i data-lucide="smartphone" class="w-3.5 h-3.5"></i><span>App / APK</span>
+        </button>
+        <button onclick="switchTab('studio')" class="hidden md:flex items-center gap-1.5 bg-red-600 hover:bg-red-500 text-white px-3.5 py-1.5 rounded-full text-xs font-semibold shadow-lg shadow-red-600/25 transition">
+          <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i><span>Publish</span>
+        </button>
+        <button onclick="switchTab('library')" class="hidden md:flex items-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 px-3.5 py-1.5 rounded-full text-xs font-semibold transition">
+          <i data-lucide="bookmark" class="w-3.5 h-3.5"></i><span>Library</span>
+        </button>
+        <button onclick="openAdminGate()" class="flex items-center gap-1.5 bg-amber-500/15 hover:bg-amber-500/25 text-amber-400 border border-amber-500/30 px-3 py-1.5 rounded-full text-xs font-semibold transition">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5"></i><span>Admin</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="mt-2.5 sm:hidden relative">
+      <i data-lucide="search" class="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+      <input id="mobileSearchInput" oninput="syncSearch(this.value)" type="text" placeholder="Search manga or creator..."
+        class="w-full bg-zinc-900/90 border border-zinc-800 rounded-full pl-10 pr-4 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-red-500">
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-7xl mx-auto px-4 pt-5">
+    <!-- HOME VIEW -->
+    <section id="view-home" class="fade-in space-y-6">
+      <div id="featuredBanner" class="relative rounded-2xl overflow-hidden border border-zinc-800 bg-gradient-to-r from-zinc-900 via-zinc-900 to-red-950/40 p-5 md:p-8 flex flex-col md:flex-row items-center gap-6"></div>
+
+      <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1" id="genreFilters"></div>
+
+      <div>
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-lg font-bold flex items-center gap-2">
+            <span class="w-1.5 h-5 bg-red-500 rounded-full"></span> Latest & Trending Manga
+          </h2>
+          <span id="mangaCount" class="text-xs text-zinc-400"></span>
+        </div>
+        <div id="mangaGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
+      </div>
+    </section>
+        <!-- CREATOR STUDIO VIEW -->
+    <section id="view-studio" class="hidden fade-in space-y-6 max-w-3xl mx-auto">
+      <div class="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-5 md:p-6">
+        <h2 class="text-xl font-bold flex items-center gap-2 text-white">
+          <i data-lucide="pen-tool" class="w-5 h-5 text-red-500"></i> Creator Studio — Publish Your Manga
+        </h2>
+        <p class="text-xs text-zinc-400 mt-1">Koi bhi creator apni original manga aur chapters bilkul free publish kar sakta hai.</p>
+
+        <form onsubmit="createNewManga(event)" class="mt-5 space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="text-xs font-semibold text-zinc-300">Manga Title *</label>
+              <input id="newTitle" required placeholder="e.g. Demon Hunter X" class="mt-1 w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-sm focus:border-red-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-zinc-300">Author / Creator Name *</label>
+              <input id="newAuthor" required placeholder="e.g. Abhay" class="mt-1 w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-sm focus:border-red-500 focus:outline-none">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="text-xs font-semibold text-zinc-300">Genre *</label>
+              <select id="newGenre" class="mt-1 w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-sm focus:border-red-500 focus:outline-none">
+                <option>Action</option><option>Fantasy</option><option>Thriller</option><option>Romance</option><option>Sci-Fi</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-zinc-300">Cover Image (Upload or URL)</label>
+              <input id="newCoverFile" type="file" accept="image/*" class="mt-1 w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-red-600 file:text-white file:font-semibold">
+            </div>
+          </div>
+
+          <input id="newCoverUrl" placeholder="Ya direct cover image URL paste karein (optional)" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2 text-xs focus:border-red-500 focus:outline-none">
+
+          <div>
+            <label class="text-xs font-semibold text-zinc-300">Story Synopsis *</label>
+            <textarea id="newDesc" rows="3" required placeholder="Apni manga ki kahani likhein..." class="mt-1 w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-sm focus:border-red-500 focus:outline-none"></textarea>
+          </div>
+
+          <button type="submit" class="w-full bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-red-600/25 transition">
+            Create Manga Series
+          </button>
+        </form>
+      </div>
+
+      <!-- ADD CHAPTER TO EXISTING MANGA -->
+      <div class="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-5 md:p-6">
+        <h3 class="text-lg font-bold flex items-center gap-2">
+          <i data-lucide="file-plus-2" class="w-5 h-5 text-amber-400"></i> Upload New Chapter Pages
+        </h3>
+        <form onsubmit="addChapterToManga(event)" class="mt-4 space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="text-xs font-semibold text-zinc-300">Select Manga *</label>
+              <select id="chapterMangaSelect" class="mt-1 w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-sm"></select>
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-zinc-300">Chapter Title *</label>
+              <input id="chapterTitle" required placeholder="e.g. Chapter 1: Awakening" class="mt-1 w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-sm">
+            </div>
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-zinc-300">Select Manga Pages (Multiple Images) *</label>
+            <input id="chapterPagesInput" type="file" accept="image/*" multiple required class="mt-1 w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-amber-500 file:text-black file:font-bold">
+          </div>
+          <button type="submit" class="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold py-3 rounded-xl transition">
+            Publish Chapter Now
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- LIBRARY VIEW -->
+    <section id="view-library" class="hidden fade-in space-y-4">
+      <h2 class="text-xl font-bold flex items-center gap-2"><i data-lucide="bookmark" class="w-5 h-5 text-red-500"></i> My Bookmarked Library</h2>
+      <div id="libraryGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
+    </section>
+
+    <!-- ADMIN PANEL VIEW (PIN: 2010) -->
+    <section id="view-admin" class="hidden fade-in space-y-6">
+      <div class="flex flex-wrap items-center justify-between gap-3 bg-gradient-to-r from-amber-500/15 to-red-500/15 border border-amber-500/30 rounded-2xl p-4">
+        <div>
+          <span class="text-[11px] font-bold uppercase tracking-widest text-amber-400">Admin Access Unlocked (PIN: 2010)</span>
+          <h2 class="text-xl font-bold text-white">Manga 99 Control Center</h2>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="resetDemoData()" class="px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-zinc-300">Reset Default Data</button>
+          <button onclick="switchTab('home')" class="px-3 py-1.5 rounded-lg bg-red-600 text-xs font-semibold text-white">Exit Admin</button>
+        </div>
+      </div>
+
+      <div id="adminStats" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
+
+      <div class="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-4 overflow-x-auto">
+        <h3 class="font-bold text-sm mb-3 text-zinc-200">Manage All Published Manga</h3>
+        <table class="w-full text-left text-xs">
+          <thead class="text-zinc-400 border-b border-zinc-800">
+            <tr><th class="py-2">Title</th><th>Author</th><th>Genre</th><th>Chapters</th><th>Featured</th><th class="text-right">Actions</th></tr>
+          </thead>
+          <tbody id="adminMangaTable" class="divide-y divide-zinc-800/70"></tbody>
+        </table>
+      </div>
+
+      <div class="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-4">
+        <h3 class="font-bold text-sm mb-3 text-zinc-200">Reader Comments Moderation</h3>
+        <div id="adminCommentsList" class="space-y-2 text-xs"></div>
+      </div>
+    </section>
+  </main>
+    <!-- MANGA DETAIL MODAL -->
+  <div id="detailModal" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-sm overflow-y-auto p-4">
+    <div class="max-w-3xl mx-auto bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden my-6">
+      <div id="detailContent"></div>
+    </div>
+  </div>
+
+  <!-- FULLSCREEN MANGA READER -->
+  <div id="readerModal" class="fixed inset-0 z-50 hidden bg-black flex flex-col">
+    <div class="glass px-4 py-2.5 flex items-center justify-between gap-2 shrink-0">
+      <button onclick="closeReader()" class="flex items-center gap-1 text-xs font-bold bg-zinc-800 px-3 py-1.5 rounded-lg">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i> Back
+      </button>
+      <div class="text-center truncate">
+        <p id="readerMangaTitle" class="text-xs font-bold text-white truncate"></p>
+        <p id="readerChapterTitle" class="text-[11px] text-red-400 truncate"></p>
+      </div>
+      <button id="modeToggleBtn" onclick="toggleReadMode()" class="text-xs font-semibold bg-red-600/20 text-red-400 border border-red-500/30 px-2.5 py-1.5 rounded-lg">
+        Webtoon Scroll
+      </button>
+    </div>
+
+    <div id="readerCanvas" class="flex-1 overflow-y-auto bg-zinc-950 flex flex-col items-center"></div>
+
+    <div class="glass px-4 py-2.5 flex items-center justify-between gap-2 shrink-0">
+      <button onclick="prevChapter()" class="px-3 py-1.5 rounded-lg bg-zinc-800 text-xs font-semibold">Prev Ch</button>
+      <span id="pageIndicator" class="text-xs text-zinc-400"></span>
+      <button onclick="nextChapter()" class="px-3 py-1.5 rounded-lg bg-red-600 text-xs font-semibold text-white">Next Ch</button>
+    </div>
+  </div>
+
+  <!-- ADMIN PIN MODAL (2010) -->
+  <div id="pinModal" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 max-w-xs w-full text-center space-y-4">
+      <div class="w-12 h-12 rounded-2xl bg-amber-500/15 text-amber-400 flex items-center justify-center mx-auto">
+        <i data-lucide="lock" class="w-6 h-6"></i>
+      </div>
+      <div>
+        <h3 class="font-bold text-lg">Admin Verification</h3>
+        <p class="text-xs text-zinc-400 mt-1">Manga 99 Admin PIN enter karein</p>
+      </div>
+      <input id="adminPinInput" type="password" maxlength="6" placeholder="••••" class="w-full text-center tracking-[0.5em] text-xl font-bold bg-zinc-950 border border-zinc-800 rounded-xl py-3 focus:border-amber-400 focus:outline-none">
+      <div class="flex gap-2">
+        <button onclick="closePinModal()" class="flex-1 py-2.5 rounded-xl bg-zinc-800 text-xs font-semibold">Cancel</button>
+        <button onclick="verifyAdminPin()" class="flex-1 py-2.5 rounded-xl bg-amber-500 text-black text-xs font-bold">Unlock</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FREE APP / APK GUIDE MODAL -->
+  <div id="appGuideModal" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 max-w-md w-full space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="font-bold text-lg flex items-center gap-2 text-emerald-400"><i data-lucide="smartphone" class="w-5 h-5"></i> Install Manga 99 App</h3>
+        <button onclick="document.getElementById('appGuideModal').classList.add('hidden')" class="text-zinc-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <ol class="text-xs text-zinc-300 space-y-2.5 list-decimal pl-4 leading-relaxed">
+        <li><b>Direct Install:</b> Browser menu (⋮) kholkar <b>"Install App"</b> ya <b>"Add to Home Screen"</b> par tap karein.</li>
+        <li><b>Free Live Link:</b> Is <code>index.html</code> file ko <b>app.netlify.com/drop</b> par upload karein (100% Free).</li>
+        <li><b>Free APK File:</b> Apne live link ko <b>pwabuilder.com</b> mein daalkar 1-click mein <b>Manga 99.apk</b> download aur publish karein!</li>
+      </ol>
+      <button onclick="document.getElementById('appGuideModal').classList.add('hidden')" class="w-full py-2.5 rounded-xl bg-emerald-500 text-black font-bold text-xs">Got It!</button>
+    </div>
+  </div>
+
+  <!-- MOBILE BOTTOM NAVIGATION -->
+  <nav class="md:hidden fixed bottom-0 inset-x-0 glass border-t border-zinc-800 z-40 flex justify-around py-2">
+    <button onclick="switchTab('home')" class="flex flex-col items-center text-[11px] text-red-400 font-semibold gap-0.5">
+      <i data-lucide="flame" class="w-5 h-5"></i><span>Discover</span>
+    </button>
+    <button onclick="switchTab('studio')" class="flex flex-col items-center text-[11px] text-zinc-300 font-semibold gap-0.5">
+      <i data-lucide="plus-square" class="w-5 h-5 text-red-500"></i><span>Publish</span>
+    </button>
+    <button onclick="switchTab('library')" class="flex flex-col items-center text-[11px] text-zinc-300 font-semibold gap-0.5">
+      <i data-lucide="bookmark" class="w-5 h-5"></i><span>Library</span>
+    </button>
+    <button onclick="openAdminGate()" class="flex flex-col items-center text-[11px] text-amber-400 font-semibold gap-0.5">
+      <i data-lucide="shield" class="w-5 h-5"></i><span>Admin</span>
+    </button>
+  </nav>
+    <script>
+    // Dynamic PWA Manifest for Standalone Android App Mode
+    const manifestObj = {
+      name: "Manga 99", short_name: "Manga 99", start_url: ".", display: "standalone",
+      background_color: "#0a0a0c", theme_color: "#ef4444",
+      icons: [{ src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%23ef4444'/><text x='50' y='68' font-size='52' font-family='sans-serif' font-weight='900' fill='white' text-anchor='middle'>99</text></svg>", sizes: "512x512", type: "image/svg+xml" }]
+    };
+    document.getElementById('pwa-manifest').href = 'data:application/manifest+json,' + encodeURIComponent(JSON.stringify(manifestObj));
+
+    const makePage = (bg, title, sub) => 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1150"><rect width="100%" height="100%" fill="${bg}"/><rect x="35" y="35" width="730" height="1080" fill="none" stroke="white" stroke-width="6"/><text x="400" y="520" font-family="sans-serif" font-size="46" font-weight="900" fill="white" text-anchor="middle">${title}</text><text x="400" y="590" font-family="sans-serif" font-size="24" fill="#e4e4e7" text-anchor="middle">${sub}</text></svg>`);
+
+    const DEFAULT_MANGA = [
+      {
+        id: 'm1', title: 'Shadow Monarch: Rebirth', author: 'Kenji Sato', genre: 'Action', featured: true, views: 14200,
+        cover: makePage('#7f1d1d', 'SHADOW MONARCH', 'MANGA 99 EXCLUSIVE'),
+        desc: 'Ek kamzor hunter ko duniya ki sabse khatarnak dark dungeon mein naya janm aur shadow army milti hai.',
+        chapters: [
+          { id: 'c1', title: 'Chapter 1: The Awakening', pages: [makePage('#18181b', 'CHAPTER 1 - PAGE 1', 'Andhere se ek nayi shakti uthti hai...'), makePage('#450a0a', 'CHAPTER 1 - PAGE 2', 'System Activated: Level 1 Shadow Monarch!')] },
+          { id: 'c2', title: 'Chapter 2: First Hunt', pages: [makePage('#09090b', 'CHAPTER 2 - PAGE 1', 'Raat ke 12 baje gate khulta hai...')] }
+        ]
+      },
+      {
+        id: 'm2', title: 'Crimson Blade of Tokyo', author: 'Aoi Tanaka', genre: 'Fantasy', featured: false, views: 9850,
+        cover: makePage('#311042', 'CRIMSON BLADE', 'DARK FANTASY SERIES'),
+        desc: 'Modern Tokyo ke neeche chhupe rakshason ko khatam karne wali ek shraapit talwar ki kahani.',
+        chapters: [{ id: 'c201', title: 'Chapter 1: Red Moon', pages: [makePage('#1e1b4b', 'CRIMSON BLADE - P1', 'Laal chand ke neeche pehli ladai!')] }]
+      },
+      {
+        id: 'm3', title: 'Baarish Aur Tum', author: 'Rohan Verma', genre: 'Romance', featured: false, views: 7600,
+        cover: makePage('#064e3b', 'BAARISH AUR TUM', 'INDIAN MANGA ORIGINAL'),
+        desc: 'Mumbai ki pehli baarish aur ek college sketchbook se shuru hui ek pyaari si prem kahani.',
+        chapters: [{ id: 'c301', title: 'Chapter 1: Pehli Mulakat', pages: [makePage('#022c22', 'EPISODE 1', 'Station par chhooti hui ek diary...')] }]
+      }
+    ];
+
+    let mangaList = JSON.parse(localStorage.getItem('manga99_data')) || DEFAULT_MANGA;
+    let bookmarks = JSON.parse(localStorage.getItem('manga99_bookmarks')) || ['m1'];
+    let comments = JSON.parse(localStorage.getItem('manga99_comments')) || [{ id: 1, manga: 'Shadow Monarch: Rebirth', user: 'Aryan', text: 'Bhai kya zabardast art aur story hai!' }];
+    let selectedGenre = 'All';
+    let activeManga = null, activeChapterIdx = 0, readMode = 'scroll', currentPageIdx = 0;
+
+    function saveData() {
+      localStorage.setItem('manga99_data', JSON.stringify(mangaList));
+      localStorage.setItem('manga99_bookmarks', JSON.stringify(bookmarks));
+      localStorage.setItem('manga99_comments', JSON.stringify(comments));
+    }
+
+    function syncSearch(val) {
+      document.getElementById('searchInput').value = val;
+      renderHome();
+    }
+
+    function switchTab(tab) {
+      ['home', 'studio', 'library', 'admin'].forEach(v => document.getElementById('view-' + v).classList.add('hidden'));
+      document.getElementById('view-' + tab).classList.remove('hidden');
+      if (tab === 'home') renderHome();
+      if (tab === 'studio') populateStudioSelect();
+      if (tab === 'library') renderLibrary();
+      if (tab === 'admin') renderAdmin();
+      window.scrollTo(0, 0);
+    }
+
+    function renderHome() {
+      const genres = ['All', 'Action', 'Fantasy', 'Thriller', 'Romance', 'Sci-Fi'];
+      document.getElementById('genreFilters').innerHTML = genres.map(g => `
+        <button onclick="selectedGenre='${g}';renderHome()" class="px-4 py-1.5 rounded-full text-xs font-semibold shrink-0 transition ${selectedGenre===g ? 'bg-red-600 text-white' : 'bg-zinc-900 text-zinc-400 border border-zinc-800'}">${g}</button>
+      `).join('');
+
+      const feat = mangaList.find(m => m.featured) || mangaList[0];
+      if (feat) {
+        document.getElementById('featuredBanner').innerHTML = `
+          <img src="${feat.cover}" class="w-32 h-44 md:w-40 md:h-56 object-cover rounded-xl shadow-2xl border border-white/10 shrink-0">
+          <div class="space-y-3 text-center md:text-left">
+            <span class="inline-block px-3 py-1 rounded-full bg-red-600/20 text-red-400 border border-red-500/30 text-[11px] font-bold uppercase tracking-wider">Featured on Manga 99</span>
+            <h1 class="text-2xl md:text-4xl font-extrabold text-white">${feat.title}</h1>
+            <p class="text-xs md:text-sm text-zinc-300 max-w-xl">${feat.desc}</p>
+            <div class="flex flex-wrap justify-center md:justify-start gap-2.5 pt-1">
+              <button onclick="openReader('${feat.id}', 0)" class="bg-red-600 hover:bg-red-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-lg shadow-red-600/30">Read Chapter 1</button>
+              <button onclick="openDetail('${feat.id}')" class="bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-2.5 rounded-xl text-xs font-semibold">All Chapters (${feat.chapters.length})</button>
+            </div>
+          </div>`;
+      }
+
+      const q = (document.getElementById('searchInput').value || '').toLowerCase();
+      const filtered = mangaList.filter(m => (selectedGenre === 'All' || m.genre === selectedGenre) && (m.title.toLowerCase().includes(q) || m.author.toLowerCase().includes(q)));
+      document.getElementById('mangaCount').innerText = `${filtered.length} Series`;
+
+      document.getElementById('mangaGrid').innerHTML = filtered.map(m => `
+        <div onclick="openDetail('${m.id}')" class="manga-card bg-zinc-900/90 border border-zinc-800/90 rounded-2xl overflow-hidden cursor-pointer flex flex-col">
+          <div class="relative aspect-[3/4] bg-zinc-950">
+            <img src="${m.cover}" class="w-full h-full object-cover">
+            <span class="absolute top-2 left-2 bg-black/75 backdrop-blur px-2 py-0.5 rounded-md text-[10px] font-bold text-red-400">${m.genre}</span>
+            <span class="absolute bottom-2 right-2 bg-black/75 px-2 py-0.5 rounded-md text-[10px] text-zinc-200">${m.chapters.length} Ch</span>
+          </div>
+          <div class="p-3 flex-1 flex flex-col justify-between">
+            <h3 class="font-bold text-sm text-white line-clamp-1">${m.title}</h3>
+            <p class="text-[11px] text-zinc-400 mt-1">by ${m.author}</p>
+          </div>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function openDetail(id) {
+      const m = mangaList.find(x => x.id === id);
+      const isSaved = bookmarks.includes(id);
+      document.getElementById('detailContent').innerHTML = `
+        <div class="p-5 md:p-6 space-y-5">
+          <div class="flex flex-col sm:flex-row gap-5">
+            <img src="${m.cover}" class="w-36 h-48 object-cover rounded-xl mx-auto sm:mx-0 border border-zinc-700">
+            <div class="flex-1 space-y-2.5">
+              <div class="flex justify-between items-start gap-2">
+                <h2 class="text-2xl font-extrabold text-white">${m.title}</h2>
+                <button onclick="document.getElementById('detailModal').classList.add('hidden')" class="p-1.5 bg-zinc-800 rounded-lg"><i data-lucide="x" class="w-4 h-4"></i></button>
+              </div>
+              <p class="text-xs text-red-400 font-semibold">Author: ${m.author} • ${m.genre} • ${m.views.toLocaleString()} Views</p>
+              <p class="text-xs text-zinc-300 leading-relaxed">${m.desc}</p>
+              <div class="flex gap-2 pt-2">
+                <button onclick="openReader('${m.id}', 0)" class="bg-red-600 text-white px-4 py-2 rounded-xl text-xs font-bold">Start Reading</button>
+                <button onclick="toggleBookmark('${m.id}')" class="bg-zinc-800 px-4 py-2 rounded-xl text-xs font-semibold ${isSaved ? 'text-amber-400' : 'text-zinc-200'}">${isSaved ? '★ Bookmarked' : '+ Bookmark'}</button>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="font-bold text-sm mb-2">Chapters (${m.chapters.length})</h3>
+            <div class="space-y-2 max-h-48 overflow-y-auto">
+              ${m.chapters.map((c, idx) => `
+                <div onclick="openReader('${m.id}', ${idx})" class="flex items-center justify-between p-3 rounded-xl bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 cursor-pointer">
+                  <span class="text-xs font-semibold">${c.title}</span>
+                  <span class="text-[11px] text-red-400 font-bold">Read →</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="border-t border-zinc-800 pt-4 space-y-3">
+            <h3 class="font-bold text-xs uppercase tracking-wider text-zinc-400">Reader Comments</h3>
+            <div class="flex gap-2">
+              <input id="commentInput" placeholder="Write a comment..." class="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs">
+              <button onclick="postComment('${m.title}')" class="bg-red-600 px-4 py-2 rounded-xl text-xs font-bold">Post</button>
+            </div>
+            <div class="space-y-2 max-h-32 overflow-y-auto">
+              ${comments.filter(c => c.manga === m.title).map(c => `<div class="bg-zinc-950 p-2.5 rounded-lg text-xs"><b class="text-red-400">${c.user}:</b> ${c.text}</div>`).join('') || '<p class="text-xs text-zinc-500">No comments yet.</p>'}
+            </div>
+          </div>
+        </div>`;
+      document.getElementById('detailModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function toggleBookmark(id) {
+      bookmarks = bookmarks.includes(id) ? bookmarks.filter(x => x !== id) : [...bookmarks, id];
+      saveData(); openDetail(id);
+    }
+
+    function postComment(mangaTitle) {
+      const inp = document.getElementById('commentInput');
+      if (!inp.value.trim()) return;
+      comments.unshift({ id: Date.now(), manga: mangaTitle, user: 'Reader', text: inp.value.trim() });
+      saveData();
+      const m = mangaList.find(x => x.title === mangaTitle);
+      if (m) openDetail(m.id);
+    }
+        function openReader(mangaId, chIdx) {
+      activeManga = mangaList.find(x => x.id === mangaId);
+      if (!activeManga || !activeManga.chapters[chIdx]) return alert('Is manga mein abhi chapters nahi hain!');
+      activeChapterIdx = chIdx; currentPageIdx = 0;
+      activeManga.views += 1; saveData();
+      document.getElementById('detailModal').classList.add('hidden');
+      document.getElementById('readerModal').classList.remove('hidden');
+      renderReaderPages();
+    }
+
+    function renderReaderPages() {
+      const ch = activeManga.chapters[activeChapterIdx];
+      document.getElementById('readerMangaTitle').innerText = activeManga.title;
+      document.getElementById('readerChapterTitle').innerText = ch.title;
+      const canvas = document.getElementById('readerCanvas');
+      if (readMode === 'scroll') {
+        document.getElementById('modeToggleBtn').innerText = 'Webtoon Scroll';
+        document.getElementById('pageIndicator').innerText = `${ch.pages.length} Pages`;
+        canvas.innerHTML = ch.pages.map(p => `<img src="${p}" class="w-full max-w-2xl block">`).join('');
+      } else {
+        document.getElementById('modeToggleBtn').innerText = 'Page Mode';
+        document.getElementById('pageIndicator').innerText = `Page ${currentPageIdx + 1} / ${ch.pages.length}`;
+        canvas.innerHTML = `<img onclick="nextPage()" src="${ch.pages[currentPageIdx]}" class="max-h-full max-w-2xl object-contain my-auto cursor-pointer">`;
+      }
+      canvas.scrollTop = 0;
+    }
+
+    function toggleReadMode() { readMode = readMode === 'scroll' ? 'page' : 'scroll'; renderReaderPages(); }
+    function nextPage() {
+      const total = activeManga.chapters[activeChapterIdx].pages.length;
+      if (currentPageIdx < total - 1) { currentPageIdx++; renderReaderPages(); }
+    }
+    function prevChapter() { if (activeChapterIdx > 0) { activeChapterIdx--; currentPageIdx = 0; renderReaderPages(); } }
+    function nextChapter() { if (activeChapterIdx < activeManga.chapters.length - 1) { activeChapterIdx++; currentPageIdx = 0; renderReaderPages(); } }
+    function closeReader() { document.getElementById('readerModal').classList.add('hidden'); }
+
+    const toBase64 = file => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(file); });
+
+    async function createNewManga(e) {
+      e.preventDefault();
+      const file = document.getElementById('newCoverFile').files[0];
+      let cover = document.getElementById('newCoverUrl').value.trim();
+      if (file) cover = await toBase64(file);
+      if (!cover) cover = makePage('#991b1b', document.getElementById('newTitle').value.toUpperCase(), 'MANGA 99 CREATOR');
+
+      const newM = {
+        id: 'm' + Date.now(),
+        title: document.getElementById('newTitle').value.trim(),
+        author: document.getElementById('newAuthor').value.trim(),
+        genre: document.getElementById('newGenre').value,
+        desc: document.getElementById('newDesc').value.trim(),
+        cover, featured: false, views: 1,
+        chapters: [{ id: 'c' + Date.now(), title: 'Chapter 1: Pilot', pages: [cover] }]
+      };
+      mangaList.unshift(newM); saveData(); e.target.reset();
+      alert('Badhai ho! Aapki Manga publish ho gayi hai!');
+      switchTab('home');
+    }
+
+    function populateStudioSelect() {
+      document.getElementById('chapterMangaSelect').innerHTML = mangaList.map(m => `<option value="${m.id}">${m.title}</option>`).join('');
+    }
+
+    async function addChapterToManga(e) {
+      e.preventDefault();
+      const m = mangaList.find(x => x.id === document.getElementById('chapterMangaSelect').value);
+      const files = Array.from(document.getElementById('chapterPagesInput').files);
+      const pages = await Promise.all(files.map(f => toBase64(f)));
+      m.chapters.push({ id: 'c' + Date.now(), title: document.getElementById('chapterTitle').value.trim(), pages });
+      saveData(); e.target.reset();
+      alert('Naya Chapter successfully publish ho gaya!');
+      switchTab('home');
+    }
+
+    function renderLibrary() {
+      const saved = mangaList.filter(m => bookmarks.includes(m.id));
+      document.getElementById('libraryGrid').innerHTML = saved.length ? saved.map(m => `
+        <div onclick="openDetail('${m.id}')" class="manga-card bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden cursor-pointer">
+          <img src="${m.cover}" class="w-full aspect-[3/4] object-cover">
+          <div class="p-3"><h3 class="font-bold text-xs truncate">${m.title}</h3></div>
+        </div>`).join('') : '<p class="text-xs text-zinc-400 col-span-full">Aapki library abhi khaali hai.</p>';
+    }
+
+    // ADMIN PANEL LOGIC (PIN: 2010)
+    function openAdminGate() {
+      document.getElementById('adminPinInput').value = '';
+      document.getElementById('pinModal').classList.remove('hidden');
+      setTimeout(() => document.getElementById('adminPinInput').focus(), 100);
+    }
+    function closePinModal() { document.getElementById('pinModal').classList.add('hidden'); }
+    function verifyAdminPin() {
+      if (document.getElementById('adminPinInput').value === '2010') {
+        closePinModal(); switchTab('admin');
+      } else {
+        alert('Galat PIN! Sahi Admin PIN daalein.');
+      }
+    }
+
+    function renderAdmin() {
+      const totalCh = mangaList.reduce((a, b) => a + b.chapters.length, 0);
+      const totalViews = mangaList.reduce((a, b) => a + b.views, 0);
+      document.getElementById('adminStats').innerHTML = `
+        <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-xl"><p class="text-[11px] text-zinc-400">Total Manga</p><p class="text-2xl font-extrabold text-white">${mangaList.length}</p></div>
+        <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-xl"><p class="text-[11px] text-zinc-400">Total Chapters</p><p class="text-2xl font-extrabold text-red-400">${totalCh}</p></div>
+        <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-xl"><p class="text-[11px] text-zinc-400">Total Views</p><p class="text-2xl font-extrabold text-amber-400">${totalViews.toLocaleString()}</p></div>
+        <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-xl"><p class="text-[11px] text-zinc-400">Comments</p><p class="text-2xl font-extrabold text-emerald-400">${comments.length}</p></div>
+      `;
+
+      document.getElementById('adminMangaTable').innerHTML = mangaList.map(m => `
+        <tr>
+          <td class="py-2.5 font-semibold text-white">${m.title}</td>
+          <td class="text-zinc-400">${m.author}</td>
+          <td>${m.genre}</td>
+          <td>${m.chapters.length}</td>
+          <td><button onclick="setFeatured('${m.id}')" class="px-2 py-0.5 rounded text-[10px] font-bold ${m.featured ? 'bg-amber-500 text-black' : 'bg-zinc-800 text-zinc-400'}">${m.featured ? '★ Featured' : 'Make Featured'}</button></td>
+          <td class="text-right"><button onclick="deleteManga('${m.id}')" class="text-red-400 hover:underline font-semibold">Delete</button></td>
+        </tr>
+      `).join('');
+
+      document.getElementById('adminCommentsList').innerHTML = comments.map(c => `
+        <div class="flex items-center justify-between bg-zinc-950 p-2.5 rounded-lg">
+          <span><b class="text-amber-400">[${c.manga}]</b> ${c.user}: ${c.text}</span>
+          <button onclick="deleteComment(${c.id})" class="text-red-400 font-bold">Delete</button>
+        </div>
+      `).join('') || '<p class="text-zinc-500">No comments to moderate.</p>';
+    }
+
+    function setFeatured(id) { mangaList.forEach(m => m.featured = (m.id === id)); saveData(); renderAdmin(); }
+    function deleteManga(id) { if(confirm('Delete this manga?')) { mangaList = mangaList.filter(m => m.id !== id); saveData(); renderAdmin(); } }
+    function deleteComment(id) { comments = comments.filter(c => c.id !== id); saveData(); renderAdmin(); }
+    function resetDemoData() { if(confirm('Reset all data to default?')) { localStorage.clear(); location.reload(); } }
+    function openAppGuide() { document.getElementById('appGuideModal').classList.remove('hidden'); lucide.createIcons(); }
+
+    renderHome();
+  </script>
+</body>
+</html>

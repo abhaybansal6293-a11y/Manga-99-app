@@ -3,476 +3,537 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>Manga 99 — Live Social Manga Feed</title>
+  <title>Manga 99 — Read & Publish Manga Live</title>
   <meta name="application-name" content="Manga 99" />
-  <meta name="theme-color" content="#000000" />
+  <meta name="theme-color" content="#09090b" />
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-    body { background: #000000; color: #ffffff; font-family: 'Plus Jakarta Sans', sans-serif; overscroll-behavior-y: none; user-select: none; }
+    body { background: #09090b; color: #fafafa; font-family: 'Plus Jakarta Sans', sans-serif; overscroll-behavior-y: none; user-select: none; }
     input, textarea, select { user-select: text; }
     .brand-font { font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.05em; }
-    .glass-bar { background: rgba(10, 10, 12, 0.92); backdrop-filter: blur(16px); border-color: #1f1f23; }
+    .glass-bar { background: rgba(9, 9, 11, 0.92); backdrop-filter: blur(16px); border-color: #27272a; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    @keyframes heartPop { 0% { transform: scale(0); opacity: 0; } 50% { transform: scale(1.25); opacity: 1; } 100% { transform: scale(1); opacity: 0; } }
-    .heart-burst { animation: heartPop 0.7s ease-out forwards; }
+    .manga-card:active { transform: scale(0.97); }
   </style>
 </head>
-<body class="min-h-screen pb-20">
+<body class="min-h-screen pb-24">
   <!-- TOP HEADER -->
-  <header class="glass-bar sticky top-0 z-40 border-b px-4 py-2.5">
-    <div class="max-w-lg mx-auto flex items-center justify-between">
-      <div onclick="switchTab('feed')" class="flex items-center gap-2 cursor-pointer">
-        <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 via-red-600 to-purple-600 flex items-center justify-center font-black text-sm">99</div>
+  <header class="glass-bar sticky top-0 z-40 border-b px-4 py-3">
+    <div class="max-w-3xl mx-auto flex items-center justify-between">
+      <div onclick="switchTab('home')" class="flex items-center gap-2.5 cursor-pointer">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-red-600 to-rose-700 flex items-center justify-center font-black text-base shadow-lg shadow-red-600/30">99</div>
         <div>
-          <span class="brand-font text-2xl leading-none tracking-wider">MANGA <span class="text-red-500">99</span></span>
-          <span id="cloudStatus" class="block text-[9px] font-bold uppercase tracking-widest text-emerald-400">Live Online</span>
+          <span class="brand-font text-2xl leading-none tracking-wider block">MANGA <span class="text-red-500">99</span></span>
+          <span id="cloudStatus" class="block text-[9px] font-bold uppercase tracking-widest text-emerald-400">Live Cloud ✓</span>
         </div>
       </div>
 
-      <div class="flex items-center gap-3">
-        <button onclick="fetchLivePosts(true)" class="p-2 rounded-full bg-zinc-900 text-zinc-300 active:scale-90 transition" title="Refresh Feed">
+      <div class="flex items-center gap-2">
+        <button onclick="fetchLiveManga(true)" class="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 active:scale-90 transition" title="Sync Live">
           <i data-lucide="refresh-cw" class="w-4 h-4"></i>
         </button>
-        <button onclick="openAdminGate()" class="px-2.5 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-[11px] font-bold flex items-center gap-1">
+        <button onclick="openAdminGate()" class="px-3 py-1.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-bold flex items-center gap-1.5">
           <i data-lucide="shield" class="w-3.5 h-3.5"></i> Admin
         </button>
       </div>
     </div>
   </header>
 
-  <!-- MAIN CONTAINER (MOBILE INSTAGRAM WIDTH) -->
-  <main class="max-w-lg mx-auto">
-    <!-- FEED VIEW -->
-    <section id="view-feed" class="space-y-1">
-      <!-- Genre Stories Row -->
-      <div id="storyGenres" class="flex items-center gap-3 overflow-x-auto no-scrollbar px-3 py-3 border-b border-zinc-900"></div>
+  <main class="max-w-3xl mx-auto px-4 pt-4">
+    <!-- HOME VIEW -->
+    <section id="view-home" class="space-y-5">
+      <!-- Featured Hero Card -->
+      <div id="heroBanner" class="relative rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-900 h-48 flex items-end p-4 cursor-pointer"></div>
 
-      <!-- Instagram Style Posts Stream -->
-      <div id="instaFeedStream" class="divide-y divide-zinc-900"></div>
+      <!-- Genre Filter Chips -->
+      <div id="genreChips" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1"></div>
+
+      <!-- Section Heading -->
+      <div class="flex items-center justify-between">
+        <h2 class="text-base font-extrabold tracking-tight flex items-center gap-2">
+          <i data-lucide="flame" class="w-4 h-4 text-red-500"></i> Latest Manga Releases
+        </h2>
+        <span id="totalMangaCount" class="text-xs text-zinc-400 font-semibold"></span>
+      </div>
+
+      <!-- Classic 2-Column Manga Cover Grid -->
+      <div id="mangaGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-3.5"></div>
     </section>
         <!-- SEARCH VIEW -->
-    <section id="view-search" class="hidden p-4 space-y-4">
+    <section id="view-search" class="hidden space-y-4">
       <div class="relative">
         <i data-lucide="search" class="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-        <input id="searchBox" oninput="renderSearchGrid()" type="text" placeholder="Search manga, creator, genre..."
-          class="w-full bg-zinc-900 border border-zinc-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white focus:outline-none focus:border-red-500">
+        <input id="searchInput" oninput="renderSearch()" type="text" placeholder="Search manga title, author or genre..."
+          class="w-full bg-zinc-900 border border-zinc-800 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:border-red-500">
       </div>
-      <div id="exploreGrid" class="grid grid-cols-3 gap-1"></div>
+      <div id="searchResults" class="grid grid-cols-2 sm:grid-cols-3 gap-3.5"></div>
     </section>
 
-    <!-- UPLOAD / PUBLISH VIEW -->
-    <section id="view-upload" class="hidden p-4 space-y-5">
-      <div class="bg-zinc-950 border border-zinc-800 rounded-2xl p-4 space-y-4">
-        <h2 class="text-lg font-extrabold flex items-center gap-2">
-          <i data-lucide="plus-square" class="w-5 h-5 text-red-500"></i> New Manga / Photo Post
-        </h2>
-        <p class="text-xs text-zinc-400">Aapki post turant sabhi users ke feed mein live dikhegi.</p>
+    <!-- PUBLISH / UPLOAD VIEW -->
+    <section id="view-publish" class="hidden space-y-5">
+      <div class="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-4 space-y-4">
+        <div class="flex gap-2 p-1 bg-zinc-950 rounded-xl border border-zinc-800">
+          <button type="button" id="modeNewBtn" onclick="setPublishMode('new')" class="flex-1 py-2 rounded-lg text-xs font-bold bg-red-600 text-white">New Manga Series</button>
+          <button type="button" id="modeChapBtn" onclick="setPublishMode('chapter')" class="flex-1 py-2 rounded-lg text-xs font-bold text-zinc-400">Add Chapter</button>
+        </div>
 
-        <form onsubmit="publishLivePost(event)" class="space-y-3.5">
+        <!-- Form 1: New Manga Series -->
+        <form id="newMangaForm" onsubmit="publishNewManga(event)" class="space-y-3.5">
           <div>
-            <label class="text-xs font-semibold text-zinc-300">Creator Name *</label>
-            <input id="postAuthor" required placeholder="e.g. Abhay" class="mt-1 w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-sm focus:border-red-500 focus:outline-none">
-          </div>
-          <div>
-            <label class="text-xs font-semibold text-zinc-300">Manga Title / Caption *</label>
-            <input id="postTitle" required placeholder="e.g. Shadow Monarch Ep 1" class="mt-1 w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-sm focus:border-red-500 focus:outline-none">
+            <label class="text-xs font-semibold text-zinc-300">Manga Title *</label>
+            <input id="mTitle" required placeholder="e.g. Solo Leveling: Rise" class="mt-1 w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-sm focus:border-red-500 focus:outline-none">
           </div>
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="text-xs font-semibold text-zinc-300">Genre</label>
-              <select id="postGenre" class="mt-1 w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2.5 text-sm">
-                <option>Action</option><option>Fantasy</option><option>Romance</option><option>Thriller</option><option>Art</option>
-              </select>
+              <label class="text-xs font-semibold text-zinc-300">Author / Creator *</label>
+              <input id="mAuthor" required placeholder="e.g. Abhay" class="mt-1 w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-sm focus:border-red-500 focus:outline-none">
             </div>
             <div>
-              <label class="text-xs font-semibold text-zinc-300">Select Photos (1 ya Zyada) *</label>
-              <input id="postImages" type="file" accept="image/*" multiple required class="mt-1 w-full text-xs text-zinc-400 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-red-600 file:text-white file:font-bold">
+              <label class="text-xs font-semibold text-zinc-300">Genre</label>
+              <select id="mGenre" class="mt-1 w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2.5 text-sm">
+                <option>Action</option><option>Fantasy</option><option>Romance</option><option>Thriller</option><option>Sci-Fi</option>
+              </select>
             </div>
           </div>
           <div>
-            <label class="text-xs font-semibold text-zinc-300">Story / Description</label>
-            <textarea id="postCaption" rows="2" placeholder="Kahani ya chapter ke baare mein likhein..." class="mt-1 w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-2 text-sm focus:border-red-500 focus:outline-none"></textarea>
+            <label class="text-xs font-semibold text-zinc-300">Story Description</label>
+            <textarea id="mDesc" rows="2" placeholder="Write a short summary..." class="mt-1 w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2 text-sm focus:border-red-500 focus:outline-none"></textarea>
           </div>
-          <button id="publishSubmitBtn" type="submit" class="w-full bg-gradient-to-r from-red-600 via-rose-600 to-amber-500 text-white font-extrabold py-3 rounded-xl shadow-lg">
-            Share Live to Everyone
+          <div>
+            <label class="text-xs font-semibold text-zinc-300">Cover Image *</label>
+            <input id="mCover" type="file" accept="image/*" required class="mt-1 w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-3.5 file:rounded-lg file:border-0 file:bg-red-600 file:text-white file:font-bold">
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-zinc-300">Chapter 1 Pages (Select Multiple Photos) *</label>
+            <input id="mPages" type="file" accept="image/*" multiple required class="mt-1 w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-3.5 file:rounded-lg file:border-0 file:bg-zinc-800 file:text-white file:font-bold">
+          </div>
+          <button id="pubBtn1" type="submit" class="w-full bg-red-600 hover:bg-red-500 text-white font-extrabold py-3 rounded-xl shadow-lg shadow-red-600/25">
+            Publish Manga Live
+          </button>
+        </form>
+
+        <!-- Form 2: Add Chapter to Existing Manga -->
+        <form id="addChapterForm" onsubmit="publishNewChapter(event)" class="hidden space-y-3.5">
+          <div>
+            <label class="text-xs font-semibold text-zinc-300">Select Manga *</label>
+            <select id="targetMangaSelect" class="mt-1 w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-sm"></select>
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-zinc-300">Chapter Name / Number *</label>
+            <input id="cTitle" required placeholder="e.g. Chapter 2: Awakening" class="mt-1 w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-sm">
+          </div>
+          <div>
+            <label class="text-xs font-semibold text-zinc-300">Chapter Pages (Select Multiple Photos) *</label>
+            <input id="cPages" type="file" accept="image/*" multiple required class="mt-1 w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-3.5 file:rounded-lg file:border-0 file:bg-red-600 file:text-white file:font-bold">
+          </div>
+          <button id="pubBtn2" type="submit" class="w-full bg-red-600 text-white font-extrabold py-3 rounded-xl">
+            Upload Chapter Live
           </button>
         </form>
       </div>
     </section>
 
-    <!-- SAVED VIEW -->
-    <section id="view-saved" class="hidden p-4 space-y-3">
-      <h2 class="text-base font-bold flex items-center gap-2"><i data-lucide="bookmark" class="w-4 h-4 text-red-500"></i> Saved Posts</h2>
-      <div id="savedGrid" class="grid grid-cols-3 gap-1"></div>
+    <!-- LIBRARY / BOOKMARKS VIEW -->
+    <section id="view-library" class="hidden space-y-4">
+      <h2 class="text-base font-extrabold flex items-center gap-2"><i data-lucide="bookmark" class="w-4 h-4 text-red-500"></i> Bookmarked Manga</h2>
+      <div id="libraryGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-3.5"></div>
     </section>
 
-    <!-- ADMIN VIEW (PIN: 2010) -->
-    <section id="view-admin" class="hidden p-4 space-y-4">
+    <!-- ADMIN PANEL VIEW (PIN: 2010) -->
+    <section id="view-admin" class="hidden space-y-4">
       <div class="flex items-center justify-between bg-amber-500/10 border border-amber-500/30 p-3.5 rounded-2xl">
         <div>
-          <p class="text-[10px] font-bold uppercase text-amber-400">Admin Panel (PIN: 2010)</p>
-          <h2 class="text-base font-bold">Live Feed Control</h2>
+          <p class="text-[10px] font-bold uppercase text-amber-400">Admin Dashboard (PIN: 2010)</p>
+          <h2 class="text-base font-bold">Manage Live Manga Series</h2>
         </div>
-        <button onclick="switchTab('feed')" class="px-3 py-1.5 bg-red-600 rounded-lg text-xs font-bold">Exit</button>
+        <button onclick="switchTab('home')" class="px-3 py-1.5 bg-red-600 rounded-lg text-xs font-bold">Exit</button>
       </div>
-      <div id="adminList" class="space-y-2"></div>
+      <div id="adminMangaList" class="space-y-2.5"></div>
     </section>
   </main>
-    <!-- COMMENTS BOTTOM SHEET -->
-  <div id="commentsModal" class="fixed inset-0 z-50 hidden bg-black/80 flex items-end justify-center">
-    <div class="bg-zinc-950 border-t border-zinc-800 w-full max-w-lg rounded-t-3xl p-4 space-y-3 max-h-[75vh] flex flex-col">
-      <div class="flex items-center justify-between border-b border-zinc-800 pb-2.5">
-        <h3 class="font-bold text-sm">Live Comments</h3>
-        <button onclick="closeComments()" class="p-1 bg-zinc-900 rounded-full"><i data-lucide="x" class="w-4 h-4"></i></button>
-      </div>
-      <div id="commentsContainer" class="flex-1 overflow-y-auto space-y-2.5 text-xs py-1"></div>
-      <form onsubmit="submitComment(event)" class="flex gap-2 pt-2 border-t border-zinc-800">
-        <input id="newCommentText" required placeholder="Add a comment..." class="flex-1 bg-zinc-900 border border-zinc-800 rounded-full px-4 py-2 text-xs focus:outline-none">
-        <button type="submit" class="bg-red-600 px-4 py-2 rounded-full text-xs font-bold">Post</button>
-      </form>
+    <!-- MANGA DETAIL & CHAPTER LIST MODAL -->
+  <div id="detailModal" class="fixed inset-0 z-50 hidden bg-black/85 overflow-y-auto p-4">
+    <div class="bg-zinc-950 border border-zinc-800 max-w-lg mx-auto rounded-2xl overflow-hidden my-4">
+      <div id="detailContent"></div>
     </div>
   </div>
 
-  <!-- FULLSCREEN WEBTOON READER MODAL -->
+  <!-- FULLSCREEN VERTICAL WEBTOON READER -->
   <div id="readerModal" class="fixed inset-0 z-50 hidden bg-black flex flex-col">
     <div class="glass-bar border-b px-4 py-2.5 flex items-center justify-between">
-      <button onclick="document.getElementById('readerModal').classList.add('hidden')" class="flex items-center gap-1 text-xs font-bold bg-zinc-900 px-3 py-1.5 rounded-full">
-        <i data-lucide="arrow-left" class="w-4 h-4"></i> Back
+      <button onclick="document.getElementById('readerModal').classList.add('hidden')" class="flex items-center gap-1.5 text-xs font-bold bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-xl">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i> Chapters
       </button>
-      <p id="readerTitle" class="text-xs font-bold truncate max-w-[200px]"></p>
-      <span id="readerCount" class="text-[11px] text-red-400 font-bold"></span>
+      <p id="readerHeaderTitle" class="text-xs font-bold truncate max-w-[190px]"></p>
+      <span id="readerPageCount" class="text-[11px] text-red-400 font-bold"></span>
     </div>
-    <div id="readerScrollArea" class="flex-1 overflow-y-auto flex flex-col items-center bg-black"></div>
+    <div id="readerPagesBox" class="flex-1 overflow-y-auto flex flex-col items-center bg-black"></div>
   </div>
 
   <!-- ADMIN PIN MODAL -->
   <div id="pinModal" class="fixed inset-0 z-50 hidden bg-black/85 flex items-center justify-center p-4">
     <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 max-w-xs w-full text-center space-y-4">
       <h3 class="font-bold text-base">Enter Admin PIN</h3>
-      <input id="pinInput" type="password" maxlength="6" placeholder="••••" class="w-full text-center tracking-[0.5em] text-xl font-bold bg-black border border-zinc-800 rounded-xl py-3">
+      <input id="pinInput" type="password" maxlength="6" placeholder="••••" class="w-full text-center tracking-[0.5em] text-xl font-bold bg-zinc-950 border border-zinc-800 rounded-xl py-3">
       <div class="flex gap-2">
         <button onclick="document.getElementById('pinModal').classList.add('hidden')" class="flex-1 py-2.5 rounded-xl bg-zinc-800 text-xs font-semibold">Cancel</button>
-        <button onclick="checkAdminPin()" class="flex-1 py-2.5 rounded-xl bg-amber-500 text-black text-xs font-bold">Unlock</button>
+        <button onclick="verifyAdminPin()" class="flex-1 py-2.5 rounded-xl bg-amber-500 text-black text-xs font-bold">Unlock</button>
       </div>
     </div>
   </div>
 
-  <!-- INSTAGRAM STYLE BOTTOM NAV -->
+  <!-- BOTTOM NAVIGATION BAR -->
   <nav class="fixed bottom-0 inset-x-0 glass-bar border-t z-40">
-    <div class="max-w-lg mx-auto flex justify-around py-2.5">
-      <button onclick="switchTab('feed')" class="text-white"><i data-lucide="home" class="w-6 h-6"></i></button>
-      <button onclick="switchTab('search')" class="text-zinc-400"><i data-lucide="search" class="w-6 h-6"></i></button>
-      <button onclick="switchTab('upload')" class="text-red-500"><i data-lucide="plus-square" class="w-6 h-6"></i></button>
-      <button onclick="switchTab('saved')" class="text-zinc-400"><i data-lucide="bookmark" class="w-6 h-6"></i></button>
+    <div class="max-w-lg mx-auto flex justify-around py-2">
+      <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center gap-0.5 text-red-500">
+        <i data-lucide="home" class="w-5 h-5"></i><span class="text-[10px] font-bold">Home</span>
+      </button>
+      <button onclick="switchTab('search')" id="nav-search" class="flex flex-col items-center gap-0.5 text-zinc-400">
+        <i data-lucide="search" class="w-5 h-5"></i><span class="text-[10px] font-bold">Search</span>
+      </button>
+      <button onclick="switchTab('publish')" id="nav-publish" class="flex flex-col items-center gap-0.5 text-zinc-400">
+        <i data-lucide="plus-circle" class="w-5 h-5"></i><span class="text-[10px] font-bold">Publish</span>
+      </button>
+      <button onclick="switchTab('library')" id="nav-library" class="flex flex-col items-center gap-0.5 text-zinc-400">
+        <i data-lucide="bookmark" class="w-5 h-5"></i><span class="text-[10px] font-bold">Library</span>
+      </button>
     </div>
   </nav>
     <script>
-    const LIVE_DB_URL = "https://getpantry.cloud/apiv1/pantry/ab292eec-a5da-494c-a7cb-acebf987fda2/basket/manga99";
+    const LIVE_DB_URL = "https://getpantry.cloud/apiv1/pantry/ab292eec-a5da-494c-a7cb-acebf987fda2/basket/manga99_classic";
 
-    const makeDemoImg = (bg, t1, t2) => 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="950"><rect width="100%" height="100%" fill="${bg}"/><rect x="30" y="30" width="740" height="890" fill="none" stroke="white" stroke-width="5"/><text x="400" y="440" font-family="sans-serif" font-size="48" font-weight="900" fill="white" text-anchor="middle">${t1}</text><text x="400" y="510" font-family="sans-serif" font-size="24" fill="#e4e4e7" text-anchor="middle">${t2}</text></svg>`);
+    const svgCover = (bg, title, sub) => 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="600" height="850"><rect width="100%" height="100%" fill="${bg}"/><rect x="24" y="24" width="552" height="802" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="4"/><text x="300" y="390" font-family="sans-serif" font-size="40" font-weight="900" fill="white" text-anchor="middle">${title}</text><text x="300" y="450" font-family="sans-serif" font-size="20" fill="#e4e4e7" text-anchor="middle">${sub}</text></svg>`);
 
-    const STARTER_POSTS = [
+    const DEFAULT_MANGA = [
       {
-        id: 'p1', author: 'Abhay (Creator)', title: 'Shadow Monarch: Episode 1', genre: 'Action',
-        caption: 'Andhere se uthti ek nayi shakti! Read par tap karke poora chapter dekhein.',
-        likes: 124, time: 'Just now',
-        pages: [
-          makeDemoImg('#7f1d1d', 'SHADOW MONARCH', 'MANGA 99 EXCLUSIVE - PAGE 1'),
-          makeDemoImg('#18181b', 'CHAPTER 1 - PAGE 2', 'System Activated: Level 1!')
-        ],
-        comments: [{ user: 'Aryan', text: 'Bhai bilkul Instagram jaisa mast chal raha hai!' }]
+        id: 'm1',
+        title: 'Shadow Monarch',
+        author: 'Abhay (Creator)',
+        genre: 'Action',
+        desc: 'Ek kamzor hunter jise ek gupt system milta hai aur woh sabse taqatwar monarch banta hai.',
+        cover: svgCover('#7f1d1d', 'SHADOW MONARCH', 'MANGA 99 ORIGINAL'),
+        chapters: [
+          {
+            id: 'c1',
+            title: 'Chapter 1: The Awakening',
+            date: 'Today',
+            pages: [
+              svgCover('#18181b', 'CHAPTER 1 - PAGE 1', 'Dungeon Gate Opened!'),
+              svgCover('#450a0a', 'CHAPTER 1 - PAGE 2', 'System Quest Accepted.')
+            ]
+          }
+        ]
+      },
+      {
+        id: 'm2',
+        title: 'Crimson Blade',
+        author: 'Aoi Tanaka',
+        genre: 'Fantasy',
+        desc: 'Laal chand ki raat mein shuru hoti ek shrapit talwar ki kahani.',
+        cover: svgCover('#3b0764', 'CRIMSON BLADE', 'DARK FANTASY'),
+        chapters: [
+          {
+            id: 'c201',
+            title: 'Chapter 1: Blood Moon',
+            date: 'Today',
+            pages: [svgCover('#1e1b4b', 'CHAPTER 1 - PAGE 1', 'The Cursed Katana')]
+          }
+        ]
       }
     ];
 
-    let posts = JSON.parse(localStorage.getItem('m99_insta_posts')) || STARTER_POSTS;
-    let likedIds = JSON.parse(localStorage.getItem('m99_liked')) || [];
-    let savedIds = JSON.parse(localStorage.getItem('m99_saved')) || [];
-    let currentFilter = 'All';
-    let activeCommentPostId = null;
+    let mangaList = JSON.parse(localStorage.getItem('m99_classic_data')) || DEFAULT_MANGA;
+    let bookmarkedIds = JSON.parse(localStorage.getItem('m99_bookmarks')) || [];
+    let selectedGenre = 'All';
 
-    function setStatus(txt, cls) {
+    function updateStatus(text, colorClass) {
       const el = document.getElementById('cloudStatus');
-      if (el) { el.innerText = txt; el.className = `block text-[9px] font-bold uppercase tracking-widest ${cls}`; }
+      if (el) { el.innerText = text; el.className = `block text-[9px] font-bold uppercase tracking-widest ${colorClass}`; }
     }
-        async function fetchLivePosts(notify = false) {
-      setStatus('Syncing...', 'text-amber-400');
+        async function fetchLiveManga(showAlert = false) {
+      updateStatus('Syncing...', 'text-amber-400');
       try {
         const res = await fetch(LIVE_DB_URL);
         if (res.ok) {
           const data = await res.json();
-          if (data && Array.isArray(data.posts) && data.posts.length > 0) {
-            posts = data.posts;
-            localStorage.setItem('m99_insta_posts', JSON.stringify(posts));
+          if (data && Array.isArray(data.manga) && data.manga.length > 0) {
+            mangaList = data.manga;
+            localStorage.setItem('m99_classic_data', JSON.stringify(mangaList));
           } else {
-            await pushLivePosts();
+            await pushLiveManga();
           }
-          setStatus('Live Online ✓', 'text-emerald-400');
-          renderFeed();
-          if (notify) alert('Live Feed Updated!');
+          updateStatus('Live Cloud ✓', 'text-emerald-400');
+          renderHome();
+          if (showAlert) alert('Live Manga Library Updated!');
         } else {
-          await pushLivePosts();
-          renderFeed();
+          await pushLiveManga();
+          renderHome();
         }
       } catch (e) {
-        await pushLivePosts();
-        renderFeed();
+        await pushLiveManga();
+        renderHome();
       }
     }
 
-    async function pushLivePosts() {
-      setStatus('Uploading...', 'text-amber-400');
-      localStorage.setItem('m99_insta_posts', JSON.stringify(posts));
+    async function pushLiveManga() {
+      updateStatus('Uploading...', 'text-amber-400');
+      localStorage.setItem('m99_classic_data', JSON.stringify(mangaList));
       try {
         const res = await fetch(LIVE_DB_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ posts })
+          body: JSON.stringify({ manga: mangaList })
         });
         if (res.ok) {
-          setStatus('Live Online ✓', 'text-emerald-400');
+          updateStatus('Live Cloud ✓', 'text-emerald-400');
           return true;
         }
       } catch (e) { console.error(e); }
-      setStatus('Saved Local', 'text-zinc-400');
+      updateStatus('Saved Offline', 'text-zinc-400');
       return true;
     }
 
-    const compressPhoto = file => new Promise(resolve => {
-      const r = new FileReader();
-      r.onload = e => {
+    const compressImg = file => new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onload = e => {
         const img = new Image();
         img.onload = () => {
-          const c = document.createElement('canvas');
+          const canvas = document.createElement('canvas');
           const maxW = 600;
-          const sc = img.width > maxW ? maxW / img.width : 1;
-          c.width = img.width * sc; c.height = img.height * sc;
-          c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-          resolve(c.toDataURL('image/jpeg', 0.65));
+          const scale = img.width > maxW ? maxW / img.width : 1;
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+          resolve(canvas.toDataURL('image/jpeg', 0.65));
         };
         img.src = e.target.result;
       };
-      r.readAsDataURL(file);
+      reader.readAsDataURL(file);
     });
         function switchTab(tab) {
-      ['feed', 'search', 'upload', 'saved', 'admin'].forEach(t => document.getElementById('view-' + t).classList.add('hidden'));
+      ['home', 'search', 'publish', 'library', 'admin'].forEach(t => {
+        document.getElementById('view-' + t).classList.add('hidden');
+        const navBtn = document.getElementById('nav-' + t);
+        if (navBtn) navBtn.className = `flex flex-col items-center gap-0.5 ${t === tab ? 'text-red-500' : 'text-zinc-400'}`;
+      });
       document.getElementById('view-' + tab).classList.remove('hidden');
-      if (tab === 'feed') renderFeed();
-      if (tab === 'search') renderSearchGrid();
-      if (tab === 'saved') renderSavedGrid();
-      if (tab === 'admin') renderAdminList();
+      if (tab === 'home') renderHome();
+      if (tab === 'search') renderSearch();
+      if (tab === 'publish') populateMangaDropdown();
+      if (tab === 'library') renderLibrary();
+      if (tab === 'admin') renderAdmin();
       window.scrollTo(0, 0);
     }
 
-    function renderFeed() {
-      const genres = ['All', 'Action', 'Fantasy', 'Romance', 'Thriller', 'Art'];
-      document.getElementById('storyGenres').innerHTML = genres.map(g => `
-        <button onclick="currentFilter='${g}';renderFeed()" class="flex flex-col items-center gap-1 shrink-0">
-          <div class="p-[2px] rounded-full ${currentFilter===g ? 'bg-gradient-to-tr from-amber-500 via-red-600 to-purple-600' : 'bg-zinc-800'}">
-            <div class="w-14 h-14 rounded-full bg-zinc-950 flex items-center justify-center text-xs font-bold ${currentFilter===g ? 'text-white' : 'text-zinc-400'}">${g}</div>
-          </div>
-        </button>
+    function cardTemplate(m) {
+      return `
+      <div onclick="openMangaDetail('${m.id}')" class="manga-card bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden cursor-pointer transition">
+        <div class="relative aspect-[3/4] bg-zinc-950">
+          <img src="${m.cover}" class="w-full h-full object-cover">
+          <span class="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-md">${m.genre}</span>
+          <span class="absolute bottom-2 right-2 bg-black/80 text-zinc-200 text-[10px] font-bold px-2 py-0.5 rounded-md">${m.chapters.length} Ch</span>
+        </div>
+        <div class="p-2.5">
+          <h3 class="text-xs font-extrabold text-white truncate">${m.title}</h3>
+          <p class="text-[11px] text-zinc-400 truncate mt-0.5">by ${m.author}</p>
+        </div>
+      </div>`;
+    }
+
+    function renderHome() {
+      const top = mangaList[0];
+      if (top) {
+        document.getElementById('heroBanner').onclick = () => openMangaDetail(top.id);
+        document.getElementById('heroBanner').innerHTML = `
+          <img src="${top.cover}" class="absolute inset-0 w-full h-full object-cover opacity-45">
+          <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
+          <div class="relative z-10 space-y-1">
+            <span class="bg-red-600 text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full">Featured Release</span>
+            <h1 class="text-xl font-black text-white">${top.title}</h1>
+            <p class="text-xs text-zinc-300 line-clamp-1">${top.desc || 'Tap to read chapters now'}</p>
+          </div>`;
+      }
+
+      const genres = ['All', 'Action', 'Fantasy', 'Romance', 'Thriller', 'Sci-Fi'];
+      document.getElementById('genreChips').innerHTML = genres.map(g => `
+        <button onclick="selectedGenre='${g}';renderHome()" class="px-3.5 py-1.5 rounded-full text-xs font-bold shrink-0 ${selectedGenre === g ? 'bg-red-600 text-white' : 'bg-zinc-900 border border-zinc-800 text-zinc-400'}">${g}</button>
       `).join('');
 
-      const list = posts.filter(p => currentFilter === 'All' || p.genre === currentFilter);
-      document.getElementById('instaFeedStream').innerHTML = list.map(p => {
-        const isLiked = likedIds.includes(p.id);
-        const isSaved = savedIds.includes(p.id);
-        return `
-        <article class="py-3 space-y-2.5">
-          <!-- Post Header -->
-          <div class="px-3 flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
-              <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-red-600 to-amber-500 flex items-center justify-center font-bold text-xs">${p.author[0].toUpperCase()}</div>
-              <div class="leading-tight">
-                <p class="text-xs font-bold text-white">${p.author}</p>
-                <p class="text-[10px] text-zinc-400">${p.genre} • ${p.time || 'Live'}</p>
-              </div>
-            </div>
-            <button onclick="openChapterReader('${p.id}')" class="bg-red-600/20 text-red-400 border border-red-500/30 px-3 py-1 rounded-full text-[11px] font-bold">
-              Read (${p.pages.length} Pages)
-            </button>
-          </div>
-
-          <!-- Post Image (Double Tap to Like) -->
-          <div ondblclick="doubleTapLike('${p.id}', this)" class="relative bg-zinc-950 w-full aspect-[4/5] overflow-hidden flex items-center justify-center">
-            <img src="${p.pages[0]}" class="w-full h-full object-cover">
-            ${p.pages.length > 1 ? `<span class="absolute top-3 right-3 bg-black/75 px-2.5 py-1 rounded-full text-[10px] font-bold">1 / ${p.pages.length}</span>` : ''}
-            <div class="heart-overlay pointer-events-none absolute inset-0 flex items-center justify-center hidden">
-              <i data-lucide="heart" class="w-20 h-20 text-red-500 fill-red-500"></i>
-            </div>
-          </div>
-
-          <!-- Action Bar -->
-          <div class="px-3 flex items-center justify-between pt-1">
-            <div class="flex items-center gap-4">
-              <button onclick="toggleLike('${p.id}')" class="active:scale-125 transition">
-                <i data-lucide="heart" class="w-6 h-6 ${isLiked ? 'text-red-500 fill-red-500' : 'text-white'}"></i>
-              </button>
-              <button onclick="openComments('${p.id}')">
-                <i data-lucide="message-circle" class="w-6 h-6 text-white"></i>
-              </button>
-              <button onclick="openChapterReader('${p.id}')">
-                <i data-lucide="book-open" class="w-6 h-6 text-white"></i>
-              </button>
-            </div>
-            <button onclick="toggleSave('${p.id}')">
-              <i data-lucide="bookmark" class="w-6 h-6 ${isSaved ? 'text-amber-400 fill-amber-400' : 'text-white'}"></i>
-            </button>
-          </div>
-
-          <!-- Likes & Caption -->
-          <div class="px-3 space-y-1">
-            <p class="text-xs font-bold">${p.likes.toLocaleString()} likes</p>
-            <p class="text-xs text-zinc-200"><b class="text-white">${p.title}</b> — ${p.caption || ''}</p>
-            <button onclick="openComments('${p.id}')" class="text-[11px] text-zinc-400 block">
-              View all ${(p.comments || []).length} comments
-            </button>
-          </div>
-        </article>`;
-      }).join('');
+      const filtered = mangaList.filter(m => selectedGenre === 'All' || m.genre === selectedGenre);
+      document.getElementById('totalMangaCount').innerText = `${filtered.length} Series`;
+      document.getElementById('mangaGrid').innerHTML = filtered.map(cardTemplate).join('');
       lucide.createIcons();
     }
 
-    function doubleTapLike(id, box) {
-      const ov = box.querySelector('.heart-overlay');
-      ov.classList.remove('hidden');
-      ov.classList.add('heart-burst');
-      setTimeout(() => { ov.classList.add('hidden'); ov.classList.remove('heart-burst'); }, 700);
-      if (!likedIds.includes(id)) toggleLike(id);
+    function openMangaDetail(id) {
+      const m = mangaList.find(x => x.id === id);
+      if (!m) return;
+      const isSaved = bookmarkedIds.includes(m.id);
+      document.getElementById('detailContent').innerHTML = `
+        <div class="relative h-52 bg-zinc-900">
+          <img src="${m.cover}" class="w-full h-full object-cover opacity-40">
+          <div class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/50 to-transparent"></div>
+          <button onclick="document.getElementById('detailModal').classList.add('hidden')" class="absolute top-3 right-3 bg-black/70 p-2 rounded-full text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
+          <div class="absolute bottom-3 left-4 right-4 flex items-end gap-3.5">
+            <img src="${m.cover}" class="w-20 h-28 object-cover rounded-xl border border-zinc-700 shadow-lg">
+            <div class="flex-1 min-w-0">
+              <span class="text-[10px] font-bold uppercase text-red-400">${m.genre}</span>
+              <h2 class="text-lg font-black text-white truncate">${m.title}</h2>
+              <p class="text-xs text-zinc-400">by ${m.author}</p>
+            </div>
+          </div>
+        </div>
+        <div class="p-4 space-y-4">
+          <p class="text-xs text-zinc-300 leading-relaxed">${m.desc || 'No description provided.'}</p>
+          <div class="flex gap-2">
+            <button onclick="openReader('${m.id}', 0)" class="flex-1 bg-red-600 text-white font-bold py-2.5 rounded-xl text-xs">Read First Chapter</button>
+            <button onclick="toggleBookmark('${m.id}')" class="px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-bold ${isSaved ? 'text-amber-400' : 'text-white'}">
+              ${isSaved ? 'Bookmarked ✓' : '+ Bookmark'}
+            </button>
+          </div>
+          <div class="space-y-2">
+            <h3 class="text-xs font-bold uppercase text-zinc-400">Chapters (${m.chapters.length})</h3>
+            ${m.chapters.map((ch, idx) => `
+              <div onclick="openReader('${m.id}', ${idx})" class="flex items-center justify-between bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 p-3 rounded-xl cursor-pointer">
+                <div>
+                  <p class="text-xs font-bold text-white">${ch.title}</p>
+                  <p class="text-[10px] text-zinc-400">${ch.pages.length} Pages • ${ch.date || 'Live'}</p>
+                </div>
+                <span class="text-xs font-bold text-red-500">Read →</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>`;
+      document.getElementById('detailModal').classList.remove('hidden');
+      lucide.createIcons();
     }
 
-    async function toggleLike(id) {
-      const p = posts.find(x => x.id === id);
-      if (!p) return;
-      if (likedIds.includes(id)) {
-        likedIds = likedIds.filter(x => x !== id);
-        p.likes = Math.max(0, p.likes - 1);
-      } else {
-        likedIds.push(id);
-        p.likes += 1;
-      }
-      localStorage.setItem('m99_liked', JSON.stringify(likedIds));
-      renderFeed();
-      await pushLivePosts();
-    }
-
-    function toggleSave(id) {
-      savedIds = savedIds.includes(id) ? savedIds.filter(x => x !== id) : [...savedIds, id];
-      localStorage.setItem('m99_saved', JSON.stringify(savedIds));
-      renderFeed();
-    }
-
-    function openChapterReader(id) {
-      const p = posts.find(x => x.id === id);
-      if (!p) return;
-      document.getElementById('readerTitle').innerText = p.title;
-      document.getElementById('readerCount').innerText = `${p.pages.length} Pages`;
-      document.getElementById('readerScrollArea').innerHTML = p.pages.map(img => `<img src="${img}" class="w-full max-w-lg block">`).join('');
+    function openReader(mangaId, chIndex) {
+      const m = mangaList.find(x => x.id === mangaId);
+      const ch = m && m.chapters[chIndex];
+      if (!ch) return;
+      document.getElementById('readerHeaderTitle').innerText = `${m.title} - ${ch.title}`;
+      document.getElementById('readerPageCount').innerText = `${ch.pages.length} Pages`;
+      document.getElementById('readerPagesBox').innerHTML = ch.pages.map(src => `<img src="${src}" class="w-full max-w-2xl block">`).join('');
       document.getElementById('readerModal').classList.remove('hidden');
       lucide.createIcons();
     }
-        async function publishLivePost(e) {
+        function setPublishMode(mode) {
+      const isNew = mode === 'new';
+      document.getElementById('newMangaForm').classList.toggle('hidden', !isNew);
+      document.getElementById('addChapterForm').classList.toggle('hidden', isNew);
+      document.getElementById('modeNewBtn').className = `flex-1 py-2 rounded-lg text-xs font-bold ${isNew ? 'bg-red-600 text-white' : 'text-zinc-400'}`;
+      document.getElementById('modeChapBtn').className = `flex-1 py-2 rounded-lg text-xs font-bold ${!isNew ? 'bg-red-600 text-white' : 'text-zinc-400'}`;
+      if (!isNew) populateMangaDropdown();
+    }
+
+    function populateMangaDropdown() {
+      document.getElementById('targetMangaSelect').innerHTML = mangaList.map(m => `<option value="${m.id}">${m.title}</option>`).join('');
+    }
+
+    async function publishNewManga(e) {
       e.preventDefault();
-      const btn = document.getElementById('publishSubmitBtn');
-      btn.disabled = true; btn.innerText = 'Uploading Live...';
+      const btn = document.getElementById('pubBtn1');
+      btn.disabled = true; btn.innerText = 'Publishing Live...';
       try {
-        const files = Array.from(document.getElementById('postImages').files);
-        const pages = await Promise.all(files.map(f => compressPhoto(f)));
-        const newPost = {
-          id: 'p' + Date.now(),
-          author: document.getElementById('postAuthor').value.trim(),
-          title: document.getElementById('postTitle').value.trim(),
-          genre: document.getElementById('postGenre').value,
-          caption: document.getElementById('postCaption').value.trim(),
-          likes: 1,
-          time: 'Just now',
-          pages,
-          comments: []
-        };
-        posts.unshift(newPost);
-        await pushLivePosts();
+        const coverFile = document.getElementById('mCover').files[0];
+        const pageFiles = Array.from(document.getElementById('mPages').files);
+        const cover = await compressImg(coverFile);
+        const pages = await Promise.all(pageFiles.map(f => compressImg(f)));
+
+        mangaList.unshift({
+          id: 'm' + Date.now(),
+          title: document.getElementById('mTitle').value.trim(),
+          author: document.getElementById('mAuthor').value.trim(),
+          genre: document.getElementById('mGenre').value,
+          desc: document.getElementById('mDesc').value.trim(),
+          cover,
+          chapters: [{ id: 'c' + Date.now(), title: 'Chapter 1', date: 'Just now', pages }]
+        });
+        await pushLiveManga();
         e.target.reset();
-        alert('Post Live ho gayi! Ab sabhi users ko dikhegi.');
-        switchTab('feed');
+        alert('Manga Published Live for Everyone!');
+        switchTab('home');
       } finally {
-        btn.disabled = false; btn.innerText = 'Share Live to Everyone';
+        btn.disabled = false; btn.innerText = 'Publish Manga Live';
       }
     }
 
-    function openComments(id) {
-      activeCommentPostId = id;
-      const p = posts.find(x => x.id === id);
-      document.getElementById('commentsContainer').innerHTML = (p.comments || []).map(c => `
-        <div class="bg-zinc-900 p-2.5 rounded-xl"><b class="text-red-400">${c.user}:</b> ${c.text}</div>
-      `).join('') || '<p class="text-zinc-500 text-center py-6">No comments yet. Be first!</p>';
-      document.getElementById('commentsModal').classList.remove('hidden');
-      lucide.createIcons();
-    }
-    function closeComments() { document.getElementById('commentsModal').classList.add('hidden'); }
-
-    async function submitComment(e) {
+    async function publishNewChapter(e) {
       e.preventDefault();
-      const inp = document.getElementById('newCommentText');
-      const p = posts.find(x => x.id === activeCommentPostId);
-      if (!p || !inp.value.trim()) return;
-      if (!p.comments) p.comments = [];
-      p.comments.push({ user: 'Reader', text: inp.value.trim() });
-      inp.value = '';
-      openComments(activeCommentPostId);
-      renderFeed();
-      await pushLivePosts();
+      const btn = document.getElementById('pubBtn2');
+      btn.disabled = true; btn.innerText = 'Uploading Chapter...';
+      try {
+        const mId = document.getElementById('targetMangaSelect').value;
+        const m = mangaList.find(x => x.id === mId);
+        if (!m) return;
+        const pageFiles = Array.from(document.getElementById('cPages').files);
+        const pages = await Promise.all(pageFiles.map(f => compressImg(f)));
+        m.chapters.push({
+          id: 'c' + Date.now(),
+          title: document.getElementById('cTitle').value.trim(),
+          date: 'Just now',
+          pages
+        });
+        await pushLiveManga();
+        e.target.reset();
+        alert('New Chapter Added Live!');
+        switchTab('home');
+      } finally {
+        btn.disabled = false; btn.innerText = 'Upload Chapter Live';
+      }
     }
 
-    function renderSearchGrid() {
-      const q = (document.getElementById('searchBox').value || '').toLowerCase();
-      const res = posts.filter(p => p.title.toLowerCase().includes(q) || p.author.toLowerCase().includes(q) || p.genre.toLowerCase().includes(q));
-      document.getElementById('exploreGrid').innerHTML = res.map(p => `
-        <div onclick="openChapterReader('${p.id}')" class="aspect-square bg-zinc-900 overflow-hidden cursor-pointer relative">
-          <img src="${p.pages[0]}" class="w-full h-full object-cover">
-        </div>
-      `).join('');
+    function toggleBookmark(id) {
+      bookmarkedIds = bookmarkedIds.includes(id) ? bookmarkedIds.filter(x => x !== id) : [...bookmarkedIds, id];
+      localStorage.setItem('m99_bookmarks', JSON.stringify(bookmarkedIds));
+      openMangaDetail(id);
     }
 
-    function renderSavedGrid() {
-      const list = posts.filter(p => savedIds.includes(p.id));
-      document.getElementById('savedGrid').innerHTML = list.length ? list.map(p => `
-        <div onclick="openChapterReader('${p.id}')" class="aspect-square bg-zinc-900 overflow-hidden cursor-pointer">
-          <img src="${p.pages[0]}" class="w-full h-full object-cover">
-        </div>
-      `).join('') : '<p class="col-span-3 text-xs text-zinc-500 py-6 text-center">No saved posts yet.</p>';
+    function renderSearch() {
+      const q = (document.getElementById('searchInput').value || '').toLowerCase();
+      const res = mangaList.filter(m => m.title.toLowerCase().includes(q) || m.author.toLowerCase().includes(q) || m.genre.toLowerCase().includes(q));
+      document.getElementById('searchResults').innerHTML = res.map(cardTemplate).join('');
+    }
+
+    function renderLibrary() {
+      const saved = mangaList.filter(m => bookmarkedIds.includes(m.id));
+      document.getElementById('libraryGrid').innerHTML = saved.length
+        ? saved.map(cardTemplate).join('')
+        : '<p class="col-span-2 text-xs text-zinc-500 py-8 text-center">No bookmarked manga yet.</p>';
     }
 
     function openAdminGate() {
       document.getElementById('pinInput').value = '';
       document.getElementById('pinModal').classList.remove('hidden');
     }
-    function checkAdminPin() {
+    function verifyAdminPin() {
       if (document.getElementById('pinInput').value === '2010') {
         document.getElementById('pinModal').classList.add('hidden');
         switchTab('admin');
-      } else { alert('Wrong PIN!'); }
+      } else { alert('Wrong Admin PIN!'); }
     }
-    function renderAdminList() {
-      document.getElementById('adminList').innerHTML = posts.map(p => `
-        <div class="flex items-center justify-between bg-zinc-900 p-3 rounded-xl text-xs">
-          <div><p class="font-bold">${p.title}</p><p class="text-[10px] text-zinc-400">by ${p.author} • ${p.likes} likes</p></div>
-          <button onclick="adminDeletePost('${p.id}')" class="bg-red-600 px-3 py-1 rounded-lg font-bold">Delete</button>
+    function renderAdmin() {
+      document.getElementById('adminMangaList').innerHTML = mangaList.map(m => `
+        <div class="flex items-center justify-between bg-zinc-900 border border-zinc-800 p-3 rounded-xl text-xs">
+          <div><p class="font-bold text-white">${m.title}</p><p class="text-[10px] text-zinc-400">by ${m.author} • ${m.chapters.length} Chapters</p></div>
+          <button onclick="deleteMangaLive('${m.id}')" class="bg-red-600 px-3 py-1.5 rounded-lg font-bold">Delete</button>
         </div>
       `).join('');
     }
-    async function adminDeletePost(id) {
-      if (confirm('Delete this post for everyone?')) {
-        posts = posts.filter(p => p.id !== id);
-        renderAdminList();
-        await pushLivePosts();
+    async function deleteMangaLive(id) {
+      if (confirm('Delete this manga permanently for everyone?')) {
+        mangaList = mangaList.filter(m => m.id !== id);
+        renderAdmin();
+        await pushLiveManga();
       }
     }
 
-    fetchLivePosts();
+    fetchLiveManga();
   </script>
 </body>
 </html>

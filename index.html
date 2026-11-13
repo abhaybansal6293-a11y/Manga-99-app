@@ -484,8 +484,8 @@
       document.getElementById('readerModal').classList.remove('hidden');
       lucide.createIcons();
     }
-                    // =========================================================================
-    // MANGA 99 FINAL SUITE — PART 8A: SPLASH, SOUND, TOAST & CORE VARIABLES
+                        // =========================================================================
+    // PART 8: CORE VARIABLES, TOAST SYSTEM & PRO ANIME AUDIO
     // =========================================================================
     const USERS_DB_URL = "https://getpantry.cloud/apiv1/pantry/ab292eec-a5da-494c-a7cb-acebf987fda2/basket/manga99_users";
     const SOCIAL_DB_URL = "https://getpantry.cloud/apiv1/pantry/ab292eec-a5da-494c-a7cb-acebf987fda2/basket/manga99_social";
@@ -494,6 +494,7 @@
     let m99SoundMuted = localStorage.getItem('m99_muted') === '1';
     let m99History = JSON.parse(localStorage.getItem('m99_history')) || [];
     let socialData = { likes: {}, messages: [], online: {}, anime: [] };
+    let currentChatUser = '';
 
     function showAppToast(msg, isError = false) {
       let t = document.getElementById('m99Toast');
@@ -553,7 +554,9 @@
       showAppToast(m99SoundMuted ? 'Sound Muted' : 'Sound On');
       if (!m99SoundMuted) playProAnimeSound('click');
     }
-
+        // =========================================================================
+    // PART 9: PRO SPLASH SCREEN
+    // =========================================================================
     function upgradeProSplash() {
       const oldSplash = document.getElementById('splashScreen');
       if (oldSplash) oldSplash.remove();
@@ -596,7 +599,7 @@
       }, 1450);
     }
         // =========================================================================
-    // PART 8B: 100% WORKING SIGN UP, LOG IN & GUEST SYSTEM
+    // PART 10: AUTHENTICATION MODALS UI (WELCOME / SIGNUP / LOGIN)
     // =========================================================================
     function buildAuthModals() {
       if (document.getElementById('crAuthOverlay')) return;
@@ -682,7 +685,9 @@
       refreshHeaderUserUI();
       showAppToast('Guest Mode में स्वागत है!');
     }
-
+        // =========================================================================
+    // PART 11: FAIL-SAFE SIGN UP & LOG IN LOGIC
+    // =========================================================================
     async function getAllUsersSafe() {
       let localUsers = JSON.parse(localStorage.getItem('m99_local_users') || '[]');
       try {
@@ -774,13 +779,12 @@
       }
     }
         // =========================================================================
-    // PART 8C: BOTTOM NAV (SEARCH -> ANIME -> LIBRARY -> PROFILE) & INSTA PROFILE
+    // PART 12: CLEAN TOP HEADER & BOTTOM NAV (SEARCH -> ANIME -> PROFILE)
     // =========================================================================
     function buildHeaderAndProfileUI() {
       const authorInp = document.getElementById('mAuthor');
       if (authorInp) authorInp.placeholder = 'लेखक का नाम लिखें';
 
-      // ऊपर हेडर में सिर्फ़ छोटे आइकन (Sound और Direct Message) रखें ताकि Admin बटन पूरा दिखे
       const adminBtn = document.querySelector('button[onclick="openAdminGate()"]');
       if (adminBtn && !document.getElementById('chatHeaderBtn')) {
         const sBtn = document.createElement('button');
@@ -798,10 +802,8 @@
         adminBtn.parentNode.insertBefore(cBtn, adminBtn);
       }
 
-      // नीचे नेविगेशन बार को सेट करें: Home | Search | Anime | Publish | Library | Profile
       const bottomNav = document.querySelector('nav');
       if (bottomNav) {
-        // 1. Search बटन के ठीक बगल में Anime Episodes टैब डालें
         if (!document.getElementById('navAnimeBtn')) {
           const searchBtn = bottomNav.querySelector('button[onclick*="search"]');
           const aNav = document.createElement('button');
@@ -819,7 +821,6 @@
           }
         }
 
-        // 2. सबसे दाईं ओर कोने में Profile बटन डालें (नाम और DP के साथ)
         if (!document.getElementById('navProfileBtn')) {
           const pNav = document.createElement('button');
           pNav.id = 'navProfileBtn';
@@ -833,62 +834,7 @@
         }
       }
 
-      // इंस्टाग्राम जैसा Profile Modal
-      if (!document.getElementById('instaProfileModal')) {
-        const pm = document.createElement('div');
-        pm.id = 'instaProfileModal';
-        pm.className = 'fixed inset-0 z-[80] hidden bg-zinc-950 overflow-y-auto pb-24';
-        pm.innerHTML = `
-          <div class="sticky top-0 z-10 bg-zinc-950/95 backdrop-blur border-b border-zinc-800 px-4 py-3 flex items-center justify-between">
-            <button onclick="closeInstaProfile()" class="text-xs font-bold text-zinc-300">← Back</button>
-            <span id="profHeaderTitle" class="text-xs font-black tracking-wider text-white">PROFILE</span>
-            <button id="switchAccBtn" onclick="closeInstaProfile(); openWelcomeAuthScreen();" class="text-[11px] font-bold text-orange-400">Switch Account</button>
-          </div>
-
-          <div class="p-4 max-w-md mx-auto space-y-4">
-            <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 space-y-3.5">
-              <div class="flex items-center gap-4">
-                <div class="relative shrink-0">
-                  <div id="profAvatarBox" class="w-[74px] h-[74px] rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-2xl font-black text-white overflow-hidden border-2 border-orange-500">U</div>
-                  <span class="absolute bottom-0.5 right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-zinc-900"></span>
-                </div>
-                <div class="flex-1 min-w-0">
-                  <h2 id="profNameTxt" class="font-black text-base text-white truncate">User</h2>
-                  <p id="profBioTxt" class="text-xs text-zinc-400 mt-0.5 line-clamp-2">Manga Creator</p>
-                  <div class="flex gap-5 mt-2.5 text-[11px] font-bold">
-                    <div class="text-center"><b id="profMangaCount" class="text-sm text-white block">0</b><span class="text-zinc-400 text-[10px]">Posts</span></div>
-                    <div class="text-center"><b id="profTotalLikes" class="text-sm text-pink-500 block">0</b><span class="text-zinc-400 text-[10px]">Likes</span></div>
-                  </div>
-                </div>
-              </div>
-
-              <button id="editProfToggleBtn" onclick="toggleEditProfilePanel()" class="w-full py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-bold text-white border border-zinc-700">
-                Edit Profile
-              </button>
-
-              <button id="directMsgUserBtn" class="hidden w-full py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-xs font-extrabold text-white shadow-lg">
-                Message (Personal Chat)
-              </button>
-
-              <div id="editProfilePanel" class="hidden space-y-2.5 pt-3 border-t border-zinc-800">
-                <label class="block text-[11px] text-zinc-400 font-bold">नई प्रोफाइल फोटो चुनें:</label>
-                <input id="editAvatarFile" type="file" accept="image/*" class="w-full text-[11px] text-zinc-300">
-                <input id="editNameInp" type="text" placeholder="नया नाम लिखें" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white">
-                <textarea id="editBioInp" rows="2" placeholder="अपना बायो (Bio) लिखें..." class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white"></textarea>
-                <button id="saveProfileBtn" onclick="saveInstaProfile()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-white text-xs font-extrabold">
-                  Save Profile Changes
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <h3 class="text-xs font-extrabold text-zinc-300 uppercase tracking-wider mb-2.5">Uploaded Manga</h3>
-              <div id="myOwnMangaGrid" class="grid grid-cols-2 gap-3"></div>
-            </div>
-          </div>
-        `;
-        document.body.appendChild(pm);
-      }
+      buildInstaProfileModal();
       refreshHeaderUserUI();
     }
 
@@ -915,6 +861,65 @@
       } else {
         openInstaProfile(activeUser.name);
       }
+    }
+        // =========================================================================
+    // PART 13: INSTAGRAM-STYLE PROFILE PAGE & MANAGEMENT
+    // =========================================================================
+    function buildInstaProfileModal() {
+      if (document.getElementById('instaProfileModal')) return;
+      const pm = document.createElement('div');
+      pm.id = 'instaProfileModal';
+      pm.className = 'fixed inset-0 z-[80] hidden bg-zinc-950 overflow-y-auto pb-24';
+      pm.innerHTML = `
+        <div class="sticky top-0 z-10 bg-zinc-950/95 backdrop-blur border-b border-zinc-800 px-4 py-3 flex items-center justify-between">
+          <button onclick="closeInstaProfile()" class="text-xs font-bold text-zinc-300">← Back</button>
+          <span id="profHeaderTitle" class="text-xs font-black tracking-wider text-white">PROFILE</span>
+          <button id="switchAccBtn" onclick="closeInstaProfile(); openWelcomeAuthScreen();" class="text-[11px] font-bold text-orange-400">Switch Account</button>
+        </div>
+
+        <div class="p-4 max-w-md mx-auto space-y-4">
+          <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 space-y-3.5">
+            <div class="flex items-center gap-4">
+              <div class="relative shrink-0">
+                <div id="profAvatarBox" class="w-[74px] h-[74px] rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-2xl font-black text-white overflow-hidden border-2 border-orange-500">U</div>
+                <span class="absolute bottom-0.5 right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-zinc-900"></span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <h2 id="profNameTxt" class="font-black text-base text-white truncate">User</h2>
+                <p id="profBioTxt" class="text-xs text-zinc-400 mt-0.5 line-clamp-2">Manga Creator</p>
+                <div class="flex gap-5 mt-2.5 text-[11px] font-bold">
+                  <div class="text-center"><b id="profMangaCount" class="text-sm text-white block">0</b><span class="text-zinc-400 text-[10px]">Posts</span></div>
+                  <div class="text-center"><b id="profTotalLikes" class="text-sm text-pink-500 block">0</b><span class="text-zinc-400 text-[10px]">Likes</span></div>
+                </div>
+              </div>
+            </div>
+
+            <button id="editProfToggleBtn" onclick="toggleEditProfilePanel()" class="w-full py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-bold text-white border border-zinc-700">
+              Edit Profile
+            </button>
+
+            <button id="directMsgUserBtn" class="hidden w-full py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-xs font-extrabold text-white shadow-lg">
+              Message (Personal Chat)
+            </button>
+
+            <div id="editProfilePanel" class="hidden space-y-2.5 pt-3 border-t border-zinc-800">
+              <label class="block text-[11px] text-zinc-400 font-bold">नई प्रोफाइल फोटो चुनें:</label>
+              <input id="editAvatarFile" type="file" accept="image/*" class="w-full text-[11px] text-zinc-300">
+              <input id="editNameInp" type="text" placeholder="नया नाम लिखें" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white">
+              <textarea id="editBioInp" rows="2" placeholder="अपना बायो (Bio) लिखें..." class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white"></textarea>
+              <button id="saveProfileBtn" onclick="saveInstaProfile()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-white text-xs font-extrabold">
+                Save Profile Changes
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <h3 class="text-xs font-extrabold text-zinc-300 uppercase tracking-wider mb-2.5">Uploaded Manga</h3>
+            <div id="myOwnMangaGrid" class="grid grid-cols-2 gap-3"></div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(pm);
     }
 
     async function openInstaProfile(targetName) {
@@ -1052,71 +1057,8 @@
       showAppToast('आपकी Manga डिलीट कर दी गई!');
     }
         // =========================================================================
-    // PART 8D: DEDICATED ANIME EPISODE LIBRARY, VIDEO PLAYER, LIKES & HISTORY
+    // PART 14: DEDICATED ANIME EPISODE LIBRARY & VIDEO PLAYER
     // =========================================================================
-    async function syncSocialCloud(save = false) {
-      try {
-        if (save) {
-          await fetch(SOCIAL_DB_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(socialData)
-          });
-        } else {
-          const res = await fetch(SOCIAL_DB_URL);
-          if (res.ok) {
-            const d = await res.json();
-            socialData = {
-              likes: d.likes || {},
-              messages: d.messages || [],
-              online: d.online || {},
-              anime: d.anime || []
-            };
-          }
-        }
-      } catch (e) {}
-    }
-
-    async function toggleMangaLike(mangaId, e) {
-      if (e) e.stopPropagation();
-      const userKey = (activeUser && !activeUser.isGuest) ? activeUser.name : ('guest_' + (localStorage.getItem('m99_gid') || (() => { const g = Date.now(); localStorage.setItem('m99_gid', g); return g; })()));
-      if (!socialData.likes[mangaId]) socialData.likes[mangaId] = [];
-
-      const idx = socialData.likes[mangaId].indexOf(userKey);
-      if (idx > -1) {
-        socialData.likes[mangaId].splice(idx, 1);
-      } else {
-        socialData.likes[mangaId].push(userKey);
-        playProAnimeSound('click');
-      }
-      renderHome();
-      await syncSocialCloud(true);
-    }
-
-    const _origCardTemplate = cardTemplate;
-    cardTemplate = function(m) {
-      const likeArr = socialData.likes[m.id] || [];
-      const userKey = (activeUser && !activeUser.isGuest) ? activeUser.name : ('guest_' + localStorage.getItem('m99_gid'));
-      const isLiked = likeArr.includes(userKey);
-      return `
-        <div onclick="openMangaDetail('${m.id}')" class="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-lg active:scale-[0.98] transition cursor-pointer flex flex-col">
-          <div class="relative aspect-[3/4]">
-            <img src="${m.cover}" class="w-full h-full object-cover" loading="lazy">
-            <span class="absolute top-2 left-2 bg-black/75 backdrop-blur px-2 py-0.5 rounded-md text-[10px] font-bold text-orange-400">${m.genre}</span>
-            <button onclick="toggleMangaLike('${m.id}', event)" class="absolute top-2 right-2 bg-black/80 backdrop-blur px-2 py-1 rounded-full text-[11px] font-extrabold ${isLiked ? 'text-pink-500' : 'text-zinc-300'} flex items-center gap-1 border border-zinc-700">
-              ${isLiked ? '❤️' : '🤍'} <span>${likeArr.length}</span>
-            </button>
-            <span class="absolute bottom-2 right-2 bg-red-600 text-white px-2 py-0.5 rounded-md text-[10px] font-extrabold">${m.chapters.length} Ch</span>
-          </div>
-          <div class="p-2.5">
-            <h3 class="font-bold text-xs text-white truncate">${m.title}</h3>
-            <p onclick="event.stopPropagation(); openInstaProfile('${m.author}')" class="text-[10px] text-orange-400/90 hover:underline truncate mt-0.5">by ${m.author}</p>
-          </div>
-        </div>
-      `;
-    };
-
-    // अलग Anime Episode Library (Search के बगल वाले बटन से खुलेगी)
     function buildAnimeLibraryAndPlayer() {
       if (!document.getElementById('animeLibraryModal')) {
         const al = document.createElement('div');
@@ -1126,7 +1068,7 @@
           <div class="sticky top-0 z-10 bg-zinc-950/95 backdrop-blur border-b border-zinc-800 px-4 py-3 flex items-center justify-between">
             <button onclick="closeAnimeLibraryModal()" class="text-xs font-bold text-zinc-300">← Back</button>
             <span class="text-xs font-black tracking-wider text-orange-400">🎬 HINDI ANIME EPISODES</span>
-            <span class="text-[10px] font-bold text-zinc-500">${socialData.anime.length} Ep</span>
+            <span id="animeCountLbl" class="text-[10px] font-bold text-zinc-500">0 Ep</span>
           </div>
           <div class="p-4 max-w-md mx-auto space-y-3">
             <input id="animeSearchInput" oninput="renderAnimeLibraryGrid()" type="text" placeholder="Anime या Episode सर्च करें..." class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-orange-500 focus:outline-none">
@@ -1165,7 +1107,10 @@
 
     function renderAnimeLibraryGrid() {
       const grid = document.getElementById('animeLibraryGrid');
+      const countLbl = document.getElementById('animeCountLbl');
+      if (countLbl) countLbl.innerText = socialData.anime.length + ' Ep';
       if (!grid) return;
+
       const q = (document.getElementById('animeSearchInput')?.value || '').toLowerCase();
       const list = socialData.anime.filter(a => a.title.toLowerCase().includes(q) || (a.series || '').toLowerCase().includes(q));
 
@@ -1197,7 +1142,6 @@
       document.getElementById('playingAnimeTitle').innerText = a.title;
 
       const wrap = document.getElementById('animeFrameWrap');
-      // डायरेक्ट .mp4/.mkv/.webm वीडियो या Embed/Drive लिंक दोनों को सपोर्ट करें
       if (/\.(mp4|webm|ogg|m3u8)(\?.*)?$/i.test(a.link)) {
         wrap.innerHTML = `<video src="${a.link}" controls autoplay playsinline class="w-full h-full bg-black"></video>`;
       } else {
@@ -1210,8 +1154,47 @@
       document.getElementById('animeFrameWrap').innerHTML = '';
       document.getElementById('animePlayerModal').classList.add('hidden');
     }
+        // =========================================================================
+    // PART 15: MANGA LIKE SYSTEM & WATCH/READ HISTORY
+    // =========================================================================
+    async function toggleMangaLike(mangaId, e) {
+      if (e) e.stopPropagation();
+      const userKey = (activeUser && !activeUser.isGuest) ? activeUser.name : ('guest_' + (localStorage.getItem('m99_gid') || (() => { const g = Date.now(); localStorage.setItem('m99_gid', g); return g; })()));
+      if (!socialData.likes[mangaId]) socialData.likes[mangaId] = [];
 
-    // History Check + Single Delete + Clear All
+      const idx = socialData.likes[mangaId].indexOf(userKey);
+      if (idx > -1) {
+        socialData.likes[mangaId].splice(idx, 1);
+      } else {
+        socialData.likes[mangaId].push(userKey);
+        playProAnimeSound('click');
+      }
+      renderHome();
+      await syncSocialCloud(true);
+    }
+
+    cardTemplate = function(m) {
+      const likeArr = socialData.likes[m.id] || [];
+      const userKey = (activeUser && !activeUser.isGuest) ? activeUser.name : ('guest_' + localStorage.getItem('m99_gid'));
+      const isLiked = likeArr.includes(userKey);
+      return `
+        <div onclick="openMangaDetail('${m.id}')" class="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-lg active:scale-[0.98] transition cursor-pointer flex flex-col">
+          <div class="relative aspect-[3/4]">
+            <img src="${m.cover}" class="w-full h-full object-cover" loading="lazy">
+            <span class="absolute top-2 left-2 bg-black/75 backdrop-blur px-2 py-0.5 rounded-md text-[10px] font-bold text-orange-400">${m.genre}</span>
+            <button onclick="toggleMangaLike('${m.id}', event)" class="absolute top-2 right-2 bg-black/80 backdrop-blur px-2 py-1 rounded-full text-[11px] font-extrabold ${isLiked ? 'text-pink-500' : 'text-zinc-300'} flex items-center gap-1 border border-zinc-700">
+              ${isLiked ? '❤️' : '🤍'} <span>${likeArr.length}</span>
+            </button>
+            <span class="absolute bottom-2 right-2 bg-red-600 text-white px-2 py-0.5 rounded-md text-[10px] font-extrabold">${m.chapters.length} Ch</span>
+          </div>
+          <div class="p-2.5">
+            <h3 class="font-bold text-xs text-white truncate">${m.title}</h3>
+            <p onclick="event.stopPropagation(); openInstaProfile('${m.author}')" class="text-[10px] text-orange-400/90 hover:underline truncate mt-0.5">by ${m.author}</p>
+          </div>
+        </div>
+      `;
+    };
+
     function recordToHistory(item) {
       m99History = m99History.filter(h => h.id !== item.id);
       m99History.unshift({ ...item, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) });
@@ -1281,10 +1264,8 @@
       `;
     };
         // =========================================================================
-    // PART 8E: INSTAGRAM PERSONAL DM CHAT + ADMIN-ONLY ANIME UPLOAD + CLOUD SYNC
+    // PART 16: INSTAGRAM PERSONAL 1-ON-1 DM CHAT (NO GLOBAL CHAT)
     // =========================================================================
-    let currentChatUser = '';
-
     async function pingOnlineStatus() {
       if (!activeUser || activeUser.isGuest || activeUser.name === 'Guest') return;
       socialData.online[activeUser.name] = { ts: Date.now(), avatar: activeUser.avatar || '' };
@@ -1437,8 +1418,9 @@
       await renderChatLists();
       showAppToast('Messages Updated');
     }
-
-    // केवल Admin Panel के अंदर Anime Episodes अपलोड और डिलीट करने का सिस्टम
+        // =========================================================================
+    // PART 17: ADMIN PANEL (ONLY ADMIN CAN UPLOAD & DELETE ANIME EPISODES)
+    // =========================================================================
     function renderAdmin() {
       const adminContainer = document.getElementById('adminMangaList');
       if (!adminContainer) return;
@@ -1515,8 +1497,9 @@
       await syncSocialCloud(true);
       showAppToast('Anime Episode डिलीट हो गया');
     }
-
-    // मूल Publish, Search, Admin PIN व Cloud Sync
+        // =========================================================================
+    // PART 18: PUBLISH MANGA, CHAPTERS, SEARCH & ADMIN PIN
+    // =========================================================================
     function setPublishMode(mode) {
       const isNew = mode === 'new';
       document.getElementById('newMangaForm').classList.toggle('hidden', !isNew);
@@ -1615,6 +1598,31 @@
       renderAdmin();
       await pushLiveManga();
       showAppToast('Manga Deleted');
+    }
+        // =========================================================================
+    // PART 19: CLOUD SYNC & APP INITIALIZATION
+    // =========================================================================
+    async function syncSocialCloud(save = false) {
+      try {
+        if (save) {
+          await fetch(SOCIAL_DB_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(socialData)
+          });
+        } else {
+          const res = await fetch(SOCIAL_DB_URL);
+          if (res.ok) {
+            const d = await res.json();
+            socialData = {
+              likes: d.likes || {},
+              messages: d.messages || [],
+              online: d.online || {},
+              anime: d.anime || []
+            };
+          }
+        }
+      } catch (e) {}
     }
 
     fetchLiveManga = async function(showToast = false) {

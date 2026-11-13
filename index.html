@@ -484,7 +484,7 @@
       document.getElementById('readerModal').classList.remove('hidden');
       lucide.createIcons();
     }
-        function setPublishMode(mode) {
+            function setPublishMode(mode) {
       const isNew = mode === 'new';
       document.getElementById('newMangaForm').classList.toggle('hidden', !isNew);
       document.getElementById('addChapterForm').classList.toggle('hidden', isNew);
@@ -518,6 +518,7 @@
         });
         await pushLiveManga();
         e.target.reset();
+        updateUserUI();
         alert('Manga Published Live for Everyone!');
         switchTab('home');
       } finally {
@@ -594,7 +595,115 @@
         await pushLiveManga();
       }
     }
+        // --- NAME + PASSWORD + GUEST ACCOUNT SYSTEM (NO GMAIL, NO MOBILE NUMBER) ---
+    const USERS_DB_URL = "https://getpantry.cloud/apiv1/pantry/ab292eec-a5da-494c-a7cb-acebf987fda2/basket/manga99_users";
+    let activeUser = JSON.parse(localStorage.getItem('m99_user')) || { name: 'Guest', isGuest: true };
 
+    function injectAccountUI() {
+      const adminBtn = document.querySelector('button[onclick="openAdminGate()"]');
+      if (adminBtn && !document.getElementById('userAccountBtn')) {
+        const uBtn = document.createElement('button');
+        uBtn.id = 'userAccountBtn';
+        uBtn.onclick = openLoginModal;
+        uBtn.className = 'px-2.5 py-1.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-200 text-xs font-bold flex items-center gap-1.5';
+        uBtn.innerHTML = `<i data-lucide="user" class="w-3.5 h-3.5 text-orange-500"></i> <span id="currentUserLabel">${activeUser.name}</span>`;
+        adminBtn.parentNode.insertBefore(uBtn, adminBtn);
+      }
+
+      if (!document.getElementById('loginModal')) {
+        const modal = document.createElement('div');
+        modal.id = 'loginModal';
+        modal.className = 'fixed inset-0 z-[60] hidden bg-black/90 backdrop-blur-sm flex items-center justify-center p-4';
+        modal.innerHTML = `
+          <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 max-w-xs w-full space-y-3.5 shadow-2xl">
+            <div class="text-center space-y-1">
+              <div class="w-11 h-11 mx-auto rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center font-black text-base text-white">99</div>
+              <h3 class="font-extrabold text-base text-white pt-1">Welcome to Manga 99</h3>
+              <p class="text-[11px] text-zinc-400">बिना ईमेल या नंबर के — अपना नाम और पासवर्ड बनाएं या Guest के रूप में आगे बढ़ें:</p>
+            </div>
+            <input id="loginName" type="text" placeholder="अपना नाम लिखें (जैसे: Abhay)" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-orange-500 focus:outline-none">
+            <input id="loginPass" type="password" placeholder="अपना पासवर्ड बनाएं या डालें" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-orange-500 focus:outline-none">
+            <button id="authSubmitBtn" onclick="handleUserAuth()" class="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white font-extrabold py-2.5 rounded-xl text-xs shadow-lg">
+              Login / Create Account
+            </button>
+            <button onclick="loginAsGuest()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-bold py-2.5 rounded-xl text-xs">
+              Continue as Guest (बिना अकाउंट)
+            </button>
+          </div>`;
+        document.body.appendChild(modal);
+      }
+      updateUserUI();
+    }
+
+    function updateUserUI() {
+      const lbl = document.getElementById('currentUserLabel');
+      const authorInp = document.getElementById('mAuthor');
+      if (lbl) lbl.innerText = activeUser.name;
+      if (authorInp && !activeUser.isGuest) authorInp.value = activeUser.name;
+    }
+
+    function openLoginModal() {
+      document.getElementById('loginModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function loginAsGuest() {
+      activeUser = { name: 'Guest', isGuest: true };
+      localStorage.setItem('m99_user', JSON.stringify(activeUser));
+      updateUserUI();
+      document.getElementById('loginModal').classList.add('hidden');
+    }
+
+    async function handleUserAuth() {
+      const name = document.getElementById('loginName').value.trim();
+      const pass = document.getElementById('loginPass').value.trim();
+      if (!name || !pass) return alert('कृपया अपना नाम और पासवर्ड दोनों लिखें!');
+
+      const btn = document.getElementById('authSubmitBtn');
+      btn.disabled = true; btn.innerText = 'Checking...';
+      try {
+        let users = [];
+        try {
+          const res = await fetch(USERS_DB_URL);
+          if (res.ok) { const d = await res.json(); users = d.users || []; }
+        } catch (e) {}
+
+        const found = users.find(u => u.name.toLowerCase() === name.toLowerCase());
+        if (found) {
+          if (found.pass !== pass) {
+            alert('गलत पासवर्ड! सही पासवर्ड डालें या कोई नया नाम चुनें।');
+            return;
+          }
+          alert('Welcome back, ' + found.name + '!');
+        } else {
+          users.push({ name, pass });
+          await fetch(USERS_DB_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ users })
+          });
+          alert('आपका अकाउंट बन गया! अब आप इसी नाम और पासवर्ड से कभी भी लॉगिन कर सकते हैं।');
+        }
+
+        activeUser = { name, isGuest: false };
+        localStorage.setItem('m99_user', JSON.stringify(activeUser));
+        updateUserUI();
+        document.getElementById('loginModal').classList.add('hidden');
+      } finally {
+        btn.disabled = false; btn.innerText = 'Login / Create Account';
+      }
+    }
+
+    // लोडिंग स्क्रीन हटते ही नए यूज़र के लिए अपने आप लॉगिन/गेस्ट बॉक्स खोलें
+    const _baseFinishSplash = finishSplash;
+    finishSplash = function() {
+      _baseFinishSplash();
+      if (!localStorage.getItem('m99_user')) {
+        setTimeout(openLoginModal, 520);
+      }
+    };
+
+    injectAccountUI();
     fetchLiveManga();
   </script>
 </body>

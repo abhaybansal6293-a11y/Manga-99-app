@@ -1,549 +1,353 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="hi">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>Manga 99 — Read & Publish Manga Live</title>
-  <meta name="application-name" content="Manga 99" />
-  <meta name="theme-color" content="#09090b" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Manga 99 — Hindi Manga & Anime</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
-    body { background: #09090b; color: #fafafa; font-family: 'Plus Jakarta Sans', sans-serif; overscroll-behavior-y: none; user-select: none; }
-    input, textarea, select { user-select: text; }
-    .brand-font { font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.06em; }
-    .glass-bar { background: rgba(9, 9, 11, 0.92); backdrop-filter: blur(16px); border-color: #27272a; }
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap');
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #000000; color: #f4f4f5; overscroll-behavior-y: contain; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    .manga-card:active { transform: scale(0.97); }
-    @keyframes logoZoom { 0% { transform: scale(0.75); opacity: 0; } 60% { transform: scale(1.06); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
-    @keyframes barLoad { 0% { width: 0%; } 100% { width: 100%; } }
-    .splash-logo { animation: logoZoom 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
-    .splash-bar { animation: barLoad 2.3s ease-in-out forwards; }
+    @keyframes crGlitchReveal {
+      0% { opacity: 0; transform: scale(0.86) skewX(-14deg); filter: drop-shadow(0 0 0px #ff640a); }
+      35% { opacity: 1; transform: scale(1.04) skewX(8deg); filter: drop-shadow(-4px 0 18px #ff640a); }
+      65% { transform: scale(0.98) skewX(-4deg); filter: drop-shadow(4px 0 22px #ff640a); }
+      100% { opacity: 1; transform: scale(1) skewX(0deg); filter: drop-shadow(0 0 14px rgba(255,100,10,0.45)); }
+    }
+    .cr-splash-anim { animation: crGlitchReveal 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
   </style>
 </head>
-<body class="min-h-screen pb-24">
-  <!-- CRUNCHYROLL STYLE SPLASH LOADING SCREEN WITH SOUND -->
-  <div id="splashScreen" onclick="triggerStartupAudio(); finishSplash();" class="fixed inset-0 z-[100] bg-[#070709] flex flex-col items-center justify-center p-6 transition-opacity duration-500">
-    <div class="relative flex flex-col items-center splash-logo">
-      <div class="w-24 h-24 rounded-3xl bg-gradient-to-br from-orange-500 via-red-600 to-rose-700 flex items-center justify-center shadow-[0_0_55px_rgba(244,117,33,0.55)] border border-orange-400/30">
-        <span class="brand-font text-5xl text-white tracking-wider">99</span>
-      </div>
-      <h1 class="brand-font text-4xl mt-5 tracking-widest text-white">MANGA <span class="text-orange-500">99</span></h1>
-      <p class="text-[11px] uppercase tracking-[0.25em] text-zinc-400 mt-1 font-semibold">Ultimate Manga Experience</p>
-    </div>
+<body class="bg-black text-zinc-100 min-h-screen pb-24 selection:bg-orange-500 selection:text-white">
 
-    <!-- Loading Progress Bar -->
-    <div class="w-48 h-1.5 bg-zinc-800 rounded-full overflow-hidden mt-8">
-      <div class="h-full bg-gradient-to-r from-orange-500 to-red-600 rounded-full splash-bar"></div>
+  <!-- Crunchyroll-Style Black Splash Screen -->
+  <div id="classicSplashScreen" class="fixed inset-0 z-[200] bg-black flex flex-col items-center justify-center p-6 transition-opacity duration-300">
+    <div class="cr-splash-anim flex items-center gap-3">
+      <div class="relative w-12 h-12 rounded-full bg-[#ff640a] flex items-center justify-center shadow-[0_0_30px_rgba(255,100,10,0.6)]">
+        <div class="w-7 h-7 rounded-full bg-black translate-x-1.5 -translate-y-0.5"></div>
+        <div class="w-2.5 h-2.5 rounded-full bg-[#ff640a] absolute right-2 top-2.5"></div>
+      </div>
+      <div class="text-left">
+        <span class="text-3xl font-black tracking-tight text-[#ff640a] block leading-none">Manga 99</span>
+        <span class="text-[10px] font-bold tracking-[0.22em] text-zinc-400 uppercase">Crunchyroll Edition</span>
+      </div>
     </div>
-    <p id="splashHint" class="text-[10px] text-zinc-500 mt-3 tracking-wider uppercase animate-pulse">Loading Library...</p>
   </div>
 
-  <!-- TOP HEADER -->
-  <header class="glass-bar sticky top-0 z-40 border-b px-4 py-3">
-    <div class="max-w-3xl mx-auto flex items-center justify-between">
-      <div onclick="switchTab('home')" class="flex items-center gap-2.5 cursor-pointer">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center font-black text-base shadow-lg shadow-red-600/30">99</div>
-        <div>
-          <span class="brand-font text-2xl leading-none tracking-wider block">MANGA <span class="text-red-500">99</span></span>
-          <span id="cloudStatus" class="block text-[9px] font-bold uppercase tracking-widest text-emerald-400">Live Cloud ✓</span>
-        </div>
-      </div>
+  <!-- Fail-Safe Auto Splash Closer -->
+  <script>
+    setTimeout(function() {
+      var s = document.getElementById('classicSplashScreen');
+      if (s) { s.style.opacity = '0'; setTimeout(function() { if (s && s.parentNode) s.remove(); }, 300); }
+    }, 1150);
+  </script>
 
-      <div class="flex items-center gap-2">
-        <button onclick="playStartupSound(); fetchLiveManga(true);" class="p-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 active:scale-90 transition" title="Sync Live">
-          <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-        </button>
-        <button onclick="openAdminGate()" class="px-3 py-1.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-bold flex items-center gap-1.5">
-          <i data-lucide="shield" class="w-3.5 h-3.5"></i> Admin
-        </button>
+  <!-- Floating Toast -->
+  <div id="appToast" class="fixed top-4 left-1/2 -translate-x-1/2 z-[190] hidden px-4 py-2 rounded-full text-xs font-extrabold shadow-2xl border backdrop-blur-md"></div>
+    <!-- Top Header (No Public Admin Button) -->
+  <header class="sticky top-0 z-40 bg-black/90 backdrop-blur-xl border-b border-zinc-900 px-4 py-3 flex items-center justify-between max-w-md mx-auto">
+    <div onclick="navigateTo('home')" class="flex items-center gap-2.5 cursor-pointer">
+      <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center font-black text-xs text-white">M99</div>
+      <div>
+        <h1 class="text-sm font-black tracking-tight text-white leading-none">MANGA <span class="text-orange-500">99</span></h1>
+        <span id="cloudStatusBadge" class="text-[9px] font-bold text-emerald-400">Live Cloud ✓</span>
       </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button id="soundToggleBtn" onclick="toggleAppSound()" class="w-8 h-8 rounded-xl bg-zinc-900 border border-zinc-800 text-xs flex items-center justify-center">🔊</button>
+      <button onclick="openChatHub()" class="w-8 h-8 rounded-xl bg-zinc-900 border border-zinc-800 text-xs flex items-center justify-center relative">
+        💬<span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+      </button>
+      <button onclick="handleProfileNavTap()" class="flex items-center gap-1.5 bg-zinc-900 border border-zinc-800 pl-1.5 pr-2.5 py-1 rounded-full">
+        <span id="navAvatarWrap"></span>
+        <span id="navProfileLabel" class="text-[11px] font-extrabold text-zinc-200 max-w-[68px] truncate">Profile</span>
+      </button>
     </div>
   </header>
 
-  <main class="max-w-3xl mx-auto px-4 pt-4">
-    <!-- HOME VIEW -->
-    <section id="view-home" class="space-y-5">
-      <div id="heroBanner" class="relative rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-900 h-48 flex items-end p-4 cursor-pointer"></div>
-      <div id="genreChips" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1"></div>
+  <!-- Main Content -->
+  <main class="max-w-md mx-auto px-4 pt-3 space-y-5">
+
+    <!-- 1. HOME (MANGA LIBRARY) -->
+    <section id="view-home" class="app-view space-y-4">
+      <div id="featuredBanner" class="relative w-full h-44 rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-900 cursor-pointer hidden"></div>
+      <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+        <button onclick="setGenre('All')" class="genre-pill px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-orange-500 text-black shrink-0">All</button>
+        <button onclick="setGenre('Action')" class="genre-pill px-3.5 py-1.5 rounded-full text-xs font-bold bg-zinc-900 border border-zinc-800 text-zinc-300 shrink-0">Action</button>
+        <button onclick="setGenre('Dark Fantasy')" class="genre-pill px-3.5 py-1.5 rounded-full text-xs font-bold bg-zinc-900 border border-zinc-800 text-zinc-300 shrink-0">Dark Fantasy</button>
+        <button onclick="setGenre('Romance')" class="genre-pill px-3.5 py-1.5 rounded-full text-xs font-bold bg-zinc-900 border border-zinc-800 text-zinc-300 shrink-0">Romance</button>
+        <button onclick="setGenre('Shonen')" class="genre-pill px-3.5 py-1.5 rounded-full text-xs font-bold bg-zinc-900 border border-zinc-800 text-zinc-300 shrink-0">Shonen</button>
+      </div>
       <div class="flex items-center justify-between">
-        <h2 class="text-base font-extrabold tracking-tight flex items-center gap-2">
-          <i data-lucide="flame" class="w-4 h-4 text-red-500"></i> Latest Manga Releases
-        </h2>
-        <span id="totalMangaCount" class="text-xs text-zinc-400 font-semibold"></span>
+        <h2 class="text-xs font-black uppercase tracking-wider text-zinc-400">Latest Hindi Manga</h2>
+        <span id="seriesCountBadge" class="text-[11px] font-bold text-orange-400">0 Series</span>
       </div>
-      <div id="mangaGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-3.5"></div>
+      <div id="homeMangaGrid" class="grid grid-cols-2 gap-3"></div>
     </section>
-        <!-- SEARCH VIEW -->
-    <section id="view-search" class="hidden space-y-4">
-      <div class="relative">
-        <i data-lucide="search" class="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-        <input id="searchInput" oninput="renderSearch()" type="text" placeholder="Search manga title, author or genre..."
-          class="w-full bg-zinc-900 border border-zinc-800 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:border-red-500">
-      </div>
-      <div id="searchResults" class="grid grid-cols-2 sm:grid-cols-3 gap-3.5"></div>
-    </section>
-
-    <!-- PUBLISH / UPLOAD VIEW -->
-    <section id="view-publish" class="hidden space-y-5">
-      <div class="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-4 space-y-4">
-        <div class="flex gap-2 p-1 bg-zinc-950 rounded-xl border border-zinc-800">
-          <button type="button" id="modeNewBtn" onclick="setPublishMode('new')" class="flex-1 py-2 rounded-lg text-xs font-bold bg-red-600 text-white">New Manga Series</button>
-          <button type="button" id="modeChapBtn" onclick="setPublishMode('chapter')" class="flex-1 py-2 rounded-lg text-xs font-bold text-zinc-400">Add Chapter</button>
-        </div>
-
-        <form id="newMangaForm" onsubmit="publishNewManga(event)" class="space-y-3.5">
-          <div>
-            <label class="text-xs font-semibold text-zinc-300">Manga Title *</label>
-            <input id="mTitle" required placeholder="e.g. Solo Leveling: Rise" class="mt-1 w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-sm focus:border-red-500 focus:outline-none">
-          </div>
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="text-xs font-semibold text-zinc-300">Author / Creator *</label>
-              <input id="mAuthor" required placeholder="e.g. Abhay" class="mt-1 w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-sm focus:border-red-500 focus:outline-none">
-            </div>
-            <div>
-              <label class="text-xs font-semibold text-zinc-300">Genre</label>
-              <select id="mGenre" class="mt-1 w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2.5 text-sm">
-                <option>Action</option><option>Fantasy</option><option>Romance</option><option>Thriller</option><option>Sci-Fi</option>
-              </select>
-            </div>
-          </div>
-          <div>
-            <label class="text-xs font-semibold text-zinc-300">Story Description</label>
-            <textarea id="mDesc" rows="2" placeholder="Write a short summary..." class="mt-1 w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2 text-sm focus:border-red-500 focus:outline-none"></textarea>
-          </div>
-          <div>
-            <label class="text-xs font-semibold text-zinc-300">Cover Image *</label>
-            <input id="mCover" type="file" accept="image/*" required class="mt-1 w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-3.5 file:rounded-lg file:border-0 file:bg-red-600 file:text-white file:font-bold">
-          </div>
-          <div>
-            <label class="text-xs font-semibold text-zinc-300">Chapter 1 Pages (Select Multiple Photos) *</label>
-            <input id="mPages" type="file" accept="image/*" multiple required class="mt-1 w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-3.5 file:rounded-lg file:border-0 file:bg-zinc-800 file:text-white file:font-bold">
-          </div>
-          <button id="pubBtn1" type="submit" class="w-full bg-red-600 hover:bg-red-500 text-white font-extrabold py-3 rounded-xl shadow-lg shadow-red-600/25">
-            Publish Manga Live
-          </button>
-        </form>
-
-        <form id="addChapterForm" onsubmit="publishNewChapter(event)" class="hidden space-y-3.5">
-          <div>
-            <label class="text-xs font-semibold text-zinc-300">Select Manga *</label>
-            <select id="targetMangaSelect" class="mt-1 w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-sm"></select>
-          </div>
-          <div>
-            <label class="text-xs font-semibold text-zinc-300">Chapter Name / Number *</label>
-            <input id="cTitle" required placeholder="e.g. Chapter 2: Awakening" class="mt-1 w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-sm">
-          </div>
-          <div>
-            <label class="text-xs font-semibold text-zinc-300">Chapter Pages (Select Multiple Photos) *</label>
-            <input id="cPages" type="file" accept="image/*" multiple required class="mt-1 w-full text-xs text-zinc-400 file:mr-3 file:py-2 file:px-3.5 file:rounded-lg file:border-0 file:bg-red-600 file:text-white file:font-bold">
-          </div>
-          <button id="pubBtn2" type="submit" class="w-full bg-red-600 text-white font-extrabold py-3 rounded-xl">
-            Upload Chapter Live
-          </button>
-        </form>
-      </div>
-    </section>
-
-    <!-- LIBRARY VIEW -->
-    <section id="view-library" class="hidden space-y-4">
-      <h2 class="text-base font-extrabold flex items-center gap-2"><i data-lucide="bookmark" class="w-4 h-4 text-red-500"></i> Bookmarked Manga</h2>
-      <div id="libraryGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-3.5"></div>
-    </section>
-
-    <!-- ADMIN PANEL VIEW (PIN: 2010) -->
-    <section id="view-admin" class="hidden space-y-4">
-      <div class="flex items-center justify-between bg-amber-500/10 border border-amber-500/30 p-3.5 rounded-2xl">
+        <!-- 2. ANIME (CRUNCHYROLL SERIES & SEASONS) -->
+    <section id="view-anime" class="app-view hidden space-y-4">
+      <div class="flex items-center justify-between">
         <div>
-          <p class="text-[10px] font-bold uppercase text-amber-400">Admin Dashboard (PIN: 2010)</p>
-          <h2 class="text-base font-bold">Manage Live Manga Series</h2>
+          <h2 class="text-base font-black text-white">Hindi Dubbed <span class="text-orange-500">Anime</span></h2>
+          <p class="text-[11px] text-zinc-400">Crunchyroll Style • Season-Wise Episodes</p>
         </div>
-        <button onclick="switchTab('home')" class="px-3 py-1.5 bg-red-600 rounded-lg text-xs font-bold">Exit</button>
+        <span id="animeCountBadge" class="px-2.5 py-1 rounded-lg bg-orange-500/15 border border-orange-500/30 text-[10px] font-extrabold text-orange-400">0 Series</span>
       </div>
-      <div id="adminMangaList" class="space-y-2.5"></div>
+      <input id="animeSearchInput" oninput="renderAnimeTab()" type="text" placeholder="Search Anime Series or Episode..." class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-orange-500 focus:outline-none">
+      <div id="animeLibraryGrid" class="grid grid-cols-2 gap-3"></div>
+    </section>
+
+    <!-- 3. SEARCH -->
+    <section id="view-search" class="app-view hidden space-y-4">
+      <input id="searchInput" oninput="renderSearch()" type="text" placeholder="Search Manga, Author or Genre..." class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-xs text-white focus:border-orange-500 focus:outline-none">
+      <div id="searchResults" class="grid grid-cols-2 gap-3"></div>
+    </section>
+
+    <!-- 4. PUBLISH MANGA -->
+    <section id="view-publish" class="app-view hidden space-y-4">
+      <div class="bg-zinc-900 p-1 rounded-xl border border-zinc-800 flex gap-1">
+        <button id="modeNewBtn" onclick="setPublishMode('new')" class="flex-1 py-2 rounded-lg text-xs font-bold bg-orange-500 text-black">New Manga</button>
+        <button id="modeChapBtn" onclick="setPublishMode('chap')" class="flex-1 py-2 rounded-lg text-xs font-bold text-zinc-400">Add Chapter</button>
+      </div>
+      <form id="newMangaForm" onsubmit="publishNewManga(event)" class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 space-y-3">
+        <h3 class="text-xs font-black uppercase text-orange-400">Publish New Manga Series</h3>
+        <input id="mTitle" required type="text" placeholder="Manga Title" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2.5 text-xs text-white">
+        <input id="mAuthor" required type="text" placeholder="Creator / Author Name" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2.5 text-xs text-white">
+        <select id="mGenre" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2.5 text-xs text-white">
+          <option value="Action">Action</option>
+          <option value="Dark Fantasy">Dark Fantasy</option>
+          <option value="Romance">Romance</option>
+          <option value="Shonen">Shonen</option>
+        </select>
+        <textarea id="mDesc" rows="2" placeholder="Short Description..." class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white"></textarea>
+        <div><label class="text-[11px] text-zinc-400 font-bold">Cover Image:</label><input id="mCover" required type="file" accept="image/*" class="w-full text-xs mt-1"></div>
+        <div><label class="text-[11px] text-zinc-400 font-bold">Chapter 1 Pages:</label><input id="mPages" required multiple type="file" accept="image/*" class="w-full text-xs mt-1"></div>
+        <button id="pubBtn1" type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-xs font-extrabold text-white">Publish Manga Live</button>
+      </form>
+      <form id="addChapterForm" onsubmit="publishNewChapter(event)" class="hidden bg-zinc-900 border border-zinc-800 rounded-2xl p-4 space-y-3">
+        <h3 class="text-xs font-black uppercase text-orange-400">Add New Chapter</h3>
+        <select id="targetMangaSelect" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2.5 text-xs text-white"></select>
+        <input id="cTitle" required type="text" placeholder="Chapter Title (e.g. Chapter 2)" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2.5 text-xs text-white">
+        <div><label class="text-[11px] text-zinc-400 font-bold">Chapter Pages:</label><input id="cPages" required multiple type="file" accept="image/*" class="w-full text-xs mt-1"></div>
+        <button id="pubBtn2" type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-xs font-extrabold text-white">Upload Chapter Live</button>
+      </form>
+    </section>
+
+    <!-- 5. LIBRARY & HISTORY -->
+    <section id="view-library" class="app-view hidden space-y-5">
+      <div id="libraryGrid" class="space-y-5"></div>
+    </section>
+    
+        <!-- 6. INSTAGRAM PROFILE -->
+    <section id="view-profile" class="app-view hidden space-y-4">
+      <div id="profileViewContainer" class="space-y-4"></div>
+    </section>
+
+    <!-- 7. SETTINGS (SECRET PROMO CODE 2010 ADMIN GATE) -->
+    <section id="view-settings" class="app-view hidden space-y-4">
+      <div class="flex items-center gap-2">
+        <button onclick="handleAppBack()" class="px-3 py-1.5 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-bold">← Back</button>
+        <h2 class="text-sm font-black text-white">Settings & Preferences</h2>
+      </div>
+      <div id="settingsContainer" class="space-y-3"></div>
+    </section>
+
+    <!-- 8. ADMIN PANEL (SEASON & EPISODE MANAGER) -->
+    <section id="view-admin" class="app-view hidden space-y-4">
+      <div class="flex items-center justify-between bg-zinc-900 border border-orange-500/40 p-3 rounded-2xl">
+        <div>
+          <h2 class="text-xs font-black text-orange-400 uppercase">Creator Admin Control</h2>
+          <p class="text-[10px] text-zinc-400">Manage Anime Seasons, Episodes & Manga</p>
+        </div>
+        <button onclick="navigateTo('home')" class="px-3 py-1.5 rounded-xl bg-zinc-800 text-xs font-bold">Exit</button>
+      </div>
+      <div id="adminMangaList" class="space-y-4"></div>
     </section>
   </main>
-    <!-- MANGA DETAIL & CHAPTER LIST MODAL -->
-  <div id="detailModal" class="fixed inset-0 z-50 hidden bg-black/85 overflow-y-auto p-4">
-    <div class="bg-zinc-950 border border-zinc-800 max-w-lg mx-auto rounded-2xl overflow-hidden my-4">
-      <div id="detailContent"></div>
-    </div>
-  </div>
 
-  <!-- FULLSCREEN VERTICAL WEBTOON READER -->
-  <div id="readerModal" class="fixed inset-0 z-50 hidden bg-black flex flex-col">
-    <div class="glass-bar border-b px-4 py-2.5 flex items-center justify-between">
-      <button onclick="document.getElementById('readerModal').classList.add('hidden')" class="flex items-center gap-1.5 text-xs font-bold bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-xl">
-        <i data-lucide="arrow-left" class="w-4 h-4"></i> Chapters
+  <!-- Bottom Navigation -->
+  <nav class="fixed bottom-0 inset-x-0 z-50 bg-black/95 backdrop-blur-xl border-t border-zinc-900">
+    <div class="max-w-md mx-auto flex items-center justify-around py-2 px-1 text-[10px] font-bold">
+      <button onclick="navigateTo('home')" data-nav="home" class="nav-btn flex flex-col items-center gap-0.5 text-orange-500">
+        <span class="text-base">🏠</span><span>Manga</span>
       </button>
-      <p id="readerHeaderTitle" class="text-xs font-bold truncate max-w-[190px]"></p>
-      <span id="readerPageCount" class="text-[11px] text-red-400 font-bold"></span>
-    </div>
-    <div id="readerPagesBox" class="flex-1 overflow-y-auto flex flex-col items-center bg-black"></div>
-  </div>
-
-  <!-- ADMIN PIN MODAL -->
-  <div id="pinModal" class="fixed inset-0 z-50 hidden bg-black/85 flex items-center justify-center p-4">
-    <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 max-w-xs w-full text-center space-y-4">
-      <h3 class="font-bold text-base">Enter Admin PIN</h3>
-      <input id="pinInput" type="password" maxlength="6" placeholder="••••" class="w-full text-center tracking-[0.5em] text-xl font-bold bg-zinc-950 border border-zinc-800 rounded-xl py-3">
-      <div class="flex gap-2">
-        <button onclick="document.getElementById('pinModal').classList.add('hidden')" class="flex-1 py-2.5 rounded-xl bg-zinc-800 text-xs font-semibold">Cancel</button>
-        <button onclick="verifyAdminPin()" class="flex-1 py-2.5 rounded-xl bg-amber-500 text-black text-xs font-bold">Unlock</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- BOTTOM NAVIGATION BAR -->
-  <nav class="fixed bottom-0 inset-x-0 glass-bar border-t z-40">
-    <div class="max-w-lg mx-auto flex justify-around py-2">
-      <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center gap-0.5 text-red-500">
-        <i data-lucide="home" class="w-5 h-5"></i><span class="text-[10px] font-bold">Home</span>
+      <button onclick="navigateTo('anime')" data-nav="anime" class="nav-btn flex flex-col items-center gap-0.5 text-zinc-400">
+        <span class="text-base">🎬</span><span>Anime</span>
       </button>
-      <button onclick="switchTab('search')" id="nav-search" class="flex flex-col items-center gap-0.5 text-zinc-400">
-        <i data-lucide="search" class="w-5 h-5"></i><span class="text-[10px] font-bold">Search</span>
+      <button onclick="navigateTo('search')" data-nav="search" class="nav-btn flex flex-col items-center gap-0.5 text-zinc-400">
+        <span class="text-base">🔍</span><span>Search</span>
       </button>
-      <button onclick="switchTab('publish')" id="nav-publish" class="flex flex-col items-center gap-0.5 text-zinc-400">
-        <i data-lucide="plus-circle" class="w-5 h-5"></i><span class="text-[10px] font-bold">Publish</span>
+      <button onclick="navigateTo('publish')" data-nav="publish" class="nav-btn flex flex-col items-center gap-0.5 text-zinc-400">
+        <span class="text-base">➕</span><span>Publish</span>
       </button>
-      <button onclick="switchTab('library')" id="nav-library" class="flex flex-col items-center gap-0.5 text-zinc-400">
-        <i data-lucide="bookmark" class="w-5 h-5"></i><span class="text-[10px] font-bold">Library</span>
+      <button onclick="navigateTo('library')" data-nav="library" class="nav-btn flex flex-col items-center gap-0.5 text-zinc-400">
+        <span class="text-base">📚</span><span>Library</span>
       </button>
     </div>
   </nav>
-    <script>
-    let startupPlayed = false;
 
-    // Crunchyroll-Inspired Cinematic Startup Chime (Web Audio API - Zero External File Needed)
-    function playStartupSound() {
-      try {
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        if (!AudioCtx) return;
-        const ctx = new AudioCtx();
-        if (ctx.state === 'suspended') ctx.resume();
+  <!-- Login / Signup Modal -->
+  <div id="welcomeAuthModal" class="fixed inset-0 z-[150] hidden bg-black/95 backdrop-blur-xl flex items-center justify-center p-4">
+    <div class="w-full max-w-sm bg-zinc-900 border border-zinc-800 rounded-3xl p-5 space-y-4 shadow-2xl">
+      <div class="text-center">
+        <div class="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center font-black text-white text-lg mb-2">M99</div>
+        <h2 class="text-base font-black text-white">Welcome to Manga 99</h2>
+        <p class="text-[11px] text-zinc-400">Sign in to sync profile, likes & personal DM</p>
+      </div>
+      <div class="bg-zinc-950 p-1 rounded-xl border border-zinc-800 flex gap-1">
+        <button id="authTabSignup" onclick="switchAuthTab('signup')" class="flex-1 py-2 rounded-lg text-xs font-extrabold bg-orange-500 text-black">Create Account</button>
+        <button id="authTabLogin" onclick="switchAuthTab('login')" class="flex-1 py-2 rounded-lg text-xs font-extrabold text-zinc-400">Log In</button>
+      </div>
+      <form id="signupForm" onsubmit="handleAccountSignup(event)" class="space-y-2.5">
+        <input id="regName" required type="text" placeholder="Choose Unique Username" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white">
+        <input id="regPass" required type="password" placeholder="Create Password" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white">
+        <input id="regBio" type="text" placeholder="Short Bio (Optional)" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white">
+        <div><label class="text-[10px] text-zinc-400">Profile Photo (Optional):</label><input id="regAvatar" type="file" accept="image/*" class="w-full text-[11px] mt-1"></div>
+        <button id="signupSubmitBtn" type="submit" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-xs font-extrabold text-white">Create Account & Enter</button>
+      </form>
+      <form id="loginForm" onsubmit="handleAccountLogin(event)" class="hidden space-y-2.5">
+        <input id="loginName" required type="text" placeholder="Enter Username" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white">
+        <input id="loginPass" required type="password" placeholder="Enter Password" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white">
+        <button id="loginSubmitBtn" type="submit" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-xs font-extrabold text-white">Log In Now</button>
+      </form>
+      <button onclick="continueAsGuest()" class="w-full py-2 text-[11px] font-bold text-zinc-400 hover:text-white">Continue as Guest →</button>
+    </div>
+  </div>
 
-        const notes = [261.63, 329.63, 392.00, 523.25]; // C4, E4, G4, C5 Rich Chord
-        notes.forEach((freq, i) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = i === 3 ? 'triangle' : 'sine';
-          osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.09);
+  <!-- Manga Detail Modal -->
+  <div id="mangaDetailModal" class="fixed inset-0 z-[75] hidden bg-black overflow-y-auto pb-20">
+    <div id="mangaDetailContent" class="max-w-md mx-auto"></div>
+  </div>
 
-          gain.gain.setValueAtTime(0.001, ctx.currentTime + i * 0.09);
-          gain.gain.exponentialRampToValueAtTime(0.16, ctx.currentTime + i * 0.09 + 0.08);
-          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + i * 0.09 + 1.1);
+  <!-- Crunchyroll Anime Series & Season Modal -->
+  <div id="animeSeriesModal" class="fixed inset-0 z-[78] hidden bg-black overflow-y-auto pb-28">
+    <div id="animeSeriesContent" class="max-w-md mx-auto"></div>
+  </div>
 
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(ctx.currentTime + i * 0.09);
-          osc.stop(ctx.currentTime + i * 0.09 + 1.15);
-        });
-        startupPlayed = true;
-      } catch (e) { console.log(e); }
-    }
+  <!-- Chapter Reader Modal -->
+  <div id="readerModal" class="fixed inset-0 z-[85] hidden bg-black overflow-y-auto">
+    <div class="sticky top-0 z-10 bg-zinc-950/95 backdrop-blur border-b border-zinc-800 px-4 py-3 flex items-center justify-between max-w-md mx-auto">
+      <button onclick="handleAppBack()" class="text-xs font-bold text-orange-400">← Back</button>
+      <span id="readerTitle" class="text-xs font-black text-white truncate max-w-[180px]">Chapter</span>
+      <span id="readerPageCount" class="text-[11px] text-zinc-400">0 Pages</span>
+    </div>
+    <div id="readerPagesContainer" class="max-w-md mx-auto bg-black"></div>
+  </div>
 
-    function triggerStartupAudio() {
-      if (!startupPlayed) playStartupSound();
-    }
-
-    function finishSplash() {
-      const sp = document.getElementById('splashScreen');
-      if (!sp || sp.dataset.done) return;
-      sp.dataset.done = '1';
-      sp.style.opacity = '0';
-      setTimeout(() => sp.classList.add('hidden'), 500);
-    }
-
-    // Play sound automatically if allowed, or on first screen touch
-    window.addEventListener('DOMContentLoaded', () => {
-      playStartupSound();
-      setTimeout(finishSplash, 2400);
-    });
-    document.addEventListener('touchstart', triggerStartupAudio, { once: true });
-    document.addEventListener('click', triggerStartupAudio, { once: true });
-
-    const LIVE_DB_URL = "https://getpantry.cloud/apiv1/pantry/ab292eec-a5da-494c-a7cb-acebf987fda2/basket/manga99_classic";
-
-    const svgCover = (bg, title, sub) => 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="600" height="850"><rect width="100%" height="100%" fill="${bg}"/><rect x="24" y="24" width="552" height="802" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="4"/><text x="300" y="390" font-family="sans-serif" font-size="40" font-weight="900" fill="white" text-anchor="middle">${title}</text><text x="300" y="450" font-family="sans-serif" font-size="20" fill="#e4e4e7" text-anchor="middle">${sub}</text></svg>`);
-
-    const DEFAULT_MANGA = [
-      {
-        id: 'm1',
-        title: 'Shadow Monarch',
-        author: 'Abhay (Creator)',
-        genre: 'Action',
-        desc: 'Ek kamzor hunter jise ek gupt system milta hai aur woh sabse taqatwar monarch banta hai.',
-        cover: svgCover('#7f1d1d', 'SHADOW MONARCH', 'MANGA 99 ORIGINAL'),
-        chapters: [
-          {
-            id: 'c1',
-            title: 'Chapter 1: The Awakening',
-            date: 'Today',
-            pages: [
-              svgCover('#18181b', 'CHAPTER 1 - PAGE 1', 'Dungeon Gate Opened!'),
-              svgCover('#450a0a', 'CHAPTER 1 - PAGE 2', 'System Quest Accepted.')
-            ]
-          }
-        ]
-      },
-      {
-        id: 'm2',
-        title: 'Crimson Blade',
-        author: 'Aoi Tanaka',
-        genre: 'Fantasy',
-        desc: 'Laal chand ki raat mein shuru hoti ek shrapit talwar ki kahani.',
-        cover: svgCover('#3b0764', 'CRIMSON BLADE', 'DARK FANTASY'),
-        chapters: [
-          {
-            id: 'c201',
-            title: 'Chapter 1: Blood Moon',
-            date: 'Today',
-            pages: [svgCover('#1e1b4b', 'CHAPTER 1 - PAGE 1', 'The Cursed Katana')]
-          }
-        ]
-      }
-    ];
-
-    let mangaList = JSON.parse(localStorage.getItem('m99_classic_data')) || DEFAULT_MANGA;
-    let bookmarkedIds = JSON.parse(localStorage.getItem('m99_bookmarks')) || [];
-    let selectedGenre = 'All';
-
-    function updateStatus(text, colorClass) {
-      const el = document.getElementById('cloudStatus');
-      if (el) { el.innerText = text; el.className = `block text-[9px] font-bold uppercase tracking-widest ${colorClass}`; }
-    }
-        async function fetchLiveManga(showAlert = false) {
-      updateStatus('Syncing...', 'text-amber-400');
-      try {
-        const res = await fetch(LIVE_DB_URL);
-        if (res.ok) {
-          const data = await res.json();
-          if (data && Array.isArray(data.manga) && data.manga.length > 0) {
-            mangaList = data.manga;
-            localStorage.setItem('m99_classic_data', JSON.stringify(mangaList));
-          } else {
-            await pushLiveManga();
-          }
-          updateStatus('Live Cloud ✓', 'text-emerald-400');
-          renderHome();
-          if (showAlert) alert('Live Manga Library Updated!');
-        } else {
-          await pushLiveManga();
-          renderHome();
-        }
-      } catch (e) {
-        await pushLiveManga();
-        renderHome();
-      }
-    }
-
-    async function pushLiveManga() {
-      updateStatus('Uploading...', 'text-amber-400');
-      localStorage.setItem('m99_classic_data', JSON.stringify(mangaList));
-      try {
-        const res = await fetch(LIVE_DB_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ manga: mangaList })
-        });
-        if (res.ok) {
-          updateStatus('Live Cloud ✓', 'text-emerald-400');
-          return true;
-        }
-      } catch (e) { console.error(e); }
-      updateStatus('Saved Offline', 'text-zinc-400');
-      return true;
-    }
-
-    const compressImg = file => new Promise(resolve => {
-      const reader = new FileReader();
-      reader.onload = e => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const maxW = 600;
-          const scale = img.width > maxW ? maxW / img.width : 1;
-          canvas.width = img.width * scale;
-          canvas.height = img.height * scale;
-          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-          resolve(canvas.toDataURL('image/jpeg', 0.65));
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    });
-        function switchTab(tab) {
-      ['home', 'search', 'publish', 'library', 'admin'].forEach(t => {
-        document.getElementById('view-' + t).classList.add('hidden');
-        const navBtn = document.getElementById('nav-' + t);
-        if (navBtn) navBtn.className = `flex flex-col items-center gap-0.5 ${t === tab ? 'text-red-500' : 'text-zinc-400'}`;
-      });
-      document.getElementById('view-' + tab).classList.remove('hidden');
-      if (tab === 'home') renderHome();
-      if (tab === 'search') renderSearch();
-      if (tab === 'publish') populateMangaDropdown();
-      if (tab === 'library') renderLibrary();
-      if (tab === 'admin') renderAdmin();
-      window.scrollTo(0, 0);
-    }
-
-    function cardTemplate(m) {
-      return `
-      <div onclick="openMangaDetail('${m.id}')" class="manga-card bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden cursor-pointer transition">
-        <div class="relative aspect-[3/4] bg-zinc-950">
-          <img src="${m.cover}" class="w-full h-full object-cover">
-          <span class="absolute top-2 left-2 bg-red-600 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-md">${m.genre}</span>
-          <span class="absolute bottom-2 right-2 bg-black/80 text-zinc-200 text-[10px] font-bold px-2 py-0.5 rounded-md">${m.chapters.length} Ch</span>
+  <!-- Fullscreen Anime Player Modal -->
+  <div id="animePlayerModal" class="fixed inset-0 z-[90] hidden bg-black overflow-y-auto pb-20">
+    <div class="sticky top-0 z-20 bg-zinc-950/95 backdrop-blur border-b border-zinc-800 px-4 py-3 flex items-center justify-between max-w-lg mx-auto">
+      <button onclick="handleAppBack()" class="text-xs font-bold text-zinc-300">← Back</button>
+      <span id="playingAnimeSeries" class="text-[11px] font-extrabold text-orange-400 truncate max-w-[180px]">Hindi Dub</span>
+      <button onclick="toggleAnimeFullscreen()" class="px-2.5 py-1 rounded-lg bg-orange-500 text-black text-[11px] font-black">⛶ Fullscreen</button>
+    </div>
+    <div class="max-w-lg mx-auto">
+      <div id="animeFrameWrap" class="aspect-video w-full bg-black"></div>
+      <div class="p-4 space-y-4">
+        <div class="flex items-start justify-between gap-3">
+          <h3 id="playingAnimeTitle" class="text-sm font-black text-white leading-snug">Episode</h3>
+          <button id="animeLikeBtn" onclick="toggleAnimeLike()" class="px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-extrabold text-white shrink-0">🤍 0</button>
         </div>
-        <div class="p-2.5">
-          <h3 class="text-xs font-extrabold text-white truncate">${m.title}</h3>
-          <p class="text-[11px] text-zinc-400 truncate mt-0.5">by ${m.author}</p>
-        </div>
-      </div>`;
-    }
-
-    function renderHome() {
-      const top = mangaList[0];
-      if (top) {
-        document.getElementById('heroBanner').onclick = () => openMangaDetail(top.id);
-        document.getElementById('heroBanner').innerHTML = `
-          <img src="${top.cover}" class="absolute inset-0 w-full h-full object-cover opacity-45">
-          <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
-          <div class="relative z-10 space-y-1">
-            <span class="bg-red-600 text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full">Featured Release</span>
-            <h1 class="text-xl font-black text-white">${top.title}</h1>
-            <p class="text-xs text-zinc-300 line-clamp-1">${top.desc || 'Tap to read chapters now'}</p>
-          </div>`;
-      }
-
-      const genres = ['All', 'Action', 'Fantasy', 'Romance', 'Thriller', 'Sci-Fi'];
-      document.getElementById('genreChips').innerHTML = genres.map(g => `
-        <button onclick="selectedGenre='${g}';renderHome()" class="px-3.5 py-1.5 rounded-full text-xs font-bold shrink-0 ${selectedGenre === g ? 'bg-red-600 text-white' : 'bg-zinc-900 border border-zinc-800 text-zinc-400'}">${g}</button>
-      `).join('');
-
-      const filtered = mangaList.filter(m => selectedGenre === 'All' || m.genre === selectedGenre);
-      document.getElementById('totalMangaCount').innerText = `${filtered.length} Series`;
-      document.getElementById('mangaGrid').innerHTML = filtered.map(cardTemplate).join('');
-      lucide.createIcons();
-    }
-
-    function openMangaDetail(id) {
-      const m = mangaList.find(x => x.id === id);
-      if (!m) return;
-      const isSaved = bookmarkedIds.includes(m.id);
-      document.getElementById('detailContent').innerHTML = `
-        <div class="relative h-52 bg-zinc-900">
-          <img src="${m.cover}" class="w-full h-full object-cover opacity-40">
-          <div class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/50 to-transparent"></div>
-          <button onclick="document.getElementById('detailModal').classList.add('hidden')" class="absolute top-3 right-3 bg-black/70 p-2 rounded-full text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
-          <div class="absolute bottom-3 left-4 right-4 flex items-end gap-3.5">
-            <img src="${m.cover}" class="w-20 h-28 object-cover rounded-xl border border-zinc-700 shadow-lg">
-            <div class="flex-1 min-w-0">
-              <span class="text-[10px] font-bold uppercase text-red-400">${m.genre}</span>
-              <h2 class="text-lg font-black text-white truncate">${m.title}</h2>
-              <p class="text-xs text-zinc-400">by ${m.author}</p>
-            </div>
-          </div>
-        </div>
-        <div class="p-4 space-y-4">
-          <p class="text-xs text-zinc-300 leading-relaxed">${m.desc || 'No description provided.'}</p>
+        <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-3 space-y-3">
+          <p class="text-xs font-black text-zinc-300">Comments (<span id="animeCommentCount">0</span>)</p>
           <div class="flex gap-2">
-            <button onclick="openReader('${m.id}', 0)" class="flex-1 bg-red-600 text-white font-bold py-2.5 rounded-xl text-xs">Read First Chapter</button>
-            <button onclick="toggleBookmark('${m.id}')" class="px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-bold ${isSaved ? 'text-amber-400' : 'text-white'}">
-              ${isSaved ? 'Bookmarked ✓' : '+ Bookmark'}
-            </button>
+            <input id="animeCommentInput" type="text" placeholder="Write a comment..." class="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white">
+            <button onclick="postAnimeComment()" class="px-3.5 py-2 rounded-xl bg-orange-500 text-black text-xs font-black">Post</button>
           </div>
-          <div class="space-y-2">
-            <h3 class="text-xs font-bold uppercase text-zinc-400">Chapters (${m.chapters.length})</h3>
-            ${m.chapters.map((ch, idx) => `
-              <div onclick="openReader('${m.id}', ${idx})" class="flex items-center justify-between bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 p-3 rounded-xl cursor-pointer">
-                <div>
-                  <p class="text-xs font-bold text-white">${ch.title}</p>
-                  <p class="text-[10px] text-zinc-400">${ch.pages.length} Pages • ${ch.date || 'Live'}</p>
-                </div>
-                <span class="text-xs font-bold text-red-500">Read →</span>
-              </div>
-            `).join('')}
-          </div>
-        </div>`;
-      document.getElementById('detailModal').classList.remove('hidden');
-      lucide.createIcons();
-    }
-    // =========================================================================
-    // MANGA 99 ULTRA SUITE — PART 8A: SPLASH, SOUND, TOAST & CORE HELPERS
-    // =========================================================================
-    const USERS_DB_URL = "https://getpantry.cloud/apiv1/pantry/ab292eec-a5da-494c-a7cb-acebf987fda2/basket/manga99_users";
-    const SOCIAL_DB_URL = "https://getpantry.cloud/apiv1/pantry/ab292eec-a5da-494c-a7cb-acebf987fda2/basket/manga99_social";
+          <div id="animeCommentsList" class="space-y-2 max-h-64 overflow-y-auto"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    let activeUser = JSON.parse(localStorage.getItem('m99_user')) || null;
+  <!-- Creator Profile Modal -->
+  <div id="creatorProfileModal" class="fixed inset-0 z-[80] hidden bg-black overflow-y-auto pb-20">
+    <div class="sticky top-0 z-10 bg-zinc-950/95 backdrop-blur border-b border-zinc-800 px-4 py-3 flex items-center justify-between max-w-md mx-auto">
+      <button onclick="handleAppBack()" class="text-xs font-bold text-zinc-300">← Back</button>
+      <span id="creatorModalTitle" class="text-xs font-black text-orange-400">CREATOR</span>
+      <span class="w-10"></span>
+    </div>
+    <div id="creatorProfileBody" class="max-w-md mx-auto p-4 space-y-4"></div>
+  </div>
+
+  <!-- Personal 1-on-1 DM Chat Modal -->
+  <div id="chatHubModal" class="fixed inset-0 z-[88] hidden bg-black flex flex-col">
+    <div class="bg-zinc-950 border-b border-zinc-800 px-4 py-3 flex items-center justify-between max-w-md w-full mx-auto">
+      <button onclick="handleAppBack()" class="text-xs font-bold text-zinc-300">← Back</button>
+      <span id="chatRoomTitle" class="text-xs font-black text-white">Direct Messages</span>
+      <button onclick="refreshChatMessages()" class="text-xs font-bold text-orange-400">↻</button>
+    </div>
+    <div class="max-w-md w-full mx-auto px-4 py-2.5 border-b border-zinc-900">
+      <div id="activeUsersRow" class="flex gap-3 overflow-x-auto no-scrollbar"></div>
+    </div>
+    <div id="chatMessagesBox" class="flex-1 max-w-md w-full mx-auto p-4 overflow-y-auto space-y-2.5"></div>
+    <div class="bg-zinc-950 border-t border-zinc-800 p-3 max-w-md w-full mx-auto flex gap-2">
+      <input id="chatMsgInput" type="text" placeholder="Send private message..." class="flex-1 bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white">
+      <button onclick="sendChatMessage()" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-xs font-extrabold text-white">Send</button>
+    </div>
+  </div>
+  
+    <script>
+    // =========================================================================
+    // 1. PANTRY CLOUD DATABASE & APP STATE
+    // =========================================================================
+    const PANTRY_ID = 'ab292eec-a5da-494c-a7cb-acebf987fda2';
+    const LIVE_DB_URL = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/manga99_live`;
+    const USERS_DB_URL = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/manga99_users`;
+    const SOCIAL_DB_URL = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/manga99_social`;
+
+    let mangaList = JSON.parse(localStorage.getItem('m99_classic_data') || '[]');
+    let bookmarkedIds = JSON.parse(localStorage.getItem('m99_bookmarks') || '[]');
+    let m99History = JSON.parse(localStorage.getItem('m99_history') || '[]');
+    let activeUser = JSON.parse(localStorage.getItem('m99_user') || 'null');
+    let socialData = { likes: {}, messages: [], online: {}, anime: [], animeLikes: {}, animeComments: {} };
+    let currentGenre = 'All';
+    let currentChatUser = '';
+    let currentPlayingAnimeId = '';
     let m99SoundMuted = localStorage.getItem('m99_muted') === '1';
-    let m99History = JSON.parse(localStorage.getItem('m99_history')) || [];
-    let socialData = { likes: {}, messages: [], groups: [], online: {}, anime: [] };
 
-    // 1. क्लीन इन-ऐप टोस्ट नोटिफिकेशन (कोई ब्राउज़र अलर्ट या लिंक नहीं दिखेगा)
-    function showAppToast(msg, isError = false) {
-      let t = document.getElementById('m99Toast');
-      if (!t) {
-        t = document.createElement('div');
-        t.id = 'm99Toast';
-        document.body.appendChild(t);
-      }
-      t.style.opacity = '1';
-      t.className = `fixed bottom-20 left-1/2 -translate-x-1/2 z-[95] px-4 py-2.5 rounded-xl text-xs font-bold shadow-2xl transition-all duration-300 pointer-events-none text-center max-w-[90%] border ${isError ? 'bg-red-950/95 border-red-600 text-red-200' : 'bg-zinc-900/95 border-orange-500 text-white'}`;
-      t.innerText = msg;
-      clearTimeout(t._timer);
-      t._timer = setTimeout(() => { t.style.opacity = '0'; }, 2800);
-    }
-
-    // 2. प्रोफेशनल क्रंचीरोल-स्टाइल सिनेमैटिक साउंड इफ़ेक्ट (Web Audio API)
-    function playProAnimeSound(type = 'startup') {
+    // =========================================================================
+    // 2. CRUNCHYROLL CINEMA AUDIO ENGINE, TOAST & IMAGE COMPRESSOR
+    // =========================================================================
+    function playProAnimeSound(type = 'click') {
       if (m99SoundMuted) return;
       try {
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        const ctx = new AudioCtx();
-        const now = ctx.currentTime;
+        if (!window._m99AudioCtx) window._m99AudioCtx = new AudioCtx();
+        const ctx = window._m99AudioCtx;
+        if (ctx.state === 'suspended') ctx.resume();
 
         if (type === 'startup') {
-          // डीप सिनेमैटिक बेस + क्रिस्टल एनिमे चाइम
-          const osc1 = ctx.createOscillator();
-          const osc2 = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc1.type = 'sine';
-          osc1.frequency.setValueAtTime(110, now);
-          osc1.frequency.exponentialRampToValueAtTime(220, now + 0.55);
+          const sub = ctx.createOscillator();
+          const subGain = ctx.createGain();
+          sub.type = 'sine';
+          sub.frequency.setValueAtTime(145, ctx.currentTime);
+          sub.frequency.exponentialRampToValueAtTime(38, ctx.currentTime + 0.55);
+          subGain.gain.setValueAtTime(0.32, ctx.currentTime);
+          subGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.65);
+          sub.connect(subGain); subGain.connect(ctx.destination);
+          sub.start(); sub.stop(ctx.currentTime + 0.65);
 
-          osc2.type = 'triangle';
-          osc2.frequency.setValueAtTime(440, now + 0.15);
-          osc2.frequency.exponentialRampToValueAtTime(880, now + 0.75);
-
-          gain.gain.setValueAtTime(0.001, now);
-          gain.gain.exponentialRampToValueAtTime(0.18, now + 0.2);
-          gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.1);
-
-          osc1.connect(gain);
-          osc2.connect(gain);
-          gain.connect(ctx.destination);
-          osc1.start(now);
-          osc2.start(now + 0.15);
-          osc1.stop(now + 1.15);
-          osc2.stop(now + 1.15);
+          const shimmer = ctx.createOscillator();
+          const shimGain = ctx.createGain();
+          shimmer.type = 'triangle';
+          shimmer.frequency.setValueAtTime(280, ctx.currentTime);
+          shimmer.frequency.exponentialRampToValueAtTime(780, ctx.currentTime + 0.42);
+          shimGain.gain.setValueAtTime(0.11, ctx.currentTime);
+          shimGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.48);
+          shimmer.connect(shimGain); shimGain.connect(ctx.destination);
+          shimmer.start(); shimmer.stop(ctx.currentTime + 0.48);
         } else {
-          // हल्का UI क्लिक/पॉप साउंड
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
           osc.type = 'sine';
-          osc.frequency.setValueAtTime(520, now);
-          osc.frequency.exponentialRampToValueAtTime(780, now + 0.08);
-          gain.gain.setValueAtTime(0.08, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(now);
-          osc.stop(now + 0.1);
+          osc.frequency.setValueAtTime(540, ctx.currentTime);
+          gain.gain.setValueAtTime(0.05, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(); osc.stop(ctx.currentTime + 0.08);
         }
       } catch (e) {}
     }
@@ -553,358 +357,308 @@
       localStorage.setItem('m99_muted', m99SoundMuted ? '1' : '0');
       const btn = document.getElementById('soundToggleBtn');
       if (btn) btn.innerHTML = m99SoundMuted ? '🔇' : '🔊';
-      showAppToast(m99SoundMuted ? 'Sound Muted' : 'Sound On');
-      if (!m99SoundMuted) playProAnimeSound('click');
+      if (!m99SoundMuted) playProAnimeSound('startup');
     }
 
-    // 3. Manga 99 का अपना यूनिक क्रंचीरोल-स्टाइल लोडिंग स्क्रीन अपग्रेड
-    function upgradeProSplash() {
-      const oldSplash = document.getElementById('splashScreen');
-      if (oldSplash) oldSplash.remove();
-
-      const sp = document.createElement('div');
-      sp.id = 'proSplashScreen';
-      sp.className = 'fixed inset-0 z-[100] bg-[#070709] flex flex-col items-center justify-center p-6 transition-opacity duration-500 overflow-hidden';
-      sp.innerHTML = `
-        <div class="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_#f97316_0%,_#dc2626_35%,_transparent_70%)] animate-pulse"></div>
-        <div class="absolute inset-0 opacity-10" style="background-image: repeating-linear-gradient(45deg, #27272a 0, #27272a 1px, transparent 0, transparent 50%); background-size: 16px 16px;"></div>
-
-        <div class="relative z-10 flex flex-col items-center text-center space-y-4">
-          <div class="w-20 h-20 rounded-3xl bg-gradient-to-br from-orange-500 via-red-600 to-amber-500 p-[2px] shadow-[0_0_40px_rgba(249,115,22,0.5)] animate-bounce">
-            <div class="w-full h-full bg-zinc-950 rounded-[22px] flex items-center justify-center">
-              <span class="text-3xl font-black bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent tracking-tighter">99</span>
-            </div>
-          </div>
-
-          <div>
-            <h1 class="text-2xl font-black tracking-[0.22em] text-white">MANGA <span class="text-orange-500">99</span></h1>
-            <p class="text-[11px] text-zinc-400 tracking-widest uppercase mt-1">Hindi Manga & Anime Universe</p>
-          </div>
-
-          <div class="w-48 h-1.5 bg-zinc-900 rounded-full overflow-hidden border border-zinc-800 mt-2">
-            <div id="proSplashBar" class="h-full w-0 bg-gradient-to-r from-orange-500 via-amber-400 to-red-600 rounded-full transition-all duration-1000 ease-out"></div>
-          </div>
-          <p class="text-[10px] text-zinc-500 font-semibold tracking-wider">LOADING STUDIO EXPERIENCE...</p>
-        </div>
-      `;
-      document.body.appendChild(sp);
-
-      setTimeout(() => {
-        const bar = document.getElementById('proSplashBar');
-        if (bar) bar.style.width = '100%';
-        playProAnimeSound('startup');
-      }, 80);
-
-      setTimeout(() => {
-        sp.style.opacity = '0';
-        setTimeout(() => {
-          sp.remove();
-          if (!activeUser) {
-            openWelcomeAuthScreen();
-          }
-        }, 500);
-      }, 1450);
+    function showAppToast(msg, isErr = false) {
+      const t = document.getElementById('appToast');
+      if (!t) return;
+      t.innerText = msg;
+      t.className = `fixed top-4 left-1/2 -translate-x-1/2 z-[190] px-4 py-2 rounded-full text-xs font-extrabold shadow-2xl border backdrop-blur-md ${isErr ? 'bg-red-950/95 border-red-500 text-red-200' : 'bg-zinc-900/95 border-orange-500/60 text-white'}`;
+      t.classList.remove('hidden');
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => t.classList.add('hidden'), 2400);
     }
-        // =========================================================================
-    // PART 8B: CRUNCHYROLL-STYLE SEPARATE SIGN UP, LOG IN & GUEST FLOW
+
+    function updateStatus(txt, cls) {
+      const el = document.getElementById('cloudStatusBadge');
+      if (el) { el.innerText = txt; el.className = `text-[9px] font-bold ${cls}`; }
+    }
+
+    function compressImg(file, maxW = 720, q = 0.72) {
+      return new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onload = e => {
+          const img = new Image();
+          img.onload = () => {
+            const scale = Math.min(1, maxW / img.width);
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width * scale;
+            canvas.height = img.height * scale;
+            canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+            resolve(canvas.toDataURL('image/jpeg', q));
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
     // =========================================================================
-    function buildAuthModals() {
-      if (document.getElementById('crAuthOverlay')) return;
+    // 3. SMART NAVIGATION & ANDROID BACK BUTTON
+    // =========================================================================
+    let navStack = ['home'];
 
-      const wrap = document.createElement('div');
-      wrap.id = 'crAuthOverlay';
-      wrap.className = 'fixed inset-0 z-[90] hidden bg-[#070709]/95 backdrop-blur-md flex items-center justify-center p-4';
-      wrap.innerHTML = `
-        <!-- 1. WELCOME CHOICE SCREEN (Crunchyroll Style) -->
-        <div id="authStepWelcome" class="bg-zinc-900/95 border border-zinc-800 rounded-3xl p-6 max-w-xs w-full space-y-4 shadow-2xl text-center">
-          <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center font-black text-xl text-white shadow-lg">99</div>
-          <div>
-            <h2 class="text-lg font-black text-white">Manga 99 में स्वागत है</h2>
-            <p class="text-xs text-zinc-400 mt-1">हिंदी मंगा पढ़ें, एनिमे देखें और क्रिएटर्स से जुड़ें — बिना ईमेल या मोबाइल नंबर के!</p>
-          </div>
-          <div class="space-y-2.5 pt-2">
-            <button onclick="showAuthStep('signup')" class="w-full py-3 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-white font-extrabold text-xs tracking-wide shadow-lg hover:opacity-95">
-              CREATE ACCOUNT (नया अकाउंट बनाएं)
-            </button>
-            <button onclick="showAuthStep('login')" class="w-full py-3 rounded-xl bg-zinc-950 border border-orange-500/60 text-orange-400 font-extrabold text-xs tracking-wide hover:bg-zinc-800">
-              LOG IN (पुराना अकाउंट खोलें)
-            </button>
-            <button onclick="continueAsGuest()" class="w-full py-2 text-[11px] font-bold text-zinc-400 hover:text-white">
-              Continue as Guest (बिना अकाउंट आगे बढ़ें) →
-            </button>
-          </div>
-        </div>
-
-        <!-- 2. CREATE ACCOUNT (SIGN UP) SCREEN -->
-        <div id="authStepSignup" class="hidden bg-zinc-900/95 border border-zinc-800 rounded-3xl p-6 max-w-xs w-full space-y-3.5 shadow-2xl">
-          <button onclick="showAuthStep('welcome')" class="text-xs font-bold text-zinc-400 hover:text-white">← वापस जाएं</button>
-          <div>
-            <span class="text-[10px] font-extrabold uppercase tracking-wider text-orange-500">New Member</span>
-            <h3 class="text-base font-black text-white">Create Account</h3>
-            <p class="text-[11px] text-zinc-400">अपना यूनिक यूज़रनेम और पासवर्ड सेट करें:</p>
-          </div>
-          <input id="signupName" type="text" placeholder="नया यूज़रनेम (नाम) लिखें" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-orange-500 focus:outline-none">
-          <input id="signupPass" type="password" placeholder="नया पासवर्ड बनाएं" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-orange-500 focus:outline-none">
-          <div>
-            <label class="block text-[10px] text-zinc-400 mb-1">प्रोफाइल फोटो (वैकल्पिक):</label>
-            <input id="signupAvatar" type="file" accept="image/*" class="w-full text-[11px] text-zinc-300">
-          </div>
-          <button id="signupBtn" onclick="submitSignup()" class="w-full py-3 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-white font-extrabold text-xs shadow-lg">
-            Create My Account
-          </button>
-          <p class="text-center text-[11px] text-zinc-400">पहले से अकाउंट है? <button onclick="showAuthStep('login')" class="text-orange-400 font-bold underline">Log In करें</button></p>
-        </div>
-
-        <!-- 3. LOG IN SCREEN -->
-        <div id="authStepLogin" class="hidden bg-zinc-900/95 border border-zinc-800 rounded-3xl p-6 max-w-xs w-full space-y-3.5 shadow-2xl">
-          <button onclick="showAuthStep('welcome')" class="text-xs font-bold text-zinc-400 hover:text-white">← वापस जाएं</button>
-          <div>
-            <span class="text-[10px] font-extrabold uppercase tracking-wider text-orange-500">Welcome Back</span>
-            <h3 class="text-base font-black text-white">Log In</h3>
-            <p class="text-[11px] text-zinc-400">अपने अकाउंट का नाम और पासवर्ड डालें:</p>
-          </div>
-          <input id="loginName" type="text" placeholder="अपना यूज़रनेम लिखें" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-orange-500 focus:outline-none">
-          <input id="loginPass" type="password" placeholder="अपना पासवर्ड डालें" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-orange-500 focus:outline-none">
-          <button id="loginBtn" onclick="submitLogin()" class="w-full py-3 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-white font-extrabold text-xs shadow-lg">
-            Log In Now
-          </button>
-          <p class="text-center text-[11px] text-zinc-400">अकाउंट नहीं बना है? <button onclick="showAuthStep('signup')" class="text-orange-400 font-bold underline">Create Account करें</button></p>
-        </div>
-      `;
-      document.body.appendChild(wrap);
+    function pushNavLayer(layer) {
+      navStack.push(layer);
+      try { window.history.pushState({ m99Layer: layer }, ''); } catch (e) {}
     }
 
-    function openWelcomeAuthScreen() {
-      buildAuthModals();
-      document.getElementById('crAuthOverlay').classList.remove('hidden');
-      showAuthStep('welcome');
-    }
-
-    function showAuthStep(step) {
-      playProAnimeSound('click');
-      ['authStepWelcome', 'authStepSignup', 'authStepLogin'].forEach(id => {
+    function closeAllModalsSilent() {
+      ['mangaDetailModal', 'animeSeriesModal', 'readerModal', 'animePlayerModal', 'creatorProfileModal', 'chatHubModal'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.add('hidden');
       });
-      const target = step === 'signup' ? 'authStepSignup' : step === 'login' ? 'authStepLogin' : 'authStepWelcome';
-      document.getElementById(target).classList.remove('hidden');
+      const wrap = document.getElementById('animeFrameWrap');
+      if (wrap) wrap.innerHTML = '';
     }
 
-    function continueAsGuest() {
-      activeUser = { name: 'Guest', bio: 'Exploring Manga 99', avatar: '', isGuest: true };
-      localStorage.setItem('m99_user', JSON.stringify(activeUser));
-      document.getElementById('crAuthOverlay').classList.add('hidden');
-      refreshHeaderUserUI();
-      showAppToast('Guest Mode में स्वागत है!');
-    }
-
-    async function submitSignup() {
-      const name = document.getElementById('signupName').value.trim();
-      const pass = document.getElementById('signupPass').value.trim();
-      const avatarFile = document.getElementById('signupAvatar').files[0];
-      if (!name || !pass) return showAppToast('कृपया नाम और पासवर्ड दोनों लिखें!', true);
-      if (name.toLowerCase() === 'guest') return showAppToast('Guest नाम नहीं रख सकते!', true);
-
-      const btn = document.getElementById('signupBtn');
-      btn.disabled = true; btn.innerText = 'Creating Account...';
-      try {
-        let users = [];
-        try {
-          const res = await fetch(USERS_DB_URL);
-          if (res.ok) { const d = await res.json(); users = d.users || []; }
-        } catch (e) {}
-
-        if (users.some(u => u.name.toLowerCase() === name.toLowerCase())) {
-          showAppToast('यह नाम पहले से लिया जा चुका है, कोई दूसरा नाम चुनें!', true);
+    function handleAppBack() {
+      const modals = ['readerModal', 'animePlayerModal', 'animeSeriesModal', 'mangaDetailModal', 'creatorProfileModal', 'chatHubModal'];
+      for (const mId of modals) {
+        const el = document.getElementById(mId);
+        if (el && !el.classList.contains('hidden')) {
+          el.classList.add('hidden');
+          if (mId === 'animePlayerModal') {
+            const w = document.getElementById('animeFrameWrap');
+            if (w) w.innerHTML = '';
+          }
+          if (navStack.length > 1) navStack.pop();
           return;
         }
-
-        let avatar = '';
-        if (avatarFile) avatar = await compressImg(avatarFile);
-
-        const newUserObj = { name, pass, bio: 'Manga & Anime Fan on Manga 99', avatar };
-        users.push(newUserObj);
-        await fetch(USERS_DB_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ users })
-        });
-
-        activeUser = { name, bio: newUserObj.bio, avatar, isGuest: false };
-        localStorage.setItem('m99_user', JSON.stringify(activeUser));
-        document.getElementById('crAuthOverlay').classList.add('hidden');
-        refreshHeaderUserUI();
-        pingOnlineStatus();
-        playProAnimeSound('startup');
-        showAppToast('अकाउंट तैयार है! स्वागत है ' + name);
-      } finally {
-        btn.disabled = false; btn.innerText = 'Create My Account';
+      }
+      if (navStack.length > 1) {
+        navStack.pop();
+        navigateTo(navStack[navStack.length - 1], true);
+      } else {
+        navigateTo('home', true);
       }
     }
 
-    async function submitLogin() {
-      const name = document.getElementById('loginName').value.trim();
-      const pass = document.getElementById('loginPass').value.trim();
-      if (!name || !pass) return showAppToast('कृपया यूज़रनेम और पासवर्ड डालें!', true);
+    window.addEventListener('popstate', () => handleAppBack());
 
-      const btn = document.getElementById('loginBtn');
-      btn.disabled = true; btn.innerText = 'Logging In...';
+    function navigateTo(view, fromBack = false) {
+      closeAllModalsSilent();
+      document.querySelectorAll('.app-view').forEach(v => v.classList.add('hidden'));
+      const target = document.getElementById('view-' + view);
+      if (target) target.classList.remove('hidden');
+
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        const active = btn.dataset.nav === view;
+        btn.className = `nav-btn flex flex-col items-center gap-0.5 ${active ? 'text-orange-500' : 'text-zinc-400'}`;
+      });
+
+      if (!fromBack && navStack[navStack.length - 1] !== view) pushNavLayer(view);
+      playProAnimeSound('click');
+
+      if (view === 'home') renderHome();
+      if (view === 'anime') renderAnimeTab();
+      if (view === 'search') renderSearch();
+      if (view === 'library') renderLibrary();
+      if (view === 'profile') renderOwnProfileTab();
+      if (view === 'settings') renderSettingsPage();
+      if (view === 'admin') renderAdmin();
+      window.scrollTo(0, 0);
+    }
+    
+        // =========================================================================
+    // 4. USER ACCOUNTS & GUEST MODE
+    // =========================================================================
+    async function getAllUsersSafe() {
+      let local = JSON.parse(localStorage.getItem('m99_local_users') || '[]');
       try {
-        let users = [];
+        const res = await fetch(USERS_DB_URL);
+        if (res.ok) {
+          const d = await res.json();
+          if (d && Array.isArray(d.users)) {
+            local = d.users;
+            localStorage.setItem('m99_local_users', JSON.stringify(local));
+          }
+        }
+      } catch (e) {}
+      return local;
+    }
+
+    function openWelcomeAuthScreen() {
+      document.getElementById('welcomeAuthModal').classList.remove('hidden');
+    }
+
+    function switchAuthTab(tab) {
+      const isSignup = tab === 'signup';
+      document.getElementById('signupForm').classList.toggle('hidden', !isSignup);
+      document.getElementById('loginForm').classList.toggle('hidden', isSignup);
+      document.getElementById('authTabSignup').className = `flex-1 py-2 rounded-lg text-xs font-extrabold ${isSignup ? 'bg-orange-500 text-black' : 'text-zinc-400'}`;
+      document.getElementById('authTabLogin').className = `flex-1 py-2 rounded-lg text-xs font-extrabold ${!isSignup ? 'bg-orange-500 text-black' : 'text-zinc-400'}`;
+    }
+
+    async function handleAccountSignup(e) {
+      e.preventDefault();
+      const name = document.getElementById('regName').value.trim();
+      const pass = document.getElementById('regPass').value.trim();
+      const bio = document.getElementById('regBio').value.trim();
+      const file = document.getElementById('regAvatar').files[0];
+      if (!name || !pass) return;
+
+      const btn = document.getElementById('signupSubmitBtn');
+      btn.disabled = true; btn.innerText = 'Creating Account...';
+      try {
+        const users = await getAllUsersSafe();
+        if (users.some(u => u.name.toLowerCase() === name.toLowerCase())) {
+          return showAppToast('यह यूज़रनेम पहले से लिया जा चुका है!', true);
+        }
+        const avatar = file ? await compressImg(file, 300, 0.7) : '';
+        const newUser = { name, pass, bio: bio || 'Manga Creator on Manga 99', avatar };
+        users.push(newUser);
+        localStorage.setItem('m99_local_users', JSON.stringify(users));
         try {
-          const res = await fetch(USERS_DB_URL);
-          if (res.ok) { const d = await res.json(); users = d.users || []; }
-        } catch (e) {}
+          await fetch(USERS_DB_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ users })
+          });
+        } catch (err) {}
 
-        const found = users.find(u => u.name.toLowerCase() === name.toLowerCase());
-        if (!found) {
-          showAppToast('इस नाम से कोई अकाउंट नहीं मिला! पहले Create Account करें।', true);
-          return;
-        }
-        if (found.pass !== pass) {
-          showAppToast('गलत पासवर्ड! दोबारा प्रयास करें।', true);
-          return;
-        }
-
-        activeUser = { name: found.name, bio: found.bio || 'Manga Creator', avatar: found.avatar || '', isGuest: false };
+        activeUser = { name, bio: newUser.bio, avatar, isGuest: false };
         localStorage.setItem('m99_user', JSON.stringify(activeUser));
-        document.getElementById('crAuthOverlay').classList.add('hidden');
-        refreshHeaderUserUI();
+        document.getElementById('welcomeAuthModal').classList.add('hidden');
+        refreshNavUserUI();
         pingOnlineStatus();
         playProAnimeSound('startup');
-        showAppToast('Welcome back, ' + found.name + '!');
+        showAppToast('Account Created! Welcome ' + name);
+      } finally {
+        btn.disabled = false; btn.innerText = 'Create Account & Enter';
+      }
+    }
+
+    async function handleAccountLogin(e) {
+      e.preventDefault();
+      const name = document.getElementById('loginName').value.trim();
+      const pass = document.getElementById('loginPass').value.trim();
+      const btn = document.getElementById('loginSubmitBtn');
+      btn.disabled = true; btn.innerText = 'Checking...';
+      try {
+        const users = await getAllUsersSafe();
+        const found = users.find(u => u.name.toLowerCase() === name.toLowerCase() && u.pass === pass);
+        if (!found) return showAppToast('गलत यूज़रनेम या पासवर्ड!', true);
+
+        activeUser = { name: found.name, bio: found.bio || '', avatar: found.avatar || '', isGuest: false };
+        localStorage.setItem('m99_user', JSON.stringify(activeUser));
+        document.getElementById('welcomeAuthModal').classList.add('hidden');
+        refreshNavUserUI();
+        pingOnlineStatus();
+        playProAnimeSound('startup');
+        showAppToast('Welcome back, ' + found.name);
       } finally {
         btn.disabled = false; btn.innerText = 'Log In Now';
       }
     }
-        // =========================================================================
-    // PART 8C: INSTAGRAM-STYLE PROFILE PAGE & OWN CONTENT MANAGEMENT
-    // =========================================================================
-    function buildHeaderAndProfileUI() {
-      const authorInp = document.getElementById('mAuthor');
-      if (authorInp) authorInp.placeholder = 'लेखक का नाम लिखें';
 
-      const adminBtn = document.querySelector('button[onclick="openAdminGate()"]');
-      if (adminBtn && !document.getElementById('userAccountBtn')) {
-        // Sound Button
-        const sBtn = document.createElement('button');
-        sBtn.id = 'soundToggleBtn';
-        sBtn.onclick = toggleAppSound;
-        sBtn.className = 'px-2 py-1.5 rounded-xl bg-zinc-900 border border-zinc-800 text-xs';
-        sBtn.innerHTML = m99SoundMuted ? '🔇' : '🔊';
-        adminBtn.parentNode.insertBefore(sBtn, adminBtn);
-
-        // DM Chat Button
-        const cBtn = document.createElement('button');
-        cBtn.id = 'chatHeaderBtn';
-        cBtn.onclick = openChatHub;
-        cBtn.className = 'px-2.5 py-1.5 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-bold text-zinc-200 flex items-center gap-1 relative';
-        cBtn.innerHTML = `💬 <span id="onlineBadgeDot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>`;
-        adminBtn.parentNode.insertBefore(cBtn, adminBtn);
-
-        // User Profile Button
-        const uBtn = document.createElement('button');
-        uBtn.id = 'userAccountBtn';
-        uBtn.onclick = handleHeaderProfileTap;
-        uBtn.className = 'px-2.5 py-1.5 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-200 text-xs font-bold flex items-center gap-1.5';
-        uBtn.innerHTML = `<span id="headerAvatarWrap"></span> <span id="currentUserLabel">Guest</span>`;
-        adminBtn.parentNode.insertBefore(uBtn, adminBtn);
-      }
-
-      if (!document.getElementById('instaProfileModal')) {
-        const pm = document.createElement('div');
-        pm.id = 'instaProfileModal';
-        pm.className = 'fixed inset-0 z-[80] hidden bg-zinc-950 overflow-y-auto pb-24';
-        pm.innerHTML = `
-          <div class="sticky top-0 z-10 bg-zinc-950/95 backdrop-blur border-b border-zinc-800 px-4 py-3 flex items-center justify-between">
-            <button onclick="closeInstaProfile()" class="text-xs font-bold text-zinc-300">← Back</button>
-            <span class="text-xs font-black tracking-wider text-white">PROFILE</span>
-            <button onclick="closeInstaProfile(); openWelcomeAuthScreen();" class="text-[11px] font-bold text-orange-400">Switch Account</button>
-          </div>
-
-          <div class="p-4 max-w-md mx-auto space-y-4">
-            <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 space-y-3.5">
-              <div class="flex items-center gap-4">
-                <div class="relative shrink-0">
-                  <div id="profAvatarBox" class="w-18 h-18 w-[72px] h-[72px] rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-2xl font-black text-white overflow-hidden border-2 border-orange-500">U</div>
-                  <span class="absolute bottom-0.5 right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-zinc-900" title="Online"></span>
-                </div>
-                <div class="flex-1 min-w-0">
-                  <h2 id="profNameTxt" class="font-black text-base text-white truncate">User</h2>
-                  <p id="profBioTxt" class="text-xs text-zinc-400 mt-0.5 line-clamp-2">Manga Creator</p>
-                  <div class="flex gap-4 mt-2 text-[11px] font-bold">
-                    <span class="text-white"><b id="profMangaCount" class="text-orange-400">0</b> Uploads</span>
-                    <span class="text-white"><b id="profTotalLikes" class="text-pink-500">0</b> ❤️ Likes</span>
-                  </div>
-                </div>
-              </div>
-
-              <button onclick="toggleEditProfilePanel()" class="w-full py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-xs font-bold text-white border border-zinc-700">
-                Edit Profile (प्रोफाइल फोटो, नाम और बायो बदलें)
-              </button>
-
-              <div id="editProfilePanel" class="hidden space-y-2.5 pt-3 border-t border-zinc-800">
-                <label class="block text-[11px] text-zinc-400 font-bold">नई प्रोफाइल फोटो चुनें:</label>
-                <input id="editAvatarFile" type="file" accept="image/*" class="w-full text-[11px] text-zinc-300">
-                <input id="editNameInp" type="text" placeholder="नया नाम लिखें" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white">
-                <textarea id="editBioInp" rows="2" placeholder="अपना बायो (Bio) लिखें..." class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white"></textarea>
-                <button id="saveProfileBtn" onclick="saveInstaProfile()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-white text-xs font-extrabold">
-                  Save Profile Changes
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <h3 class="text-xs font-extrabold text-zinc-300 uppercase tracking-wider mb-2.5">My Uploaded Manga</h3>
-              <div id="myOwnMangaGrid" class="grid grid-cols-2 gap-3"></div>
-            </div>
-          </div>
-        `;
-        document.body.appendChild(pm);
-      }
-      refreshHeaderUserUI();
+    function continueAsGuest() {
+      activeUser = { name: 'Guest', avatar: '', isGuest: true };
+      localStorage.setItem('m99_user', JSON.stringify(activeUser));
+      document.getElementById('welcomeAuthModal').classList.add('hidden');
+      refreshNavUserUI();
+      showAppToast('Guest Mode Active');
     }
 
-    function refreshHeaderUserUI() {
-      const u = activeUser || { name: 'Guest', avatar: '', isGuest: true };
-      const lbl = document.getElementById('currentUserLabel');
-      const wrap = document.getElementById('headerAvatarWrap');
-      const authorInp = document.getElementById('mAuthor');
+    function requireAccountForAction(actionName) {
+      if (!activeUser || activeUser.isGuest || activeUser.name === 'Guest') {
+        showAppToast(`${actionName} के लिए पहले अकाउंट बनाएं!`, true);
+        openWelcomeAuthScreen();
+        return false;
+      }
+      return true;
+    }
 
-      if (lbl) lbl.innerText = u.name;
+    function refreshNavUserUI() {
+      const u = activeUser || { name: 'Guest', avatar: '', isGuest: true };
+      const lbl = document.getElementById('navProfileLabel');
+      const wrap = document.getElementById('navAvatarWrap');
+      const authorInp = document.getElementById('mAuthor');
+      if (lbl) lbl.innerText = u.isGuest ? 'Guest' : u.name;
       if (wrap) {
         wrap.innerHTML = u.avatar
-          ? `<img src="${u.avatar}" class="w-4 h-4 rounded-full object-cover border border-orange-500">`
-          : `<span class="w-4 h-4 rounded-full bg-orange-500/20 text-orange-400 flex items-center justify-center text-[10px] font-black">${u.name.charAt(0).toUpperCase()}</span>`;
+          ? `<img src="${u.avatar}" class="w-5 h-5 rounded-full object-cover">`
+          : `<span class="w-5 h-5 rounded-full bg-orange-500 text-black font-black text-[10px] flex items-center justify-center">${u.name.charAt(0).toUpperCase()}</span>`;
       }
-      if (authorInp) {
-        authorInp.value = (!u.isGuest && u.name !== 'Guest') ? u.name : '';
-      }
+      if (authorInp && !u.isGuest && u.name !== 'Guest') authorInp.value = u.name;
     }
 
-    function handleHeaderProfileTap() {
+    function handleProfileNavTap() {
       if (!activeUser || activeUser.isGuest || activeUser.name === 'Guest') {
         openWelcomeAuthScreen();
       } else {
-        openInstaProfile();
+        navigateTo('profile');
       }
     }
+    
+        // =========================================================================
+    // 5. INSTAGRAM PROFILE & CREATOR PROFILE
+    // =========================================================================
+    function renderOwnProfileTab() {
+      const box = document.getElementById('profileViewContainer');
+      if (!activeUser || activeUser.isGuest) {
+        box.innerHTML = `
+          <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 text-center space-y-3">
+            <p class="text-xs text-zinc-400">आप अभी Guest Mode में हैं। अपनी प्रोफाइल बनाने के लिए अकाउंट बनाएं।</p>
+            <button onclick="openWelcomeAuthScreen()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-xs font-extrabold text-white">Create Account / Log In</button>
+          </div>
+        `;
+        return;
+      }
 
-    function openInstaProfile() {
-      document.getElementById('instaProfileModal').classList.remove('hidden');
-      document.getElementById('editProfilePanel').classList.add('hidden');
-      renderInstaProfileData();
-    }
+      const mine = mangaList.filter(m => m.author && m.author.toLowerCase() === activeUser.name.toLowerCase());
+      let totalLikes = 0;
+      mine.forEach(m => { totalLikes += (socialData.likes[m.id] || []).length; });
 
-    function closeInstaProfile() {
-      document.getElementById('instaProfileModal').classList.add('hidden');
-    }
-
-    function toggleEditProfilePanel() {
-      const p = document.getElementById('editProfilePanel');
-      p.classList.toggle('hidden');
-      document.getElementById('editNameInp').value = activeUser.name;
-      document.getElementById('editBioInp').value = activeUser.bio || '';
+      box.innerHTML = `
+        <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 space-y-3.5">
+          <div class="flex items-center justify-between border-b border-zinc-800/80 pb-2.5">
+            <span class="text-xs font-black tracking-wider text-orange-400">MY PROFILE</span>
+            <div class="flex items-center gap-2">
+              <button onclick="openChatHub()" class="px-2.5 py-1.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs font-extrabold text-white">💬 DM</button>
+              <button onclick="navigateTo('settings')" class="w-8 h-8 rounded-xl bg-zinc-950 border border-zinc-800 text-xs flex items-center justify-center">⚙️</button>
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="w-[72px] h-[72px] rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-2xl font-black text-white overflow-hidden border-2 border-orange-500 shrink-0">
+              ${activeUser.avatar ? `<img src="${activeUser.avatar}" class="w-full h-full object-cover">` : activeUser.name.charAt(0).toUpperCase()}
+            </div>
+            <div class="flex-1 min-w-0">
+              <h2 class="font-black text-base text-white truncate">${activeUser.name}</h2>
+              <p class="text-xs text-zinc-400 mt-0.5 line-clamp-2">${activeUser.bio || 'Manga Creator on Manga 99'}</p>
+              <div class="flex gap-5 mt-2 text-[11px] font-bold">
+                <div><b class="text-sm text-white block">${mine.length}</b><span class="text-zinc-400 text-[10px]">Posts</span></div>
+                <div><b class="text-sm text-pink-500 block">${totalLikes}</b><span class="text-zinc-400 text-[10px]">Likes</span></div>
+              </div>
+            </div>
+          </div>
+          <button onclick="document.getElementById('editProfilePanel').classList.toggle('hidden')" class="w-full py-2 rounded-xl bg-zinc-800 text-xs font-bold text-white border border-zinc-700">Edit Profile</button>
+          <div id="editProfilePanel" class="hidden space-y-2.5 pt-3 border-t border-zinc-800">
+            <input id="editAvatarFile" type="file" accept="image/*" class="w-full text-[11px] text-zinc-300">
+            <input id="editNameInp" type="text" value="${activeUser.name}" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white">
+            <textarea id="editBioInp" rows="2" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white">${activeUser.bio || ''}</textarea>
+            <button id="saveProfileBtn" onclick="saveInstaProfile()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-white text-xs font-extrabold">Save Changes</button>
+          </div>
+        </div>
+        <div>
+          <h3 class="text-xs font-extrabold text-zinc-300 uppercase tracking-wider mb-2.5">My Uploaded Manga</h3>
+          <div class="grid grid-cols-2 gap-3">
+            ${mine.length ? mine.map(m => `
+              <div class="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden flex flex-col">
+                <div onclick="openMangaDetail('${m.id}')" class="relative aspect-[3/4] cursor-pointer">
+                  <img src="${m.cover}" class="w-full h-full object-cover">
+                  <span class="absolute bottom-1.5 right-1.5 bg-black/80 text-[10px] font-bold px-2 py-0.5 rounded text-orange-400">${m.chapters.length} Ch</span>
+                </div>
+                <div class="p-2.5 flex flex-col gap-2">
+                  <p class="font-bold text-xs text-white truncate">${m.title}</p>
+                  <button onclick="deleteMyOwnManga('${m.id}')" class="w-full py-1.5 rounded-lg bg-red-600/20 text-red-400 border border-red-600/40 text-[11px] font-bold">Delete</button>
+                </div>
+              </div>
+            `).join('') : '<p class="col-span-2 text-xs text-zinc-500 text-center py-6">आपने अभी कोई Manga अपलोड नहीं की है।</p>'}
+          </div>
+        </div>
+      `;
     }
 
     async function saveInstaProfile() {
@@ -912,181 +666,472 @@
       const newBio = document.getElementById('editBioInp').value.trim();
       const file = document.getElementById('editAvatarFile').files[0];
       if (!newName) return showAppToast('नाम खाली नहीं छोड़ सकते!', true);
-
       const btn = document.getElementById('saveProfileBtn');
       btn.disabled = true; btn.innerText = 'Saving...';
       try {
         const oldName = activeUser.name;
-        let avatar = activeUser.avatar || '';
-        if (file) avatar = await compressImg(file);
-
-        // क्लाउड यूज़र डेटाबेस में भी अपडेट करें
-        try {
-          const res = await fetch(USERS_DB_URL);
-          if (res.ok) {
-            const d = await res.json();
-            const users = d.users || [];
-            const idx = users.findIndex(x => x.name.toLowerCase() === oldName.toLowerCase());
-            if (idx > -1) {
-              users[idx].name = newName;
-              users[idx].bio = newBio;
-              users[idx].avatar = avatar;
-              await fetch(USERS_DB_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ users })
-              });
-            }
-          }
-        } catch (e) {}
-
-        // यूज़र की अपलोड की हुई मंगा में लेखक का नाम अपडेट करें
+        const avatar = file ? await compressImg(file, 300, 0.7) : (activeUser.avatar || '');
+        const users = await getAllUsersSafe();
+        const idx = users.findIndex(x => x.name.toLowerCase() === oldName.toLowerCase());
+        if (idx > -1) {
+          users[idx] = { ...users[idx], name: newName, bio: newBio, avatar };
+          localStorage.setItem('m99_local_users', JSON.stringify(users));
+          try { await fetch(USERS_DB_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ users }) }); } catch (e) {}
+        }
         let changed = false;
-        mangaList.forEach(m => {
-          if (m.author && m.author.toLowerCase() === oldName.toLowerCase()) {
-            m.author = newName;
-            changed = true;
-          }
-        });
-
+        mangaList.forEach(m => { if (m.author && m.author.toLowerCase() === oldName.toLowerCase()) { m.author = newName; changed = true; } });
         activeUser = { ...activeUser, name: newName, bio: newBio, avatar };
         localStorage.setItem('m99_user', JSON.stringify(activeUser));
-
-        if (changed) {
-          await pushLiveManga();
-          renderHome();
-        }
-        refreshHeaderUserUI();
-        renderInstaProfileData();
-        pingOnlineStatus();
-        document.getElementById('editProfilePanel').classList.add('hidden');
-        showAppToast('प्रोफाइल अपडेट हो गई!');
+        if (changed) await pushLiveManga();
+        refreshNavUserUI();
+        renderOwnProfileTab();
+        showAppToast('Profile Updated!');
       } finally {
-        btn.disabled = false; btn.innerText = 'Save Profile Changes';
+        btn.disabled = false; btn.innerText = 'Save Changes';
       }
-    }
-
-    function renderInstaProfileData() {
-      document.getElementById('profNameTxt').innerText = activeUser.name;
-      document.getElementById('profBioTxt').innerText = activeUser.bio || 'Manga Creator on Manga 99';
-      const av = document.getElementById('profAvatarBox');
-      av.innerHTML = activeUser.avatar
-        ? `<img src="${activeUser.avatar}" class="w-full h-full object-cover">`
-        : activeUser.name.charAt(0).toUpperCase();
-
-      const mine = mangaList.filter(m => m.author && m.author.toLowerCase() === activeUser.name.toLowerCase());
-      document.getElementById('profMangaCount').innerText = mine.length;
-
-      let totalLikes = 0;
-      mine.forEach(m => {
-        totalLikes += (socialData.likes[m.id] || []).length;
-      });
-      document.getElementById('profTotalLikes').innerText = totalLikes;
-
-      const grid = document.getElementById('myOwnMangaGrid');
-      if (!mine.length) {
-        grid.innerHTML = '<p class="col-span-2 text-xs text-zinc-500 text-center py-6 bg-zinc-900/50 rounded-xl border border-zinc-800">आपने अभी तक कोई Manga अपलोड नहीं की है।</p>';
-        return;
-      }
-
-      grid.innerHTML = mine.map(m => `
-        <div class="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden flex flex-col">
-          <div onclick="closeInstaProfile(); openMangaDetail('${m.id}')" class="relative aspect-[3/4] cursor-pointer">
-            <img src="${m.cover}" class="w-full h-full object-cover">
-            <span class="absolute top-1.5 left-1.5 bg-black/80 text-[10px] font-bold px-2 py-0.5 rounded text-pink-400">❤️ ${(socialData.likes[m.id] || []).length}</span>
-            <span class="absolute bottom-1.5 right-1.5 bg-black/80 text-[10px] font-bold px-2 py-0.5 rounded text-orange-400">${m.chapters.length} Ch</span>
-          </div>
-          <div class="p-2.5 flex-1 flex flex-col justify-between gap-2">
-            <p class="font-bold text-xs text-white truncate">${m.title}</p>
-            <button onclick="deleteMyOwnManga('${m.id}')" class="w-full py-1.5 rounded-lg bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-600/40 text-[11px] font-bold transition">
-              Delete Own Manga
-            </button>
-          </div>
-        </div>
-      `).join('');
     }
 
     async function deleteMyOwnManga(id) {
-      const target = mangaList.find(m => m.id === id);
-      if (!target) return;
-      if (target.author.toLowerCase() !== activeUser.name.toLowerCase()) {
-        return showAppToast('आप केवल अपनी खुद की Manga ही डिलीट कर सकते हैं!', true);
-      }
       mangaList = mangaList.filter(m => m.id !== id);
-      renderInstaProfileData();
+      renderOwnProfileTab();
       renderHome();
       await pushLiveManga();
-      showAppToast('आपकी Manga डिलीट कर दी गई!');
-    }
-        // =========================================================================
-    // PART 8D: LIKES, TRENDING, HINDI ANIME EPISODES & HISTORY (CHECK + DELETE)
-    // =========================================================================
-    async function syncSocialCloud(save = false) {
-      try {
-        if (save) {
-          await fetch(SOCIAL_DB_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(socialData)
-          });
-        } else {
-          const res = await fetch(SOCIAL_DB_URL);
-          if (res.ok) {
-            const d = await res.json();
-            socialData = {
-              likes: d.likes || {},
-              messages: d.messages || [],
-              groups: d.groups || [],
-              online: d.online || {},
-              anime: d.anime || []
-            };
-          }
-        }
-      } catch (e) {}
+      showAppToast('Manga Deleted!');
     }
 
-    // 1. मंगा लाइक (❤️) और ट्रेंडिंग सिस्टम
+    async function openCreatorProfile(targetName) {
+      if (activeUser && !activeUser.isGuest && targetName.toLowerCase() === activeUser.name.toLowerCase()) return navigateTo('profile');
+      pushNavLayer('modal:creator');
+      document.getElementById('creatorProfileModal').classList.remove('hidden');
+      document.getElementById('creatorModalTitle').innerText = targetName.toUpperCase();
+      const users = await getAllUsersSafe();
+      const u = users.find(x => x.name.toLowerCase() === targetName.toLowerCase()) || { name: targetName, bio: 'Manga Creator on Manga 99', avatar: '' };
+      const mine = mangaList.filter(m => m.author && m.author.toLowerCase() === targetName.toLowerCase());
+      document.getElementById('creatorProfileBody').innerHTML = `
+        <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 space-y-3">
+          <div class="flex items-center gap-4">
+            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center text-xl font-black text-white overflow-hidden shrink-0">
+              ${u.avatar ? `<img src="${u.avatar}" class="w-full h-full object-cover">` : u.name.charAt(0).toUpperCase()}
+            </div>
+            <div class="min-w-0 flex-1">
+              <h2 class="font-black text-base text-white truncate">${u.name}</h2>
+              <p class="text-xs text-zinc-400 truncate">${u.bio || 'Manga Creator'}</p>
+            </div>
+          </div>
+          <button onclick="openPersonalChatWith('${u.name}')" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-xs font-extrabold text-white">Message (Personal DM)</button>
+        </div>
+        <div class="grid grid-cols-2 gap-3">${mine.map(cardTemplate).join('')}</div>
+      `;
+    }
+
+    // =========================================================================
+    // 6. SETTINGS PAGE (WITH SECRET PROMO CODE 2010 ADMIN GATE)
+    // =========================================================================
+    function renderSettingsPage() {
+      const box = document.getElementById('settingsContainer');
+      const isGuest = !activeUser || activeUser.isGuest;
+      box.innerHTML = `
+        <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 space-y-3">
+          <h3 class="text-xs font-black uppercase tracking-wider text-orange-400">Account & Security</h3>
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-zinc-400">Logged in as</span>
+            <span class="font-extrabold text-white">${isGuest ? 'Guest Mode' : activeUser.name}</span>
+          </div>
+          <button onclick="openWelcomeAuthScreen()" class="w-full py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs font-bold text-orange-400">
+            ${isGuest ? 'Create Account / Log In' : 'Switch Account'}
+          </button>
+          ${!isGuest ? `<button onclick="logoutUser()" class="w-full py-2.5 rounded-xl bg-red-600/20 border border-red-600/40 text-xs font-bold text-red-400">Log Out</button>` : ''}
+        </div>
+
+        <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 space-y-3">
+          <h3 class="text-xs font-black uppercase tracking-wider text-orange-400">App Preferences</h3>
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-zinc-300 font-bold">Startup & Button Sound</span>
+            <button onclick="toggleAppSound(); renderSettingsPage();" class="px-3 py-1.5 rounded-lg bg-zinc-950 border border-zinc-800 font-extrabold text-orange-400">
+              ${m99SoundMuted ? '🔇 Muted' : '🔊 Active'}
+            </button>
+          </div>
+        </div>
+
+        <!-- Secret Promo Code Gate (Code 2010 opens Admin Panel) -->
+        <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 space-y-2.5">
+          <h3 class="text-xs font-black uppercase tracking-wider text-orange-400">🎁 Promo Code</h3>
+          <p class="text-[11px] text-zinc-400">आपके पास कोई स्पेशल या क्रिएटर प्रोमो कोड है? नीचे डालें:</p>
+          <div class="flex gap-2">
+            <input id="settingsPromoInp" type="password" placeholder="Enter Promo Code" class="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white focus:border-orange-500 focus:outline-none">
+            <button onclick="redeemPromoCode()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-xs font-extrabold text-white">Apply</button>
+          </div>
+        </div>
+
+        <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 space-y-2.5">
+          <h3 class="text-xs font-black uppercase tracking-wider text-orange-400">Cloud & Storage</h3>
+          <button onclick="fetchLiveManga(true)" class="w-full py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs font-bold text-emerald-400">↻ Sync Latest Manga & Anime Now</button>
+          <button onclick="clearAllHistory()" class="w-full py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-xs font-bold text-zinc-300">Clear Reading & Watch History</button>
+        </div>
+
+        <div class="text-center text-[11px] text-zinc-500 pt-2">
+          <p class="font-bold text-zinc-400">Manga 99 — Hindi Manga & Anime App</p>
+          <p>Cloud Connected • Version 2.0 Pro</p>
+        </div>
+      `;
+    }
+
+    function redeemPromoCode() {
+      const inp = document.getElementById('settingsPromoInp');
+      const code = (inp?.value || '').trim();
+      if (!code) return showAppToast('कृपया प्रोमो कोड लिखें!', true);
+      if (code === '2010') {
+        inp.value = '';
+        playProAnimeSound('startup');
+        showAppToast('Creator Access Unlocked!');
+        navigateTo('admin');
+      } else {
+        inp.value = '';
+        showAppToast('Invalid or Expired Promo Code!', true);
+      }
+    }
+
+    function logoutUser() {
+      localStorage.removeItem('m99_user');
+      activeUser = null;
+      refreshNavUserUI();
+      openWelcomeAuthScreen();
+      showAppToast('Logged Out');
+    }
+    
+        // =========================================================================
+    // 7. MANGA GRID, LIKES, DETAIL & CHAPTER READER
+    // =========================================================================
+    function setGenre(g) {
+      currentGenre = g;
+      document.querySelectorAll('.genre-pill').forEach(btn => {
+        const active = btn.innerText === g;
+        btn.className = `genre-pill px-3.5 py-1.5 rounded-full text-xs shrink-0 ${active ? 'font-extrabold bg-orange-500 text-black' : 'font-bold bg-zinc-900 border border-zinc-800 text-zinc-300'}`;
+      });
+      renderHome();
+    }
+
+    function cardTemplate(m) {
+      const likeArr = socialData.likes[m.id] || [];
+      const userKey = (activeUser && !activeUser.isGuest) ? activeUser.name : '';
+      const isLiked = userKey && likeArr.includes(userKey);
+      return `
+        <div onclick="openMangaDetail('${m.id}')" class="bg-zinc-900 border border-zinc-800/80 rounded-2xl overflow-hidden cursor-pointer flex flex-col">
+          <div class="relative aspect-[3/4]">
+            <img src="${m.cover}" class="w-full h-full object-cover">
+            <span class="absolute top-2 left-2 bg-black/80 text-[10px] font-bold px-2 py-0.5 rounded-md text-orange-400">${m.genre}</span>
+            <button onclick="toggleMangaLike('${m.id}', event)" class="absolute top-2 right-2 bg-black/80 px-2 py-0.5 rounded-full text-[11px] font-extrabold text-white flex items-center gap-1">
+              ${isLiked ? '❤️' : '🤍'} <span>${likeArr.length}</span>
+            </button>
+            <span class="absolute bottom-2 right-2 bg-orange-500 text-black text-[10px] font-black px-2 py-0.5 rounded">${m.chapters.length} Ch</span>
+          </div>
+          <div class="p-2.5">
+            <h3 class="font-bold text-xs text-white truncate">${m.title}</h3>
+            <p onclick="event.stopPropagation(); openCreatorProfile('${m.author}')" class="text-[11px] text-orange-400/90 hover:underline truncate mt-0.5">by ${m.author}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderHome() {
+      const filtered = currentGenre === 'All' ? mangaList : mangaList.filter(m => m.genre === currentGenre);
+      document.getElementById('seriesCountBadge').innerText = `${filtered.length} Series`;
+
+      const banner = document.getElementById('featuredBanner');
+      if (mangaList.length > 0) {
+        const top = mangaList[0];
+        banner.classList.remove('hidden');
+        banner.onclick = () => openMangaDetail(top.id);
+        banner.innerHTML = `
+          <img src="${top.cover}" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent p-4 flex flex-col justify-end">
+            <span class="w-fit px-2 py-0.5 rounded bg-orange-500 text-[10px] font-black text-black uppercase mb-1">Featured</span>
+            <h2 class="text-base font-black text-white truncate">${top.title}</h2>
+            <p class="text-[11px] text-zinc-300 truncate">${top.desc || 'Read Latest Hindi Chapters'}</p>
+          </div>
+        `;
+      } else {
+        banner.classList.add('hidden');
+      }
+
+      document.getElementById('homeMangaGrid').innerHTML = filtered.length
+        ? filtered.map(cardTemplate).join('')
+        : '<p class="col-span-2 text-xs text-zinc-500 text-center py-8">No manga available yet.</p>';
+    }
+
     async function toggleMangaLike(mangaId, e) {
       if (e) e.stopPropagation();
-      const userKey = (activeUser && !activeUser.isGuest) ? activeUser.name : ('guest_' + (localStorage.getItem('m99_gid') || (() => { const g = Date.now(); localStorage.setItem('m99_gid', g); return g; })()));
+      if (!requireAccountForAction('मंगा को लाइक करने')) return;
       if (!socialData.likes[mangaId]) socialData.likes[mangaId] = [];
-
-      const idx = socialData.likes[mangaId].indexOf(userKey);
-      if (idx > -1) {
-        socialData.likes[mangaId].splice(idx, 1);
-      } else {
-        socialData.likes[mangaId].push(userKey);
-        playProAnimeSound('click');
-      }
+      const idx = socialData.likes[mangaId].indexOf(activeUser.name);
+      if (idx > -1) socialData.likes[mangaId].splice(idx, 1);
+      else { socialData.likes[mangaId].push(activeUser.name); playProAnimeSound('click'); }
       renderHome();
       await syncSocialCloud(true);
     }
 
-    // कार्ड टेम्पलेट को लाइक बटन के साथ अपग्रेड करें
-    const _origCardTemplate = cardTemplate;
-    cardTemplate = function(m) {
-      const likeArr = socialData.likes[m.id] || [];
-      const userKey = (activeUser && !activeUser.isGuest) ? activeUser.name : ('guest_' + localStorage.getItem('m99_gid'));
-      const isLiked = likeArr.includes(userKey);
-      return `
-        <div onclick="openMangaDetail('${m.id}')" class="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-lg active:scale-[0.98] transition cursor-pointer flex flex-col">
-          <div class="relative aspect-[3/4]">
-            <img src="${m.cover}" class="w-full h-full object-cover" loading="lazy">
-            <span class="absolute top-2 left-2 bg-black/75 backdrop-blur px-2 py-0.5 rounded-md text-[10px] font-bold text-orange-400">${m.genre}</span>
-            <button onclick="toggleMangaLike('${m.id}', event)" class="absolute top-2 right-2 bg-black/80 backdrop-blur px-2 py-1 rounded-full text-[11px] font-extrabold ${isLiked ? 'text-pink-500' : 'text-zinc-300'} flex items-center gap-1 border border-zinc-700">
-              ${isLiked ? '❤️' : '🤍'} <span>${likeArr.length}</span>
-            </button>
-            <span class="absolute bottom-2 right-2 bg-red-600 text-white px-2 py-0.5 rounded-md text-[10px] font-extrabold">${m.chapters.length} Ch</span>
+    function openMangaDetail(id) {
+      const m = mangaList.find(x => x.id === id);
+      if (!m) return;
+      pushNavLayer('modal:detail:' + id);
+      const isSaved = bookmarkedIds.includes(id);
+      const likeCount = (socialData.likes[id] || []).length;
+
+      document.getElementById('mangaDetailContent').innerHTML = `
+        <div class="relative h-64">
+          <img src="${m.cover}" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
+          <button onclick="handleAppBack()" class="absolute top-4 left-4 bg-black/75 border border-zinc-700 px-3 py-1.5 rounded-xl text-xs font-bold">← Back</button>
+          <div class="absolute bottom-3 left-4 right-4">
+            <span class="bg-orange-500 text-black text-[10px] font-extrabold px-2 py-0.5 rounded uppercase">${m.genre}</span>
+            <h2 class="text-xl font-black text-white mt-1">${m.title}</h2>
+            <p onclick="openCreatorProfile('${m.author}')" class="text-xs text-orange-400 font-bold cursor-pointer">Creator: ${m.author} • ❤️ ${likeCount}</p>
           </div>
-          <div class="p-2.5">
-            <h3 class="font-bold text-xs text-white truncate">${m.title}</h3>
-            <p class="text-[10px] text-zinc-400 truncate mt-0.5">by ${m.author}</p>
+        </div>
+        <div class="p-4 space-y-4">
+          <p class="text-xs text-zinc-400 leading-relaxed">${m.desc || 'Read this series in Hindi on Manga 99.'}</p>
+          <div class="flex gap-2">
+            <button onclick="openReader('${m.id}', 0)" class="flex-1 bg-gradient-to-r from-orange-500 to-red-600 py-3 rounded-xl font-extrabold text-xs text-white">Read Chapter 1</button>
+            <button onclick="toggleBookmark('${m.id}')" class="px-4 py-3 rounded-xl border border-zinc-700 text-xs font-bold ${isSaved ? 'bg-amber-500 text-black' : 'bg-zinc-900 text-white'}">${isSaved ? 'Saved ★' : 'Bookmark'}</button>
+          </div>
+          <div class="space-y-2">
+            <h3 class="text-xs font-extrabold uppercase tracking-wider text-zinc-400">Chapters (${m.chapters.length})</h3>
+            ${m.chapters.map((ch, idx) => `
+              <div onclick="openReader('${m.id}', ${idx})" class="flex items-center justify-between bg-zinc-900 border border-zinc-800 p-3.5 rounded-xl cursor-pointer hover:border-orange-500">
+                <div><p class="font-bold text-xs text-white">${ch.title}</p><p class="text-[10px] text-zinc-500">${ch.date || 'Uploaded'}</p></div>
+                <span class="text-xs font-bold text-orange-400">${ch.pages.length} Pages →</span>
+              </div>
+            `).join('')}
           </div>
         </div>
       `;
-    };
+      document.getElementById('mangaDetailModal').classList.remove('hidden');
+    }
 
-    // 2. रीडिंग और वॉच हिस्ट्री (Check + Single Delete + Clear All)
+    function openReader(mangaId, chIdx) {
+      const m = mangaList.find(x => x.id === mangaId);
+      if (!m || !m.chapters[chIdx]) return;
+      const ch = m.chapters[chIdx];
+      pushNavLayer('modal:reader');
+      recordToHistory({ id: `${m.id}_${chIdx}`, type: 'manga', title: m.title, sub: ch.title, cover: m.cover });
+
+      document.getElementById('readerTitle').innerText = `${m.title} • ${ch.title}`;
+      document.getElementById('readerPageCount').innerText = `${ch.pages.length} Pages`;
+      document.getElementById('readerPagesContainer').innerHTML = ch.pages.map(src => `<img src="${src}" class="w-full block">`).join('') + `
+        <div class="p-6 text-center space-y-3 bg-zinc-950 border-t border-zinc-900">
+          <p class="text-xs text-zinc-400 font-bold">End of ${ch.title}</p>
+          ${m.chapters[chIdx + 1]
+            ? `<button onclick="navStack.pop(); openReader('${m.id}', ${chIdx + 1})" class="w-full py-3 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-xs font-extrabold text-white">Next: ${m.chapters[chIdx + 1].title} →</button>`
+            : `<button onclick="handleAppBack()" class="w-full py-3 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-bold text-white">Back to Series</button>`}
+        </div>
+      `;
+      document.getElementById('readerModal').classList.remove('hidden');
+      document.getElementById('readerModal').scrollTop = 0;
+    }
+    
+        // =========================================================================
+    // 8. CRUNCHYROLL ANIME SERIES, SEASON SELECTOR & FULLSCREEN PLAYER
+    // =========================================================================
+    let activeSeriesName = '';
+    let activeSeasonFilter = 'Season 1';
+
+    function getGroupedAnimeSeries() {
+      const all = Array.isArray(socialData.anime) ? socialData.anime : [];
+      const map = {};
+      all.forEach(ep => {
+        const sName = (ep.series || 'Hindi Dubbed Anime').trim();
+        const seasonLabel = (ep.season || 'Season 1').trim();
+        if (!map[sName]) {
+          map[sName] = { series: sName, poster: ep.seriesPoster || ep.cover, episodes: [], seasons: new Set() };
+        }
+        map[sName].episodes.push({ ...ep, season: seasonLabel });
+        map[sName].seasons.add(seasonLabel);
+      });
+      return Object.values(map).map(item => ({ ...item, seasonsList: Array.from(item.seasons).sort() }));
+    }
+
+    function renderAnimeTab() {
+      const q = (document.getElementById('animeSearchInput')?.value || '').toLowerCase();
+      const allSeries = getGroupedAnimeSeries();
+      const filtered = allSeries.filter(s => s.series.toLowerCase().includes(q) || s.episodes.some(ep => ep.title.toLowerCase().includes(q)));
+
+      const badge = document.getElementById('animeCountBadge');
+      if (badge) badge.innerText = `${allSeries.length} Series`;
+
+      const grid = document.getElementById('animeLibraryGrid');
+      if (!grid) return;
+
+      grid.innerHTML = filtered.length
+        ? filtered.map(s => `
+            <div onclick="openAnimeSeriesDetail('${s.series.replace(/'/g, "\\'")}')" class="bg-zinc-900 border border-zinc-800/80 rounded-2xl overflow-hidden cursor-pointer flex flex-col">
+              <div class="relative aspect-[3/4]">
+                <img src="${s.poster}" class="w-full h-full object-cover">
+                <span class="absolute top-2 left-2 bg-orange-500 text-black text-[9px] font-black px-2 py-0.5 rounded uppercase">Hindi Dub</span>
+                <span class="absolute bottom-2 right-2 bg-black/85 border border-zinc-700 text-orange-400 text-[10px] font-extrabold px-2 py-0.5 rounded">${s.seasonsList.length} Season • ${s.episodes.length} Ep</span>
+              </div>
+              <div class="p-2.5">
+                <h3 class="font-extrabold text-xs text-white truncate">${s.series}</h3>
+                <p class="text-[10px] text-zinc-400 mt-0.5">Tap to choose Season & Watch</p>
+              </div>
+            </div>
+          `).join('')
+        : '<p class="col-span-2 text-xs text-zinc-500 text-center py-10">अभी कोई एनिमे सीरीज़ उपलब्ध नहीं है।</p>';
+    }
+
+    function openAnimeSeriesDetail(seriesName, selectedSeason = null) {
+      const seriesObj = getGroupedAnimeSeries().find(s => s.series === seriesName);
+      if (!seriesObj) return;
+
+      activeSeriesName = seriesName;
+      if (selectedSeason && seriesObj.seasonsList.includes(selectedSeason)) activeSeasonFilter = selectedSeason;
+      else if (!seriesObj.seasonsList.includes(activeSeasonFilter)) activeSeasonFilter = seriesObj.seasonsList[0] || 'Season 1';
+
+      const seasonEpisodes = seriesObj.episodes.filter(ep => ep.season === activeSeasonFilter);
+      const watchedIds = m99History.filter(h => h.type === 'anime').map(h => h.id);
+      const resumeEp = seasonEpisodes.find(ep => watchedIds.includes(ep.id)) || seasonEpisodes[0];
+
+      if (document.getElementById('animeSeriesModal').classList.contains('hidden')) pushNavLayer('modal:series:' + seriesName);
+
+      document.getElementById('animeSeriesContent').innerHTML = `
+        <div class="relative h-72">
+          <img src="${seriesObj.poster}" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
+          <button onclick="handleAppBack()" class="absolute top-4 left-4 bg-black/75 border border-zinc-700 px-3 py-1.5 rounded-xl text-xs font-bold text-white">← Back</button>
+          <div class="absolute bottom-3 left-4 right-4 space-y-1">
+            <span class="px-2 py-0.5 rounded bg-orange-500 text-black text-[10px] font-black uppercase">Hindi Dubbed • HD</span>
+            <h2 class="text-xl font-black text-white leading-tight">${seriesObj.series}</h2>
+            <p class="text-[11px] text-zinc-300">${seriesObj.seasonsList.length} Seasons • ${seriesObj.episodes.length} Total Episodes</p>
+          </div>
+        </div>
+        <div class="p-4 space-y-4">
+          <div class="flex items-center justify-between gap-3 bg-zinc-900 border border-zinc-800 p-3 rounded-2xl">
+            <span class="text-xs font-extrabold text-zinc-300">Select Season:</span>
+            <select onchange="openAnimeSeriesDetail('${seriesObj.series.replace(/'/g, "\\'")}', this.value)" class="bg-zinc-950 border border-orange-500/50 rounded-xl px-3 py-1.5 text-xs font-black text-orange-400 focus:outline-none">
+              ${seriesObj.seasonsList.map(sn => `<option value="${sn}" ${sn === activeSeasonFilter ? 'selected' : ''}>${sn}</option>`).join('')}
+            </select>
+          </div>
+          <div class="space-y-2.5">
+            <h3 class="text-xs font-black uppercase tracking-wider text-zinc-400">${activeSeasonFilter} Episodes (${seasonEpisodes.length})</h3>
+            ${seasonEpisodes.map((ep, index) => {
+              const isWatched = watchedIds.includes(ep.id);
+              const likeCount = (socialData.animeLikes?.[ep.id] || []).length;
+              return `
+                <div onclick="playHindiAnime('${ep.id}')" class="flex items-center gap-3 bg-zinc-900 border ${isWatched ? 'border-emerald-500/40' : 'border-zinc-800'} p-2.5 rounded-2xl cursor-pointer hover:border-orange-500">
+                  <div class="relative w-28 aspect-video rounded-xl overflow-hidden bg-black shrink-0">
+                    <img src="${ep.cover}" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black/30 flex items-center justify-center">
+                      <span class="w-7 h-7 rounded-full bg-orange-500 text-black font-black text-xs flex items-center justify-center">▶</span>
+                    </div>
+                  </div>
+                  <div class="min-w-0 flex-1 space-y-1">
+                    <div class="flex items-center gap-1.5">
+                      <span class="text-[10px] font-black text-orange-400">E${index + 1}</span>${isWatched ? '<span class="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-400 text-[9px] font-extrabold">✓ देखा हुआ</span>' : ''}
+                    </div>
+                    <p class="font-bold text-xs text-white line-clamp-2 leading-snug">${ep.title}</p>
+                    <p class="text-[10px] text-zinc-400">Hindi Dub • ❤️ ${likeCount}</p>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+        ${resumeEp ? `
+          <div class="fixed bottom-0 inset-x-0 z-30 bg-zinc-950/95 backdrop-blur-xl border-t border-zinc-800 p-3">
+            <div class="max-w-md mx-auto">
+              <button onclick="playHindiAnime('${resumeEp.id}')" class="w-full py-3 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-xs font-black text-white shadow-lg flex items-center justify-center gap-2">
+                <span>▶</span><span class="truncate">जारी रखें: ${resumeEp.title}</span>
+              </button>
+            </div>
+          </div>
+        ` : ''}
+      `;
+      document.getElementById('animeSeriesModal').classList.remove('hidden');
+    }
+
+    function playHindiAnime(id) {
+      const ep = (socialData.anime || []).find(a => a.id === id);
+      if (!ep) return;
+      currentPlayingAnimeId = id;
+      pushNavLayer('modal:player:' + id);
+      recordToHistory({ id: ep.id, type: 'anime', title: ep.title, sub: `${ep.series || 'Anime'} • ${ep.season || 'Season 1'}`, cover: ep.cover });
+
+      document.getElementById('playingAnimeSeries').innerText = `${ep.series || 'Hindi Dub'} • ${ep.season || 'Season 1'}`;
+      document.getElementById('playingAnimeTitle').innerText = ep.title;
+
+      const wrap = document.getElementById('animeFrameWrap');
+      if (ep.link.endsWith('.mp4') || ep.link.includes('.mp4?')) wrap.innerHTML = `<video src="${ep.link}" controls autoplay playsinline class="w-full h-full bg-black"></video>`;
+      else wrap.innerHTML = `<iframe src="${ep.link}" allow="autoplay; fullscreen" allowfullscreen class="w-full h-full border-0"></iframe>`;
+
+      updateAnimePlayerSocialUI();
+      document.getElementById('animePlayerModal').classList.remove('hidden');
+    }
+
+    function toggleAnimeFullscreen() {
+      const el = document.getElementById('animeFrameWrap');
+      if (el.requestFullscreen) el.requestFullscreen();
+      else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    }
+
+    function updateAnimePlayerSocialUI() {
+      if (!socialData.animeLikes) socialData.animeLikes = {};
+      if (!socialData.animeComments) socialData.animeComments = {};
+      const likes = socialData.animeLikes[currentPlayingAnimeId] || [];
+      const isLiked = activeUser && !activeUser.isGuest && likes.includes(activeUser.name);
+      const btn = document.getElementById('animeLikeBtn');
+      if (btn) btn.innerHTML = `${isLiked ? '❤️' : '🤍'} ${likes.length}`;
+
+      const comments = socialData.animeComments[currentPlayingAnimeId] || [];
+      document.getElementById('animeCommentCount').innerText = comments.length;
+      document.getElementById('animeCommentsList').innerHTML = comments.length
+        ? comments.map(c => `
+            <div class="bg-zinc-950 border border-zinc-800 p-2.5 rounded-xl flex gap-2.5">
+              <div class="w-7 h-7 rounded-full bg-orange-500 text-black font-black text-xs flex items-center justify-center shrink-0 overflow-hidden">
+                ${c.avatar ? `<img src="${c.avatar}" class="w-full h-full object-cover">` : c.user.charAt(0).toUpperCase()}
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-extrabold text-orange-400">${c.user}</span>
+                  <span class="text-[9px] text-zinc-500">${c.time}</span>
+                </div>
+                <p class="text-xs text-zinc-200 mt-0.5 break-words">${c.text}</p>
+              </div>
+            </div>
+          `).join('')
+        : '<p class="text-[11px] text-zinc-500 text-center py-3">पहला कमेंट करें!</p>';
+    }
+
+    async function toggleAnimeLike() {
+      if (!requireAccountForAction('एनिमे को लाइक करने')) return;
+      if (!socialData.animeLikes) socialData.animeLikes = {};
+      if (!socialData.animeLikes[currentPlayingAnimeId]) socialData.animeLikes[currentPlayingAnimeId] = [];
+      const arr = socialData.animeLikes[currentPlayingAnimeId];
+      const idx = arr.indexOf(activeUser.name);
+      if (idx > -1) arr.splice(idx, 1);
+      else { arr.push(activeUser.name); playProAnimeSound('click'); }
+      updateAnimePlayerSocialUI();
+      await syncSocialCloud(true);
+    }
+
+    async function postAnimeComment() {
+      if (!requireAccountForAction('कमेंट करने')) return;
+      const inp = document.getElementById('animeCommentInput');
+      const text = inp.value.trim();
+      if (!text) return;
+      inp.value = '';
+      if (!socialData.animeComments) socialData.animeComments = {};
+      if (!socialData.animeComments[currentPlayingAnimeId]) socialData.animeComments[currentPlayingAnimeId] = [];
+      socialData.animeComments[currentPlayingAnimeId].unshift({
+        user: activeUser.name, avatar: activeUser.avatar || '', text,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      });
+      updateAnimePlayerSocialUI();
+      playProAnimeSound('click');
+      await syncSocialCloud(true);
+    }
+    
+        // =========================================================================
+    // 9. HISTORY, BOOKMARKS & 1-ON-1 PERSONAL DM CHAT
+    // =========================================================================
     function recordToHistory(item) {
       m99History = m99History.filter(h => h.id !== item.id);
       m99History.unshift({ ...item, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) });
@@ -1108,17 +1153,7 @@
       showAppToast('पूरी हिस्ट्री साफ़ कर दी गई!');
     }
 
-    const _origOpenMangaDetail = openMangaDetail;
-    openMangaDetail = function(id) {
-      const m = mangaList.find(x => x.id === id);
-      if (m) {
-        recordToHistory({ id: m.id, type: 'manga', title: m.title, cover: m.cover, sub: m.chapters.length + ' Chapters' });
-      }
-      _origOpenMangaDetail(id);
-    };
-
-    // Library पेज में Bookmarks के साथ History और Hindi Anime सेक्शन दिखाएं
-    renderLibrary = function() {
+    function renderLibrary() {
       const saved = mangaList.filter(m => bookmarkedIds.includes(m.id));
       const libGrid = document.getElementById('libraryGrid');
       if (!libGrid) return;
@@ -1139,7 +1174,6 @@
           `).join('')
         : '<p class="text-xs text-zinc-500 text-center py-4 bg-zinc-900/40 rounded-xl border border-zinc-800">अभी कोई रीडिंग या वॉच हिस्ट्री नहीं है।</p>';
 
-      libGrid.className = 'space-y-5';
       libGrid.innerHTML = `
         <div>
           <div class="flex items-center justify-between mb-2">
@@ -1148,7 +1182,6 @@
           </div>
           <div class="space-y-2">${historyHTML}</div>
         </div>
-
         <div>
           <h3 class="text-xs font-extrabold text-zinc-300 uppercase tracking-wider mb-2">Bookmarked Manga</h3>
           <div class="grid grid-cols-2 gap-3">
@@ -1156,247 +1189,49 @@
           </div>
         </div>
       `;
-    };
-
-    // 3. हिंदी एनिमे एपिसोड्स सेक्शन (बाहरी वीडियो लिंक के ज़रिए)
-    function injectHindiAnimeSection() {
-      const homeTab = document.getElementById('tab-home');
-      if (homeTab && !document.getElementById('hindiAnimeBox')) {
-        const box = document.createElement('div');
-        box.id = 'hindiAnimeBox';
-        box.className = 'mb-5 space-y-2.5';
-        box.innerHTML = `
-          <div class="flex items-center justify-between">
-            <h2 class="text-xs font-black uppercase tracking-wider text-orange-400 flex items-center gap-1.5">🎬 Hindi Dubbed Anime Episodes</h2>
-            <button onclick="openAddAnimeModal()" class="text-[10px] font-extrabold bg-orange-500/20 text-orange-400 border border-orange-500/40 px-2.5 py-1 rounded-lg">+ Add Episode</button>
-          </div>
-          <div id="hindiAnimeCarousel" class="flex gap-3 overflow-x-auto pb-2"></div>
-        `;
-        const firstGrid = homeTab.querySelector('#mangaGrid') || homeTab.firstElementChild;
-        homeTab.insertBefore(box, firstGrid);
-      }
-
-      if (!document.getElementById('animePlayerModal')) {
-        const ap = document.createElement('div');
-        ap.id = 'animePlayerModal';
-        ap.className = 'fixed inset-0 z-[88] hidden bg-black/95 flex flex-col justify-center p-4';
-        ap.innerHTML = `
-          <div class="max-w-lg w-full mx-auto space-y-3">
-            <div class="flex items-center justify-between">
-              <h3 id="playingAnimeTitle" class="font-extrabold text-sm text-white truncate">Hindi Anime</h3>
-              <button onclick="closeAnimePlayer()" class="px-3 py-1 rounded-lg bg-red-600 text-xs font-bold text-white">Close ✕</button>
-            </div>
-            <div id="animeFrameWrap" class="aspect-video w-full bg-zinc-900 rounded-2xl overflow-hidden border border-zinc-800"></div>
-          </div>
-        `;
-        document.body.appendChild(ap);
-      }
-
-      if (!document.getElementById('addAnimeModal')) {
-        const am = document.createElement('div');
-        am.id = 'addAnimeModal';
-        am.className = 'fixed inset-0 z-[88] hidden bg-black/90 flex items-center justify-center p-4';
-        am.innerHTML = `
-          <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 max-w-xs w-full space-y-3">
-            <h3 class="font-extrabold text-sm text-white">Add Hindi Anime Episode</h3>
-            <input id="anTitle" type="text" placeholder="Anime & Episode नाम (जैसे Ep 1 Hindi)" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white">
-            <input id="anLink" type="url" placeholder="Video Embed / Drive / Dailymotion Link" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white">
-            <label class="block text-[10px] text-zinc-400">Thumbnail फोटो चुनें:</label>
-            <input id="anThumb" type="file" accept="image/*" class="w-full text-[11px] text-zinc-300">
-            <div class="flex gap-2 pt-1">
-              <button onclick="document.getElementById('addAnimeModal').classList.add('hidden')" class="flex-1 py-2 rounded-xl bg-zinc-800 text-xs font-bold text-zinc-300">Cancel</button>
-              <button id="saveAnimeBtn" onclick="publishHindiAnime()" class="flex-1 py-2 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-xs font-extrabold text-white">Publish</button>
-            </div>
-          </div>
-        `;
-        document.body.appendChild(am);
-      }
-      renderHindiAnimeList();
     }
 
-    function openAddAnimeModal() {
-      document.getElementById('addAnimeModal').classList.remove('hidden');
+    function toggleBookmark(id) {
+      bookmarkedIds = bookmarkedIds.includes(id) ? bookmarkedIds.filter(x => x !== id) : [...bookmarkedIds, id];
+      localStorage.setItem('m99_bookmarks', JSON.stringify(bookmarkedIds));
+      navStack.pop();
+      openMangaDetail(id);
     }
-
-    async function publishHindiAnime() {
-      const title = document.getElementById('anTitle').value.trim();
-      let link = document.getElementById('anLink').value.trim();
-      const thumbFile = document.getElementById('anThumb').files[0];
-      if (!title || !link || !thumbFile) return showAppToast('सभी जानकारी और थंबनेल भरें!', true);
-
-      // Google Drive /view लिंक को ऑटोमैटिक /preview प्लेयर लिंक में बदलें
-      if (link.includes('drive.google.com') && link.includes('/view')) {
-        link = link.replace('/view', '/preview');
-      }
-
-      const btn = document.getElementById('saveAnimeBtn');
-      btn.disabled = true; btn.innerText = 'Saving...';
-      try {
-        const cover = await compressImg(thumbFile);
-        socialData.anime.unshift({
-          id: 'an_' + Date.now(),
-          title,
-          link,
-          cover,
-          uploader: activeUser ? activeUser.name : 'Creator'
-        });
-        await syncSocialCloud(true);
-        renderHindiAnimeList();
-        document.getElementById('addAnimeModal').classList.add('hidden');
-        showAppToast('Hindi Anime Episode लाइव हो गया!');
-      } finally {
-        btn.disabled = false; btn.innerText = 'Publish';
-      }
-    }
-
-    function renderHindiAnimeList() {
-      const box = document.getElementById('hindiAnimeCarousel');
-      if (!box) return;
-      if (!socialData.anime.length) {
-        box.innerHTML = '<div class="w-full text-[11px] text-zinc-500 bg-zinc-900/50 border border-zinc-800 rounded-xl p-3 text-center">अभी कोई Hindi Anime Episode नहीं जुड़ा है — "+ Add Episode" दबाकर वीडियो लिंक जोड़ें!</div>';
-        return;
-      }
-      box.innerHTML = socialData.anime.map(a => `
-        <div onclick="playHindiAnime('${a.id}')" class="w-40 shrink-0 bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden cursor-pointer">
-          <div class="relative aspect-video">
-            <img src="${a.cover}" class="w-full h-full object-cover">
-            <span class="absolute inset-0 bg-black/30 flex items-center justify-center text-white text-lg">▶</span>
-          </div>
-          <div class="p-2">
-            <p class="text-[11px] font-bold text-white truncate">${a.title}</p>
-            <p class="text-[9px] text-zinc-400 truncate">by ${a.uploader}</p>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function playHindiAnime(id) {
-      const a = socialData.anime.find(x => x.id === id);
-      if (!a) return;
-      recordToHistory({ id: a.id, type: 'anime', title: a.title, cover: a.cover, sub: 'Hindi Dubbed Episode' });
-      document.getElementById('playingAnimeTitle').innerText = a.title;
-      document.getElementById('animeFrameWrap').innerHTML = `<iframe src="${a.link}" class="w-full h-full border-0" allowfullscreen allow="autoplay"></iframe>`;
-      document.getElementById('animePlayerModal').classList.remove('hidden');
-    }
-
-    function closeAnimePlayer() {
-      document.getElementById('animeFrameWrap').innerHTML = '';
-      document.getElementById('animePlayerModal').classList.add('hidden');
-    }
-        // =========================================================================
-    // PART 8E: INSTAGRAM DM + GROUP CHAT + ONLINE GREEN DOT + ADMIN & INIT
-    // =========================================================================
-    let currentChatRoom = { type: 'dm', target: '' };
 
     async function pingOnlineStatus() {
       if (!activeUser || activeUser.isGuest || activeUser.name === 'Guest') return;
-      socialData.online[activeUser.name] = {
-        ts: Date.now(),
-        avatar: activeUser.avatar || ''
-      };
+      socialData.online[activeUser.name] = { ts: Date.now(), avatar: activeUser.avatar || '' };
       await syncSocialCloud(true);
     }
 
     function isUserOnline(name) {
       const info = socialData.online[name];
-      return info && (Date.now() - info.ts < 180000); // 3 मिनट के अंदर एक्टिव = Online (Green Dot)
-    }
-
-    function buildChatHubModal() {
-      if (document.getElementById('chatHubModal')) return;
-      const cm = document.createElement('div');
-      cm.id = 'chatHubModal';
-      cm.className = 'fixed inset-0 z-[85] hidden bg-zinc-950 flex flex-col';
-      cm.innerHTML = `
-        <!-- Header -->
-        <div class="bg-zinc-900 border-b border-zinc-800 px-4 py-3 flex items-center justify-between">
-          <button onclick="closeChatHub()" class="text-xs font-bold text-zinc-300">← Back</button>
-          <span class="text-xs font-black tracking-wider text-white">MANGA 99 DIRECT & GROUPS</span>
-          <button onclick="openCreateGroupBox()" class="px-2.5 py-1 rounded-lg bg-orange-500 text-white text-[11px] font-extrabold">+ Group</button>
-        </div>
-
-        <!-- Online Users Strip (Green Dot) -->
-        <div class="px-4 py-2.5 border-b border-zinc-900 bg-zinc-950">
-          <p class="text-[10px] font-bold text-zinc-400 uppercase mb-2">Active & Creators (Tap to DM)</p>
-          <div id="activeUsersRow" class="flex gap-3 overflow-x-auto pb-1"></div>
-        </div>
-
-        <!-- Groups Strip -->
-        <div class="px-4 py-2 border-b border-zinc-900 flex items-center gap-2 overflow-x-auto">
-          <span class="text-[10px] font-extrabold text-orange-400 shrink-0">Groups:</span>
-          <div id="groupChipsRow" class="flex gap-2"></div>
-        </div>
-
-        <!-- Create Group Box -->
-        <div id="createGroupBox" class="hidden bg-zinc-900 border-b border-zinc-800 p-3 flex gap-2">
-          <input id="newGroupName" type="text" placeholder="नए ग्रुप का नाम लिखें..." class="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white">
-          <button onclick="createNewChatGroup()" class="px-3 py-2 rounded-xl bg-emerald-600 text-xs font-extrabold text-white">Create</button>
-        </div>
-
-        <!-- Active Chat Room -->
-        <div class="bg-zinc-900/60 px-4 py-2 border-b border-zinc-800 flex items-center justify-between">
-          <span id="chatRoomTitle" class="text-xs font-extrabold text-white">किसी यूज़र या ग्रुप को चुनें</span>
-          <button onclick="refreshChatMessages()" class="text-[10px] text-orange-400 font-bold">↻ Refresh</button>
-        </div>
-
-        <div id="chatMessagesBox" class="flex-1 overflow-y-auto p-4 space-y-2.5"></div>
-
-        <div class="p-3 bg-zinc-900 border-t border-zinc-800 flex gap-2">
-          <input id="chatMsgInput" type="text" placeholder="मैसेज लिखें..." class="flex-1 bg-zinc-950 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-orange-500 focus:outline-none">
-          <button onclick="sendChatMessage()" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-xs font-extrabold text-white">Send</button>
-        </div>
-      `;
-      document.body.appendChild(cm);
+      return info && (Date.now() - info.ts < 180000);
     }
 
     async function openChatHub() {
-      if (!activeUser || activeUser.isGuest || activeUser.name === 'Guest') {
-        showAppToast('चैट करने के लिए पहले Create Account या Log In करें!', true);
-        openWelcomeAuthScreen();
-        return;
-      }
-      buildChatHubModal();
+      if (!requireAccountForAction('पर्सनल चैट करने')) return;
+      pushNavLayer('modal:chat');
       document.getElementById('chatHubModal').classList.remove('hidden');
       await syncSocialCloud(false);
       await pingOnlineStatus();
-      renderChatLists();
+      await renderChatLists();
     }
 
-    function closeChatHub() {
-      document.getElementById('chatHubModal').classList.add('hidden');
-    }
-
-    function openCreateGroupBox() {
-      document.getElementById('createGroupBox').classList.toggle('hidden');
-    }
-
-    async function createNewChatGroup() {
-      const gName = document.getElementById('newGroupName').value.trim();
-      if (!gName) return showAppToast('ग्रुप का नाम लिखें!', true);
-      const id = 'grp_' + Date.now();
-      socialData.groups.push({ id, name: gName, creator: activeUser.name });
-      document.getElementById('newGroupName').value = '';
-      document.getElementById('createGroupBox').classList.add('hidden');
-      await syncSocialCloud(true);
-      selectChatRoom('group', id, gName);
-      renderChatLists();
-      showAppToast('ग्रुप बन गया: ' + gName);
+    async function openPersonalChatWith(userName) {
+      await openChatHub();
+      selectPersonalChat(userName);
     }
 
     async function renderChatLists() {
-      let users = [];
-      try {
-        const res = await fetch(USERS_DB_URL);
-        if (res.ok) { const d = await res.json(); users = d.users || []; }
-      } catch (e) {}
-
+      const users = await getAllUsersSafe();
       const others = users.filter(u => u.name.toLowerCase() !== activeUser.name.toLowerCase());
       const uRow = document.getElementById('activeUsersRow');
       uRow.innerHTML = others.length
         ? others.map(u => {
             const on = isUserOnline(u.name);
             return `
-              <div onclick="selectChatRoom('dm', '${u.name}', '${u.name}')" class="flex flex-col items-center gap-1 shrink-0 cursor-pointer">
+              <div onclick="selectPersonalChat('${u.name}')" class="flex flex-col items-center gap-1 shrink-0 cursor-pointer">
                 <div class="relative">
                   <div class="w-11 h-11 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center text-xs font-black text-white overflow-hidden">
                     ${u.avatar ? `<img src="${u.avatar}" class="w-full h-full object-cover">` : u.name.charAt(0).toUpperCase()}
@@ -1409,66 +1244,48 @@
           }).join('')
         : '<p class="text-[11px] text-zinc-500">अभी कोई अन्य यूज़र रजिस्टर्ड नहीं है।</p>';
 
-      // Default Global Group + User Created Groups
-      const allGroups = [{ id: 'global_anime', name: '🌍 Anime & Manga Global' }, ...socialData.groups];
-      document.getElementById('groupChipsRow').innerHTML = allGroups.map(g => `
-        <button onclick="selectChatRoom('group', '${g.id}', '${g.name}')" class="px-3 py-1 rounded-full bg-zinc-900 border border-zinc-700 text-[11px] font-bold text-zinc-200 whitespace-nowrap hover:border-orange-500">
-          ${g.name}
-        </button>
-      `).join('');
-
-      if (!currentChatRoom.target) {
-        selectChatRoom('group', 'global_anime', '🌍 Anime & Manga Global');
-      } else {
-        renderChatMessages();
-      }
+      if (!currentChatUser && others.length > 0) selectPersonalChat(others[0].name);
+      else renderChatMessages();
     }
 
-    function selectChatRoom(type, target, label) {
-      currentChatRoom = { type, target, label };
-      const onBadge = (type === 'dm' && isUserOnline(target)) ? ' • 🟢 Online' : '';
-      document.getElementById('chatRoomTitle').innerText = (type === 'dm' ? 'Chat with ' : 'Group: ') + label + onBadge;
+    function selectPersonalChat(targetName) {
+      currentChatUser = targetName;
+      document.getElementById('chatRoomTitle').innerText = targetName + (isUserOnline(targetName) ? ' • 🟢 Online' : '');
       renderChatMessages();
     }
 
     function renderChatMessages() {
       const box = document.getElementById('chatMessagesBox');
       if (!box) return;
-      const filtered = socialData.messages.filter(m => {
-        if (currentChatRoom.type === 'group') return m.roomType === 'group' && m.to === currentChatRoom.target;
-        return m.roomType === 'dm' && ((m.from === activeUser.name && m.to === currentChatRoom.target) || (m.from === currentChatRoom.target && m.to === activeUser.name));
-      });
-
+      if (!currentChatUser) {
+        box.innerHTML = '<p class="text-xs text-zinc-500 text-center py-10">पर्सनल चैट के लिए ऊपर किसी यूज़र की फोटो पर टैप करें।</p>';
+        return;
+      }
+      const filtered = (socialData.messages || []).filter(m =>
+        (m.from === activeUser.name && m.to === currentChatUser) ||
+        (m.from === currentChatUser && m.to === activeUser.name)
+      );
       box.innerHTML = filtered.length
         ? filtered.map(m => {
             const isMe = m.from === activeUser.name;
             return `
               <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
-                <span class="text-[9px] text-zinc-500 mb-0.5 px-1">${isMe ? 'You' : m.from} • ${m.time}</span>
-                <div class="max-w-[78%] px-3.5 py-2 rounded-2xl text-xs ${isMe ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-br-none' : 'bg-zinc-900 border border-zinc-800 text-zinc-200 rounded-bl-none'}">
-                  ${m.text}
-                </div>
+                <span class="text-[9px] text-zinc-500 mb-0.5 px-1">${m.time}</span>
+                <div class="max-w-[78%] px-3.5 py-2 rounded-2xl text-xs ${isMe ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-br-none' : 'bg-zinc-900 border border-zinc-800 text-zinc-200 rounded-bl-none'}">${m.text}</div>
               </div>
             `;
           }).join('')
-        : '<p class="text-xs text-zinc-500 text-center py-10">अभी कोई मैसेज नहीं है — बातचीत शुरू करें!</p>';
+        : `<p class="text-xs text-zinc-500 text-center py-10">${currentChatUser} को पहला पर्सनल मैसेज भेजें!</p>`;
       box.scrollTop = box.scrollHeight;
     }
 
     async function sendChatMessage() {
       const inp = document.getElementById('chatMsgInput');
       const text = inp.value.trim();
-      if (!text || !currentChatRoom.target) return;
+      if (!text || !currentChatUser) return;
       inp.value = '';
-
-      socialData.messages.push({
-        roomType: currentChatRoom.type,
-        from: activeUser.name,
-        to: currentChatRoom.target,
-        text,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      });
-      if (socialData.messages.length > 80) socialData.messages = socialData.messages.slice(-80);
+      socialData.messages.push({ from: activeUser.name, to: currentChatUser, text, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) });
+      if (socialData.messages.length > 100) socialData.messages = socialData.messages.slice(-100);
       renderChatMessages();
       playProAnimeSound('click');
       await syncSocialCloud(true);
@@ -1477,22 +1294,20 @@
     async function refreshChatMessages() {
       await syncSocialCloud(false);
       await pingOnlineStatus();
-      renderChatLists();
-      showAppToast('Chat Updated');
+      await renderChatLists();
+      showAppToast('Messages Updated');
     }
-
-    // 4. मूल Publish, Search, Admin व Cloud Sync फंक्शन्स (बिना किसी अलर्ट के)
+    
+        // =========================================================================
+    // 10. PUBLISH MANGA, SEARCH & ADMIN SEASON/EPISODE MANAGER
+    // =========================================================================
     function setPublishMode(mode) {
       const isNew = mode === 'new';
       document.getElementById('newMangaForm').classList.toggle('hidden', !isNew);
       document.getElementById('addChapterForm').classList.toggle('hidden', isNew);
-      document.getElementById('modeNewBtn').className = `flex-1 py-2 rounded-lg text-xs font-bold ${isNew ? 'bg-red-600 text-white' : 'text-zinc-400'}`;
-      document.getElementById('modeChapBtn').className = `flex-1 py-2 rounded-lg text-xs font-bold ${!isNew ? 'bg-red-600 text-white' : 'text-zinc-400'}`;
-      if (!isNew) populateMangaDropdown();
-    }
-
-    function populateMangaDropdown() {
-      document.getElementById('targetMangaSelect').innerHTML = mangaList.map(m => `<option value="${m.id}">${m.title}</option>`).join('');
+      document.getElementById('modeNewBtn').className = `flex-1 py-2 rounded-lg text-xs font-bold ${isNew ? 'bg-orange-500 text-black' : 'text-zinc-400'}`;
+      document.getElementById('modeChapBtn').className = `flex-1 py-2 rounded-lg text-xs font-bold ${!isNew ? 'bg-orange-500 text-black' : 'text-zinc-400'}`;
+      if (!isNew) document.getElementById('targetMangaSelect').innerHTML = mangaList.map(m => `<option value="${m.id}">${m.title}</option>`).join('');
     }
 
     async function publishNewManga(e) {
@@ -1500,11 +1315,8 @@
       const btn = document.getElementById('pubBtn1');
       btn.disabled = true; btn.innerText = 'Publishing Live...';
       try {
-        const coverFile = document.getElementById('mCover').files[0];
-        const pageFiles = Array.from(document.getElementById('mPages').files);
-        const cover = await compressImg(coverFile);
-        const pages = await Promise.all(pageFiles.map(f => compressImg(f)));
-
+        const cover = await compressImg(document.getElementById('mCover').files[0]);
+        const pages = await Promise.all(Array.from(document.getElementById('mPages').files).map(f => compressImg(f)));
         mangaList.unshift({
           id: 'm' + Date.now(),
           title: document.getElementById('mTitle').value.trim(),
@@ -1516,9 +1328,9 @@
         });
         await pushLiveManga();
         e.target.reset();
-        refreshHeaderUserUI();
+        refreshNavUserUI();
         showAppToast('Manga Published Live!');
-        switchTab('home');
+        navigateTo('home');
       } finally {
         btn.disabled = false; btn.innerText = 'Publish Manga Live';
       }
@@ -1529,30 +1341,17 @@
       const btn = document.getElementById('pubBtn2');
       btn.disabled = true; btn.innerText = 'Uploading Chapter...';
       try {
-        const mId = document.getElementById('targetMangaSelect').value;
-        const m = mangaList.find(x => x.id === mId);
+        const m = mangaList.find(x => x.id === document.getElementById('targetMangaSelect').value);
         if (!m) return;
-        const pageFiles = Array.from(document.getElementById('cPages').files);
-        const pages = await Promise.all(pageFiles.map(f => compressImg(f)));
-        m.chapters.push({
-          id: 'c' + Date.now(),
-          title: document.getElementById('cTitle').value.trim(),
-          date: 'Just now',
-          pages
-        });
+        const pages = await Promise.all(Array.from(document.getElementById('cPages').files).map(f => compressImg(f)));
+        m.chapters.push({ id: 'c' + Date.now(), title: document.getElementById('cTitle').value.trim(), date: 'Just now', pages });
         await pushLiveManga();
         e.target.reset();
         showAppToast('New Chapter Added Live!');
-        switchTab('home');
+        navigateTo('home');
       } finally {
         btn.disabled = false; btn.innerText = 'Upload Chapter Live';
       }
-    }
-
-    function toggleBookmark(id) {
-      bookmarkedIds = bookmarkedIds.includes(id) ? bookmarkedIds.filter(x => x !== id) : [...bookmarkedIds, id];
-      localStorage.setItem('m99_bookmarks', JSON.stringify(bookmarkedIds));
-      openMangaDetail(id);
     }
 
     function renderSearch() {
@@ -1561,27 +1360,127 @@
       document.getElementById('searchResults').innerHTML = res.map(cardTemplate).join('');
     }
 
-    function openAdminGate() {
-      document.getElementById('pinInput').value = '';
-      document.getElementById('pinModal').classList.remove('hidden');
+    let adminAnimeMode = 'new';
+    function setAdminAnimeMode(mode) { adminAnimeMode = mode; renderAdmin(); }
+
+    function renderAdmin() {
+      const adminContainer = document.getElementById('adminMangaList');
+      if (!Array.isArray(socialData.anime)) socialData.anime = [];
+      const existingSeries = getGroupedAnimeSeries();
+
+      adminContainer.innerHTML = `
+        <div class="bg-zinc-900 border border-orange-500/40 rounded-2xl p-4 space-y-3">
+          <h3 class="text-xs font-black uppercase tracking-wider text-orange-400">🎬 Admin Anime & Season Manager</h3>
+          <div class="bg-zinc-950 p-1 rounded-xl border border-zinc-800 flex gap-1">
+            <button onclick="setAdminAnimeMode('new')" class="flex-1 py-2 rounded-lg text-[11px] font-extrabold ${adminAnimeMode === 'new' ? 'bg-orange-500 text-black' : 'text-zinc-400'}">+ New Anime Series</button>
+            <button onclick="setAdminAnimeMode('update')" class="flex-1 py-2 rounded-lg text-[11px] font-extrabold ${adminAnimeMode === 'update' ? 'bg-orange-500 text-black' : 'text-zinc-400'}">+ Update Season / Episode</button>
+          </div>
+          ${adminAnimeMode === 'new' ? `
+            <div class="space-y-2.5">
+              <input id="admAnimeSeries" type="text" placeholder="नई Anime Series का नाम (जैसे Black Clover)" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white">
+              <div><label class="block text-[10px] text-zinc-400 mb-1">Series का बड़ा Cover Poster चुनें:</label><input id="admSeriesPoster" type="file" accept="image/*" class="w-full text-[11px] text-zinc-300"></div>
+              <select id="admAnimeSeason" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs font-bold text-white">
+                <option value="Season 1">Season 1</option><option value="Season 2">Season 2</option><option value="Season 3">Season 3</option><option value="Season 4">Season 4</option><option value="Movie / Special">Movie / Special</option>
+              </select>
+              <input id="admAnimeTitle" type="text" placeholder="Episode का नाम (जैसे Asta and Yuno)" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white">
+              <input id="admAnimeLink" type="url" placeholder="Video Link (.mp4 / Google Drive / Embed URL)" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white">
+              <div><label class="block text-[10px] text-zinc-400 mb-1">Episode Thumbnail फोटो चुनें:</label><input id="admAnimeThumb" type="file" accept="image/*" class="w-full text-[11px] text-zinc-300"></div>
+              <button id="admPublishAnimeBtn" onclick="adminPublishAnime(false)" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-xs font-extrabold text-white">Publish New Series & Episode</button>
+            </div>
+          ` : `
+            <div class="space-y-2.5">
+              ${existingSeries.length ? `
+                <label class="block text-[10px] text-zinc-400">पहले से अपलोड की गई Anime Series चुनें:</label>
+                <select id="admExistingSeries" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs font-bold text-orange-400">
+                  ${existingSeries.map(s => `<option value="${s.series}">${s.series}</option>`).join('')}
+                </select>
+                <label class="block text-[10px] text-zinc-400">Season चुनें:</label>
+                <select id="admAnimeSeason" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs font-bold text-white">
+                  <option value="Season 1">Season 1</option><option value="Season 2">Season 2</option><option value="Season 3">Season 3</option><option value="Season 4">Season 4</option><option value="Season 5">Season 5</option><option value="Movie / Special">Movie / Special</option>
+                </select>
+                <input id="admAnimeTitle" type="text" placeholder="नए Episode का नाम" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white">
+                <input id="admAnimeLink" type="url" placeholder="Video Link (.mp4 / Google Drive / Embed URL)" class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-xs text-white">
+                <div><label class="block text-[10px] text-zinc-400 mb-1">Episode Thumbnail फोटो चुनें:</label><input id="admAnimeThumb" type="file" accept="image/*" class="w-full text-[11px] text-zinc-300"></div>
+                <button id="admPublishAnimeBtn" onclick="adminPublishAnime(true)" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-red-600 text-xs font-extrabold text-white">Add Episode to Season Live</button>
+              ` : '<p class="text-xs text-zinc-400 py-3">पहले "New Anime Series" से कम से कम एक एनिमे सीरीज बनाएं।</p>'}
+            </div>
+          `}
+          <div class="pt-3 border-t border-zinc-800 space-y-2">
+            <p class="text-[10px] font-bold text-zinc-400 uppercase">All Published Episodes (${socialData.anime.length})</p>
+            ${socialData.anime.map(a => `
+              <div class="flex items-center justify-between bg-zinc-950 border border-zinc-800 p-2.5 rounded-xl text-xs gap-2">
+                <div class="min-w-0 flex-1">
+                  <p class="font-bold text-white truncate">${a.title}</p>
+                  <p class="text-[10px] text-orange-400 truncate">${a.series || 'Hindi Dub'} • ${a.season || 'Season 1'}</p>
+                </div>
+                <button onclick="adminEditAnimeEpisode('${a.id}')" class="bg-zinc-800 border border-zinc-700 text-zinc-200 px-2 py-1 rounded-lg font-bold text-[10px] shrink-0">Edit</button>
+                <button onclick="adminDeleteAnime('${a.id}')" class="bg-red-600 px-2 py-1 rounded-lg font-bold text-[10px] shrink-0">Delete</button>
+              </div>
+            `).join('') || '<p class="text-[11px] text-zinc-500">कोई एनिमे एपिसोड अपलोड नहीं है।</p>'}
+          </div>
+        </div>
+        <h3 class="text-xs font-black uppercase tracking-wider text-zinc-400 pt-2">Manage Manga Series</h3>
+        <div class="space-y-2">
+          ${mangaList.map(m => `
+            <div class="flex items-center justify-between bg-zinc-900 border border-zinc-800 p-3 rounded-xl text-xs">
+              <div><p class="font-bold text-white">${m.title}</p><p class="text-[10px] text-zinc-400">by ${m.author} • ${m.chapters.length} Chapters</p></div>
+              <button onclick="deleteMangaLive('${m.id}')" class="bg-red-600 px-3 py-1.5 rounded-lg font-bold">Delete</button>
+            </div>
+          `).join('') || '<p class="text-xs text-zinc-500">कोई Manga अपलोड नहीं है।</p>'}
+        </div>
+      `;
     }
 
-    function verifyAdminPin() {
-      if (document.getElementById('pinInput').value === '2010') {
-        document.getElementById('pinModal').classList.add('hidden');
-        switchTab('admin');
-      } else {
-        showAppToast('Wrong Admin PIN!', true);
+    async function adminPublishAnime(isExistingUpdate) {
+      const series = isExistingUpdate ? document.getElementById('admExistingSeries').value : document.getElementById('admAnimeSeries').value.trim();
+      const season = document.getElementById('admAnimeSeason').value || 'Season 1';
+      const title = document.getElementById('admAnimeTitle').value.trim();
+      let link = document.getElementById('admAnimeLink').value.trim();
+      const thumbFile = document.getElementById('admAnimeThumb').files[0];
+      const posterFile = !isExistingUpdate ? document.getElementById('admSeriesPoster')?.files[0] : null;
+      if (!series || !title || !link || !thumbFile) return showAppToast('कृपया सीरीज, एपिसोड नाम, वीडियो लिंक और थंबनेल फोटो डालें!', true);
+      if (link.includes('drive.google.com') && link.includes('/view')) link = link.replace('/view', '/preview');
+
+      const btn = document.getElementById('admPublishAnimeBtn');
+      btn.disabled = true; btn.innerText = 'Uploading Live...';
+      try {
+        const cover = await compressImg(thumbFile, 480, 0.72);
+        const existingObj = getGroupedAnimeSeries().find(s => s.series === series);
+        const seriesPoster = posterFile ? await compressImg(posterFile, 640, 0.75) : (existingObj ? existingObj.poster : cover);
+        socialData.anime.push({ id: 'an_' + Date.now(), series, season, seriesPoster, title, link, cover });
+        await syncSocialCloud(true);
+        renderAdmin();
+        renderAnimeTab();
+        showAppToast(`${series} (${season}) में एपिसोड जुड़ गया!`);
+      } finally {
+        btn.disabled = false; btn.innerText = 'Publish Episode Live';
       }
     }
 
-    function renderAdmin() {
-      document.getElementById('adminMangaList').innerHTML = mangaList.map(m => `
-        <div class="flex items-center justify-between bg-zinc-900 border border-zinc-800 p-3 rounded-xl text-xs">
-          <div><p class="font-bold text-white">${m.title}</p><p class="text-[10px] text-zinc-400">by ${m.author} • ${m.chapters.length} Chapters</p></div>
-          <button onclick="deleteMangaLive('${m.id}')" class="bg-red-600 px-3 py-1.5 rounded-lg font-bold">Delete</button>
-        </div>
-      `).join('');
+    async function adminEditAnimeEpisode(id) {
+      const ep = (socialData.anime || []).find(a => a.id === id);
+      if (!ep) return;
+      const newTitle = prompt('Episode का नया नाम लिखें:', ep.title);
+      if (newTitle === null) return;
+      const newSeason = prompt('Season बदलें (जैसे Season 1, Season 2):', ep.season || 'Season 1');
+      if (newSeason === null) return;
+      const newLink = prompt('Video Link अपडेट करें:', ep.link);
+      if (newLink === null) return;
+      ep.title = newTitle.trim() || ep.title;
+      ep.season = newSeason.trim() || ep.season || 'Season 1';
+      ep.link = newLink.trim() || ep.link;
+      await syncSocialCloud(true);
+      renderAdmin();
+      renderAnimeTab();
+      showAppToast('Episode अपडेट हो गया!');
+    }
+
+    async function adminDeleteAnime(id) {
+      socialData.anime = (socialData.anime || []).filter(a => a.id !== id);
+      renderAdmin();
+      renderAnimeTab();
+      await syncSocialCloud(true);
+      showAppToast('Anime Episode डिलीट हो गया');
     }
 
     async function deleteMangaLive(id) {
@@ -1591,7 +1490,39 @@
       showAppToast('Manga Deleted');
     }
 
-    fetchLiveManga = async function(showToast = false) {
+    // =========================================================================
+    // 11. PANTRY CLOUD SYNC & BOOT SEQUENCE
+    // =========================================================================
+    async function pushLiveManga() {
+      localStorage.setItem('m99_classic_data', JSON.stringify(mangaList));
+      try {
+        const res = await fetch(LIVE_DB_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ manga: mangaList }) });
+        if (res.ok) updateStatus('Live Cloud ✓', 'text-emerald-400');
+      } catch (e) { updateStatus('Saved Offline', 'text-amber-400'); }
+    }
+
+    async function syncSocialCloud(save = false) {
+      try {
+        if (save) {
+          await fetch(SOCIAL_DB_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(socialData) });
+        } else {
+          const res = await fetch(SOCIAL_DB_URL);
+          if (res.ok) {
+            const d = await res.json();
+            socialData = {
+              likes: d.likes || {},
+              messages: d.messages || [],
+              online: d.online || {},
+              anime: d.anime || [],
+              animeLikes: d.animeLikes || {},
+              animeComments: d.animeComments || {}
+            };
+          }
+        }
+      } catch (e) {}
+    }
+
+    async function fetchLiveManga(showToast = false) {
       updateStatus('Syncing...', 'text-amber-400');
       await syncSocialCloud(false);
       try {
@@ -1601,34 +1532,37 @@
           if (data && Array.isArray(data.manga) && data.manga.length > 0) {
             mangaList = data.manga;
             localStorage.setItem('m99_classic_data', JSON.stringify(mangaList));
-          } else {
-            await pushLiveManga();
           }
           updateStatus('Live Cloud ✓', 'text-emerald-400');
           renderHome();
-          renderHindiAnimeList();
+          renderAnimeTab();
           if (showToast) showAppToast('Library Updated!');
         } else {
-          await pushLiveManga();
+          updateStatus('Saved Offline', 'text-amber-400');
           renderHome();
         }
       } catch (e) {
-        await pushLiveManga();
+        updateStatus('Saved Offline', 'text-amber-400');
         renderHome();
       }
-    };
+    }
 
-    // BOOT EVERYTHING IN SEQUENCE
-    buildAuthModals();
-    buildHeaderAndProfileUI();
-    injectHindiAnimeSection();
-    upgradeProSplash();
+    document.addEventListener('pointerdown', function _unlockAudio() {
+      playProAnimeSound('startup');
+      document.removeEventListener('pointerdown', _unlockAudio);
+    }, { once: true });
+
+    try { window.history.replaceState({ m99Layer: 'home' }, ''); } catch (e) {}
+    const sBtn = document.getElementById('soundToggleBtn');
+    if (sBtn) sBtn.innerHTML = m99SoundMuted ? '🔇' : '🔊';
+    refreshNavUserUI();
+    renderHome();
+    if (!activeUser) setTimeout(() => { if (!activeUser) openWelcomeAuthScreen(); }, 1200);
+
+    setTimeout(() => { playProAnimeSound('startup'); }, 100);
     fetchLiveManga(false);
     pingOnlineStatus();
     setInterval(pingOnlineStatus, 90000);
   </script>
 </body>
 </html>
-
-
-    

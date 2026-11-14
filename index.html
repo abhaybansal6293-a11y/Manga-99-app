@@ -705,14 +705,56 @@
       }
     }
 
-    async function saveMangaCloud() {
-      localStorage.setItem('m99_manga_cache', JSON.stringify(mangaList));
-      await fetch(MANGA_DB_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ items: mangaList }) }).catch(() => {});
+        async function saveMangaCloud(newMangaObj = null) {
+      try {
+        const latest = await fetchOrInitBasket(MANGA_DB_URL, { items: [] });
+        let merged = Array.isArray(latest.items) ? latest.items : [];
+        if (newMangaObj) {
+          merged = [newMangaObj, ...merged.filter(x => x.id !== newMangaObj.id)];
+        } else {
+          merged = mangaList;
+        }
+        const res = await fetch(MANGA_DB_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ items: merged })
+        });
+        if (!res.ok) throw new Error('Cloud limit exceeded');
+        mangaList = merged;
+        localStorage.setItem('m99_manga_cache', JSON.stringify(mangaList));
+        return true;
+      } catch (e) {
+        showToast('क्लाउड पर सेव नहीं हुआ! पेज कम या हल्के रखें।');
+        return false;
+      }
     }
-    async function saveAnimeCloud() {
-      localStorage.setItem('m99_anime_cache', JSON.stringify(animeList));
-      await fetch(ANIME_DB_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ anime: animeList }) }).catch(() => {});
+
+    async function saveAnimeCloud(newSeriesData = null) {
+      try {
+        const latest = await fetchOrInitBasket(ANIME_DB_URL, { anime: [] });
+        let merged = Array.isArray(latest.anime) ? latest.anime : [];
+        if (newSeriesData) {
+          const idx = merged.findIndex(a => a.title.toLowerCase() === newSeriesData.title.toLowerCase());
+          if (idx > -1) merged[idx] = newSeriesData;
+          else merged.unshift(newSeriesData);
+        } else {
+          merged = animeList;
+        }
+        const res = await fetch(ANIME_DB_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ anime: merged })
+        });
+        if (!res.ok) throw new Error('Anime cloud error');
+        animeList = merged;
+        localStorage.setItem('m99_anime_cache', JSON.stringify(animeList));
+        return true;
+      } catch (e) {
+        showToast('एनिमे क्लाउड पर सेव नहीं हुआ! इंटरनेट जांचें।');
+        return false;
+      }
     }
+    
     async function saveStatsCloud() {
       localStorage.setItem('m99_stats_cache', JSON.stringify(statsData));
       await fetch(STATS_DB_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(statsData) }).catch(() => {});
@@ -979,24 +1021,35 @@
       });
     }
 
-    async function publishNewManga() {
+        async function publishNewManga() {
       const title = document.getElementById('pubTitle').value.trim();
       const lang = document.getElementById('pubLang').value || 'Hindi';
       const genre = document.getElementById('pubGenre').value.trim() || 'Manga';
       const coverFile = document.getElementById('pubCover').files[0];
       const pageFiles = Array.from(document.getElementById('pubPages').files || []);
       if (!title || !coverFile || !pageFiles.length) { showToast('कृपया नाम, कवर और पेज चुनें!'); return; }
-      playSound('play'); showToast('अपलोड हो रहा है...');
-      const cover = await compressImage(coverFile, 500, 0.72);
+      playSound('play'); showToast('क्लाउड पर अपलोड हो रहा है...');
+
+      const cover = await compressImage(coverFile, 380, 0.62);
       const pages = [];
-      for (const f of pageFiles) pages.push(await compressImage(f, 900, 0.75));
-      mangaList.unshift({
+      for (const f of pageFiles) {
+        pages.push(await compressImage(f, 680, 0.60));
+      }
+
+      const newManga = {
         id: 'm_' + Date.now(), title, lang, genre,
         author: userName, ownerId: accountId, cover, pages
-      });
-      await saveMangaCloud();
-      document.getElementById('pubTitle').value = ''; document.getElementById('pubCover').value = ''; document.getElementById('pubPages').value = '';
-      showToast('मंगा लाइव हो गई है! 🎉'); renderMangaList(); switchView('home');
+      };
+
+      const ok = await saveMangaCloud(newManga);
+      if (ok) {
+        document.getElementById('pubTitle').value = '';
+        document.getElementById('pubCover').value = '';
+        document.getElementById('pubPages').value = '';
+        showToast('मंगा सभी के लिए लाइव हो गई है! 🎉');
+        renderMangaList();
+        switchView('home');
+      }
     }
     
         // एनिमे लिस्ट, ऑटो लैंडस्केप फुलस्क्रीन, -10s/+10s व हिस्ट्री समय सेव
@@ -1323,12 +1376,13 @@
 
       let series = animeList.find(a => a.title.toLowerCase() === sTitle.toLowerCase());
       let poster = series ? series.poster : '';
-      if (posterFile) poster = await compressImage(posterFile, 450, 0.72);
+      if (posterFile) poster = await compressImage(posterFile, 350, 0.62);
       if (!series) { series = { id: 's_' + Date.now(), title: sTitle, poster, episodes: [] }; animeList.unshift(series); }
       else if (poster) series.poster = poster;
 
       series.episodes.push({ id: 'ep_' + Date.now(), season, epNum, lang, title: epTitle, url });
-      await saveAnimeCloud();
+            const ok = await saveAnimeCloud(series);
+      if (!ok) return;
       document.getElementById('admEpTitle').value = ''; document.getElementById('admVideoUrl').value = '';
       renderAdminLists(); renderAnimeList();
       showToast('एपिसोड लाइव हो गया! ✅');

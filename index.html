@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Manga 99 • Anime</title>
+  <title>Manga 99 • Anime OTT</title>
   <style>
     :root {
       --bg: #0b0b0f;
@@ -18,7 +18,7 @@
       --red: #ef4444;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: system-ui, -apple-system, sans-serif; }
-    body { background: var(--bg); color: var(--text); overflow-x: hidden; padding-bottom: 76px; user-select: none; }
+    body { background: var(--bg); color: var(--text); overflow-x: hidden; padding-bottom: 74px; user-select: none; }
     button, input, textarea, select { font-family: inherit; outline: none; }
 
     /* सिनेमाई लोडिंग स्क्रीन */
@@ -81,7 +81,7 @@
     }
     .cloud-pill.offline { background: rgba(239, 68, 68, 0.15); color: #f87171; border-color: rgba(239, 68, 68, 0.4); }
     
-        /* मुख्य व्यू, सर्च, भाषा फ़िल्टर और 2-कॉलम ग्रिड कार्ड्स */
+        /* मुख्य व्यू, सर्च, भाषा फ़िल्टर और OTT Hero Banner व हॉरिजॉन्टल रो */
     .view { display: none; padding: 14px; max-width: 720px; margin: 0 auto; }
     .view.active { display: block; animation: fadeIn 0.2s ease; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
@@ -95,59 +95,51 @@
       padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap;
     }
     .ftab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    .card {
-      position: relative; background: var(--card); border: 1px solid var(--border); border-radius: 14px;
-      overflow: hidden; cursor: pointer; transition: transform 0.15s ease;
-    }
-    .card:active { transform: scale(0.98); }
-    .card img { width: 100%; height: 205px; object-fit: cover; background: #1c1c26; display: block; }
-    .card-lang-badge {
-      position: absolute; top: 8px; left: 8px;
-      background: rgba(11, 11, 15, 0.88); border: 1px solid var(--accent);
-      color: #fff; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 8px;
-    }
-    .card-status-badge {
-      position: absolute; top: 8px; right: 8px;
-      background: rgba(16, 185, 129, 0.9); color: #fff;
-      font-size: 9px; font-weight: 800; padding: 3px 7px; border-radius: 7px;
-    }
-    .card-body { padding: 10px; }
-    .card-title { font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .card-meta { font-size: 11px; color: var(--muted); margin-top: 5px; display: flex; justify-content: space-between; align-items: center; }
-
-    /* बटन, टैग, खाली स्क्रीन बॉक्स और स्टैट्स */
-    .tag { background: rgba(255, 107, 0, 0.16); color: var(--accent); padding: 2px 7px; border-radius: 6px; font-weight: 700; font-size: 10px; }
-    .empty-box {
-      text-align: center; padding: 46px 18px; background: var(--card);
-      border: 1px dashed var(--border); border-radius: 16px; color: var(--muted); margin-top: 8px;
-    }
-    .empty-box h3 { color: #fff; margin-bottom: 6px; font-size: 16px; }
-    .btn {
-      background: var(--accent); color: #fff; border: none; padding: 10px 16px;
-      border-radius: 11px; font-weight: 700; font-size: 13px; cursor: pointer;
-      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-    }
-    .btn:active { opacity: 0.85; }
-    .btn-dark { background: var(--card2); border: 1px solid var(--border); color: #fff; }
-    .btn-danger { background: rgba(239, 68, 68, 0.18); border: 1px solid rgba(239, 68, 68, 0.45); color: #f87171; }
-    .btn-sm { padding: 7px 11px; font-size: 12px; border-radius: 9px; }
-    .stat-row {
-      display: flex; align-items: center; gap: 9px; flex-wrap: wrap;
-      margin: 12px 0; padding: 10px 12px; background: var(--card); border-radius: 12px; border: 1px solid var(--border);
-    }
-    .pill-stat {
-      display: inline-flex; align-items: center; gap: 6px; background: var(--card2);
-      border: 1px solid var(--border); padding: 7px 12px; border-radius: 20px;
-      font-size: 13px; font-weight: 700; color: #fff; cursor: pointer;
-    }
-    .pill-stat.liked { border-color: var(--red); background: rgba(239, 68, 68, 0.15); color: #f87171; }
-    .lang-highlight {
-      background: rgba(59, 130, 246, 0.16); border: 1px solid rgba(59, 130, 246, 0.45);
-      color: #93c5fd; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 800;
-    }
     
-        /* ऑटो-लैंडस्केप फुलस्क्रीन वीडियो प्लेयर, डबल-टैप -10s/+10s, नेविगेशन और फॉर्म */
+    /* OTT Hero Banner (शीर्ष फ़ीचर्ड एनिमे) */
+    .hero-banner {
+      position: relative; width: 100%; height: 215px; border-radius: 16px;
+      overflow: hidden; margin-bottom: 16px; border: 1px solid var(--border);
+      background: #111;
+    }
+    .hero-img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.72); }
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(180deg, transparent 35%, rgba(11,11,15,0.95));
+      display: flex; flex-direction: column; justify-content: flex-end; padding: 14px;
+    }
+    .trending-badge {
+      align-self: flex-start; background: var(--accent); color: #fff;
+      font-size: 9px; font-weight: 900; padding: 2px 7px; border-radius: 4px;
+      margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .hero-title { font-size: 19px; font-weight: 900; margin-bottom: 8px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+    .hero-btns { display: flex; gap: 8px; }
+
+    /* Horizontal Poster Carousel Row */
+    .section-title { font-size: 14px; font-weight: 800; margin: 15px 0 8px; display: flex; align-items: center; justify-content: space-between; }
+    .scroll-row { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 6px; }
+    .scroll-row::-webkit-scrollbar { display: none; }
+    .row-card {
+      position: relative; flex: 0 0 126px; background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden; cursor: pointer; transition: transform 0.12s;
+    }
+    .row-card:active { transform: scale(0.97); }
+    .row-card img { width: 100%; height: 165px; object-fit: cover; display: block; background: #1c1c26; }
+    .row-card-lang-badge {
+      position: absolute; top: 6px; left: 6px;
+      background: rgba(11, 11, 15, 0.88); border: 1.5px solid var(--accent);
+      color: #fff; font-size: 8px; font-weight: 800; padding: 1.5px 5px; border-radius: 5px;
+    }
+    .row-card-rating {
+      position: absolute; top: 6px; right: 6px;
+      background: rgba(16, 185, 129, 0.93); color: #fff;
+      font-size: 8px; font-weight: 800; padding: 1.5px 4px; border-radius: 5px;
+    }
+    .row-card-body { padding: 6px 7px; }
+    .row-card-title { font-size: 11px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    
+        /* एनिमे वीडियो प्लेयर, कस्टमाइज्ड -10s/+10s, ग्लास बॉटम बार और फ़ॉर्म */
     .player-shell {
       position: relative; width: 100%; background: #000; border-radius: 14px;
       overflow: hidden; border: 1px solid var(--border); aspect-ratio: 16 / 9;
@@ -192,24 +184,69 @@
     .seek-slider { flex: 1; accent-color: var(--accent); height: 4px; cursor: pointer; }
     .time-txt { font-size: 11px; color: #e5e7eb; white-space: nowrap; }
 
+    /* फ्लोटिंग Frosted Glass Bottom Navigation Bar (केवल Home, Search, History, Profile) */
     nav.bottom-nav {
-      position: fixed; bottom: 0; left: 0; right: 0; z-index: 150;
-      background: rgba(15, 15, 22, 0.96); backdrop-filter: blur(12px);
-      border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 8px 4px;
+      position: fixed; bottom: 10px; left: 14px; right: 14px; z-index: 150;
+      background: rgba(15, 15, 22, 0.88); backdrop-filter: blur(16px);
+      border: 1px solid var(--border); border-radius: 18px; display: flex; justify-content: space-around; padding: 7px 4px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
     }
     .nav-item {
       background: none; border: none; color: var(--muted);
       display: flex; flex-direction: column; align-items: center; gap: 3px;
-      font-size: 11px; font-weight: 700; cursor: pointer; padding: 4px 16px;
+      font-size: 10.5px; font-weight: 700; cursor: pointer; padding: 4px 16px;
     }
     .nav-item.active { color: var(--accent); }
-    .nav-icon { font-size: 19px; }
+    .nav-icon { font-size: 18px; }
 
+    /* अन्य UI एलिमेंट्स */
+    .empty-box {
+      text-align: center; padding: 36px 14px; background: var(--card);
+      border: 1px dashed var(--border); border-radius: 16px; color: var(--muted); margin-top: 8px; width: 100%;
+    }
+    .empty-box h3 { color: #fff; margin-bottom: 6px; font-size: 15px; }
+    .btn {
+      background: var(--accent); color: #fff; border: none; padding: 9px 15px;
+      border-radius: 10px; font-weight: 700; font-size: 12.5px; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+    }
+    .btn:active { opacity: 0.85; }
+    .btn-dark { background: var(--card2); border: 1px solid var(--border); color: #fff; }
+    .btn-danger { background: rgba(239, 68, 68, 0.18); border: 1px solid rgba(239, 68, 68, 0.45); color: #f87171; }
+    .btn-sm { padding: 6px 10px; font-size: 11px; border-radius: 8px; }
+    
+    .stat-row {
+      display: flex; align-items: center; gap: 9px; flex-wrap: wrap;
+      margin: 12px 0; padding: 8px 10px; background: var(--card); border-radius: 11px; border: 1px solid var(--border);
+    }
+    .pill-stat {
+      display: inline-flex; align-items: center; gap: 5px; background: var(--card2);
+      border: 1px solid var(--border); padding: 6px 11px; border-radius: 18px;
+      font-size: 12px; font-weight: 700; color: #fff; cursor: pointer;
+    }
+    .pill-stat.liked { border-color: var(--red); background: rgba(239, 68, 68, 0.15); color: #f87171; }
+    .lang-highlight {
+      background: rgba(59, 130, 246, 0.16); border: 1px solid rgba(59, 130, 246, 0.45);
+      color: #93c5fd; padding: 3px 8px; border-radius: 20px; font-size: 10.5px; font-weight: 800;
+    }
+    
+        /* इतिहास में प्रोग्रेस बार, फॉर्म, और टोस्ट */
+    .hist-item {
+      background: var(--card2); padding: 10px; border-radius: 12px;
+      margin-bottom: 10px; border: 1px solid var(--border);
+    }
+    .hist-main { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .hist-thumb { width: 50px; height: 50px; border-radius: 6px; object-fit: cover; background: #1a1a24; }
+    .hist-meta { flex: 1; }
+    .hist-pbar-bg { width: 100%; height: 3px; background: #333; border-radius: 2px; margin-top: 6px; overflow: hidden; }
+    .hist-pbar-fill { height: 100%; background: var(--accent); width: 0%; }
+
+    /* एडमिन व कमेंट्स लिस्टिंग */
     .form-group { margin-bottom: 11px; }
-    .form-group label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; font-weight: 600; }
+    .form-group label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
     .input {
       width: 100%; background: var(--card2); border: 1px solid var(--border);
-      color: #fff; padding: 10px 12px; border-radius: 10px; font-size: 14px;
+      color: #fff; padding: 9px 11px; border-radius: 8px; font-size: 13.5px;
     }
     .comment-item { background: var(--card2); padding: 9px 11px; border-radius: 10px; margin-bottom: 7px; font-size: 13px; }
     .comment-author { font-weight: 700; color: var(--accent); font-size: 11px; margin-bottom: 2px; }
@@ -237,15 +274,15 @@
 </head>
 
 <body>
-  <!-- लोडिंग स्क्रीन -->
+  <!-- सिनेमाई लोडिंग स्क्रीन -->
   <div id="splashScreen">
     <div class="splash-ring"></div>
-    <div class="splash-badge">M99</div>
+    <div class="splash-badge">99</div>
     <div class="splash-title">MANGA 99</div>
-    <div class="splash-sub">ANIME STREAMING • HD</div>
+    <div class="splash-sub">ANIME STREAMING</div>
   </div>
 
-  <!-- वन-टाइम Login / Sign Up / Guest Screen -->
+  <!-- वन-टाइम Login / Sign Up / Guest स्क्रीन -->
   <div id="authModal">
     <div class="auth-card">
       <div style="text-align:center; margin-bottom:16px;">
@@ -280,16 +317,23 @@
     </div>
   </header>
 
-  <!-- 1. मुख्य होम स्क्रीन (केवल एनिमे सीरीज़) -->
+  <!-- 1. होम स्क्रीन (एनिमे केवल) -->
   <section id="view-anime" class="view active">
-    <input type="text" id="animeSearch" class="search-bar" placeholder="एनिमे सीरीज़ या जॉनर खोजें..." oninput="renderAnimeList()" />
+    <!-- शीर्ष फ़ीचर्ड OTT Hero Banner -->
+    <div id="topHeroBanner" class="hero-banner"></div>
+
+    <div class="section-title">
+      <span id="lblRecommended">अनुशंसित एनिमे (Recommended)</span>
+    </div>
+
     <div class="filter-tabs">
       <button class="ftab active" id="afilter-all" onclick="setAnimeLangFilter('all')">All / सभी</button>
       <button class="ftab" id="afilter-Hindi Dub" onclick="setAnimeLangFilter('Hindi Dub')">हिंदी डब (Hindi)</button>
       <button class="ftab" id="afilter-English Dub" onclick="setAnimeLangFilter('English Dub')">English Dub</button>
       <button class="ftab" id="afilter-Japanese Sub" onclick="setAnimeLangFilter('Japanese Sub')">Japanese Sub</button>
     </div>
-    <div id="animeGrid" class="grid"></div>
+    
+    <div id="animeScrollRow" class="scroll-row" style="margin-bottom: 20px;"></div>
   </section>
 
   <!-- 2. एनिमे वीडियो प्लेयर -->
@@ -317,14 +361,18 @@
     </div>
     <div style="background:var(--card); border:1px solid var(--border); border-radius:14px; padding:12px; margin-top:12px;">
       <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
-        <h3 id="watchEpTitle" style="font-size:15px;"></h3>
+        <h3 id="watchEpTitle" style="font-size:14px;"></h3>
         <span id="watchEpLangBadge" class="lang-highlight">Hindi Dub</span>
       </div>
-      <p id="watchSeriesMeta" style="font-size:12px; color:var(--muted); margin-top:4px;"></p>
-      <p id="watchSeriesDesc" style="font-size:12px; color:#d1d5db; margin-top:6px; line-height:1.45;"></p>
+      <p id="watchSeriesMeta" style="font-size:11px; color:var(--muted); margin-top:4px;"></p>
     </div>
     <div class="stat-row" id="animeStatsRow"></div>
+    
+    <div class="section-title">
+      <span id="lblEpisodes">एपिसोड्स (Episodes)</span>
+    </div>
     <div id="episodeList" style="display:flex; gap:8px; flex-wrap:wrap; margin:12px 0;"></div>
+    
     <div style="background:var(--card); border:1px solid var(--border); border-radius:14px; padding:12px; margin-top:12px;">
       <h4 id="lblComments" style="font-size:14px; margin-bottom:8px;">कमेंट्स</h4>
       <div style="display:flex; gap:8px; margin-bottom:10px;">
@@ -335,7 +383,27 @@
     </div>
   </section>
   
-    <!-- 3. प्रोफाइल (केवल देखने की हिस्ट्री, शेयर बटन, अकाउंट व गुप्त एडमिन कोड) -->
+    <!-- 3. सर्च स्क्रीन (Search - 100% साफ़ OTT लुक) -->
+  <section id="view-search" class="view">
+    <input type="text" id="animeSearch" class="search-bar" placeholder="एनिमे सीरीज़ या जॉनर खोजें..." oninput="renderSearchList()" />
+    
+    <div id="searchSuggestions">
+      <div class="section-title">
+        <span id="lblRecent">हाल की खोजें (Recent Searches)</span>
+        <span style="font-size:11px; color:var(--red); cursor:pointer;" onclick="clearRecentSearches()">Clear all</span>
+      </div>
+      <div id="recentSearchesList" style="display:flex; flex-direction:column; gap:6px;"></div>
+
+      <div class="section-title" style="margin-top:20px;">
+        <span id="lblTrending">ट्रेंडिंग खोजें (Trending)</span>
+      </div>
+      <div id="trendingSearchesList" style="display:flex; flex-direction:column; gap:8px;"></div>
+    </div>
+
+    <div id="searchResultsGrid" class="grid" style="display:none; margin-top:10px;"></div>
+  </section>
+
+  <!-- 4. प्रोफाइल (केवल देखने की हिस्ट्री, शेयर बटन, अकाउंट व एडमिन) -->
   <section id="view-profile" class="view">
     <div style="background:var(--card); border:1px solid var(--border); border-radius:16px; padding:16px;">
       <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
@@ -368,7 +436,7 @@
         <div class="form-group">
           <label>🎁 प्रोमो कोड / विशेष एक्सेस</label>
           <div style="display:flex; gap:8px;">
-            <input type="password" id="promoCodeInput" class="input" placeholder="कोड डालें..." />
+            <input type="password" id="promoCodeInput" class="input" placeholder="код..." />
             <button class="btn btn-dark btn-sm" onclick="checkPromoCode()">लागू करें</button>
           </div>
         </div>
@@ -376,7 +444,7 @@
 
       <div style="margin-top:14px; border-top:1px solid var(--border); padding-top:12px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-          <h4 id="lblHistoryTitle" style="font-size:13px; color:var(--accent);">🕒 देखने की हिस्ट्री (Watch History)</h4>
+          <h4 id="lblHistoryTitle" style="font-size:13px; color:var(--accent);">🕒 देखना जारी रखें (Continue Watching)</h4>
           <button class="btn btn-danger btn-sm" style="padding:4px 8px; font-size:11px;" onclick="clearAllHistory()">सब साफ़ करें</button>
         </div>
         <div id="profileHistoryList"></div>
@@ -384,7 +452,7 @@
     </div>
   </section>
 
-  <!-- 4. पूरा एडमिन पैनल (Code: 2010 - पुरानी सीरीज़ चुनें/नई बनाएं, सीज़न, एपिसोड, लिंक टेस्ट, एडिट व डिलीट) -->
+  <!-- 5. एडमिन पैनल (Code: 2010 - पुरानी सीरीज़ चुनें/नई बनाएं, सीज़न, एपिसोड, पोस्टर, .mp4 लिंक टेस्ट, एडिट व डिलीट) -->
   <section id="view-admin" class="view">
     <div style="background:var(--card); border:1px solid var(--accent); border-radius:16px; padding:16px;">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
@@ -404,26 +472,21 @@
 
       <div class="form-group">
         <label>एनिमे सीरीज़ का नाम (Series Title) *</label>
-        <input type="text" id="admSeriesTitle" class="input" placeholder="उदाहरण: Attack on Titan" />
+        <input type="text" id="admSeriesTitle" class="input" placeholder="Attack on Titan" />
       </div>
 
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+      <div style="display:grid; grid-template-columns:1fr 1.2fr; gap:8px;">
         <div class="form-group">
-          <label>कैटेगरी / जॉनर (Genre)</label>
-          <input type="text" id="admGenre" class="input" placeholder="Action, Fantasy" />
+          <label>जॉनर (Genre / Category)</label>
+          <input type="text" id="admGenre" class="input" placeholder="Action, Shounen" />
         </div>
         <div class="form-group">
-          <label>स्टेटस (Status)</label>
+          <label>स्थिति (Status)</label>
           <select id="admStatus" class="input">
-            <option value="Ongoing">Ongoing</option>
-            <option value="Completed">Completed</option>
+            <option value="Ongoing">Ongoing (चल रहा है)</option>
+            <option value="Completed">Completed (पूरा हुआ)</option>
           </select>
         </div>
-      </div>
-
-      <div class="form-group">
-        <label>सीरीज़ की कहानी (Description)</label>
-        <textarea id="admDesc" class="input" rows="2" placeholder="2-3 लाइन में कहानी लिखें..."></textarea>
       </div>
 
       <div style="display:grid; grid-template-columns:1fr 1fr 1.2fr; gap:8px;">
@@ -439,49 +502,51 @@
         </div>
       </div>
 
-      <div class="form-group"><label>एपिसोड का नाम</label><input type="text" id="admEpTitle" class="input" placeholder="Episode 1" /></div>
+      <div class="form-group"><label>एपिसोड का नाम</label><input type="text" id="admEpTitle" class="input" placeholder="महान युद्ध की शुरुआत" /></div>
 
       <div class="form-group">
         <label>डायरेक्ट वीडियो लिंक (.mp4 / .m3u8) *</label>
         <div style="display:flex; gap:6px;">
-          <input type="url" id="admVideoUrl" class="input" placeholder="https://archive.org/download/.../ep1.mp4" />
+          <input type="url" id="admVideoUrl" class="input" placeholder="https://archive.org/download/.../video.mp4" />
           <button class="btn btn-dark btn-sm" onclick="testAdminVideoUrl()">▶ टेस्ट</button>
         </div>
       </div>
 
       <div id="admTestBox" style="display:none; margin-bottom:12px; background:#000; border-radius:10px; overflow:hidden; border:1px solid var(--border);">
-        <video id="admPreviewVideo" controls playsinline style="width:100%; max-height:180px; display:block;"></video>
+        <video id="admPreviewVideo" controls playsinline style="width:100%; max-height:160px; display:block;"></video>
       </div>
 
-      <div class="form-group"><label>सीरीज़ पोस्टर फोटो (गैलरी से चुनें)</label><input type="file" id="admPoster" class="input" accept="image/*" /></div>
+      <div class="form-group"><label>सीरीज़ पोस्टर (Poster Image)</label><input type="file" id="admPoster" class="input" accept="image/*" /></div>
 
       <div style="display:flex; gap:8px;">
         <button class="btn" id="admSaveBtn" style="flex:1;" onclick="adminPublishEpisode()">एनिमे एपिसोड लाइव करें 🎬</button>
         <button class="btn btn-dark" id="admCancelEditBtn" style="display:none;" onclick="resetAdminForm()">रद्द करें</button>
       </div>
 
-      <h4 style="margin:20px 0 8px; font-size:14px;">मौजूदा सीरीज़ व एपिसोड्स (Edit / Delete)</h4>
+      <h4 style="margin:20px 0 8px; font-size:13px; color:var(--accent);">मौजूदा सीरीज़ व एपिसोड्स (Edit / Delete)</h4>
       <div id="adminEpisodeList"></div>
     </div>
   </section>
 
-  <!-- नीचे के केवल 2 टैब: एनिमे और प्रोफाइल -->
+  <!-- बॉटम ग्लास बार: एनिमे, सर्च, हिस्ट्री, प्रोफाइल (Live TV बटन हटाया गया) -->
   <nav class="bottom-nav">
     <button class="nav-item active" id="nav-anime" onclick="playSound('nav'); switchView('anime')"><span class="nav-icon">🎬</span><span id="navTxtAnime">एनिमे</span></button>
+    <button class="nav-item" id="nav-search" onclick="playSound('nav'); switchView('search'); renderSearchList()"><span class="nav-icon">🔍</span><span id="navTxtSearch">सर्च</span></button>
+    <button class="nav-item" id="nav-history" onclick="playSound('nav'); switchView('profile');"><span class="nav-icon">🕒</span><span id="navTxtHistory">हिस्ट्री</span></button>
     <button class="nav-item" id="nav-profile" onclick="playSound('nav'); switchView('profile')"><span class="nav-icon">👤</span><span id="navTxtProfile">प्रोफाइल</span></button>
   </nav>
   
     <script>
-    // तुम्हारी Pantry Cloud ID + ImgBB क्लाउड इमेज अपलोडिंग + 100% फ्रेश स्टार्ट
-    const PANTRY_ID = "d3995452-8c68-42c2-96d8-7b3a17284086";
+    // तुम्हारी पक्की Pantry ID (3afc55b2-5dd7-47b5-b5d3-82da6d3cea1b) + फ्रेश 0 डेटा स्टार्ट
+    const PANTRY_ID = "3afc55b2-5dd7-47b5-b5d3-82da6d3cea1b";
     const IMGBB_KEY = "6d207e02198a847aa98d0a2a901485a5";
-    const ANIME_DB_URL = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/manga99_anime_only_v1`;
-    const STATS_DB_URL = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/manga99_anime_stats_v1`;
+    const ANIME_DB_URL = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/manga99_anime_live_v2`;
+    const STATS_DB_URL = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/manga99_stats_live_v2`;
     const USERS_DB_URL = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}/basket/manga99_users_live`;
 
-    if (!localStorage.getItem('m99_anime_clean_v1')) {
+    if (!localStorage.getItem('m99_clean_anime_ott_v2')) {
       localStorage.clear();
-      localStorage.setItem('m99_anime_clean_v1', 'true');
+      localStorage.setItem('m99_clean_anime_ott_v2', 'true');
     }
 
     let deviceId = localStorage.getItem('m99_device_id');
@@ -496,6 +561,7 @@
     let soundEnabled = localStorage.getItem('m99_sound') !== 'off';
     let viewedItems = JSON.parse(localStorage.getItem('m99_viewed_items') || '{}');
     let watchHistory = JSON.parse(localStorage.getItem('m99_history') || '[]');
+    let recentSearches = JSON.parse(localStorage.getItem('m99_recent_searches') || '[]');
 
     let animeList = [];
     let statsData = { animeViews: {}, animeLikes: {}, animeComments: {} };
@@ -505,7 +571,7 @@
     let animeLangFilter = 'all';
     let lastCloudFetch = 0;
 
-    // वेब ऑडियो स्टार्टअप साउंड व क्लिक साउंड
+    // वेब ऑडियो सिनेमाई और बटन क्लिक साउंड
     let audioCtx = null;
     function getAudioCtx() {
       if (!audioCtx) {
@@ -518,17 +584,12 @@
 
     function playStartupSound() {
       try {
-        const ctx = getAudioCtx();
-        if (!ctx) return;
+        const ctx = getAudioCtx(); if (!ctx) return;
         const now = ctx.currentTime;
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(115, now);
-        osc.frequency.exponentialRampToValueAtTime(450, now + 0.55);
-        gain.gain.setValueAtTime(0.001, now);
-        gain.gain.exponentialRampToValueAtTime(0.18, now + 0.15);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.85);
+        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(115, now); osc.frequency.exponentialRampToValueAtTime(450, now + 0.55);
+        gain.gain.setValueAtTime(0.001, now); gain.gain.exponentialRampToValueAtTime(0.18, now + 0.15); gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.85);
         osc.connect(gain); gain.connect(ctx.destination);
         osc.start(now); osc.stop(now + 0.9);
       } catch (e) {}
@@ -537,8 +598,7 @@
     function playSound(type) {
       if (!soundEnabled) return;
       try {
-        const ctx = getAudioCtx();
-        if (!ctx) return;
+        const ctx = getAudioCtx(); if (!ctx) return;
         const now = ctx.currentTime;
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
@@ -560,13 +620,11 @@
       } catch (e) {}
     }
     
-        // ऐप स्टार्टअप, बैक बटन गार्ड और Pantry Cloud सिंक
+        // वन-टाइम लॉगिन/गेस्ट, इतिहास सिंक और भाषा लागू
     window.addEventListener('DOMContentLoaded', () => {
       playStartupSound();
       document.addEventListener('pointerdown', () => { getAudioCtx(); }, { once: true });
-      applyAppLanguage();
-      updateProfileUI();
-      loadAllData(true, false);
+      applyAppLanguage(); updateProfileUI(); loadAllData(true, false);
 
       setTimeout(() => {
         document.getElementById('splashScreen').classList.add('hide');
@@ -581,54 +639,33 @@
     history.pushState({ m99: 'guard' }, '', '');
     window.addEventListener('popstate', () => {
       const authModal = document.getElementById('authModal');
-      if (authModal && authModal.style.display === 'flex') {
-        enterAsGuest();
-        history.pushState({ m99: 'guard' }, '', '');
-        return;
-      }
+      if (authModal && authModal.style.display === 'flex') { enterAsGuest(); history.pushState({ m99: 'guard' }, '', ''); return; }
       const shell = document.getElementById('playerShell');
       const activeView = document.querySelector('.view.active');
       const currentId = activeView ? activeView.id : 'view-anime';
 
-      if (shell && shell.classList.contains('fs-landscape')) {
-        exitLandscapeFullscreen();
-        history.pushState({ m99: 'guard' }, '', '');
-        return;
-      }
-      if (currentId === 'view-watch') {
-        closeAnimePlayer();
-        history.pushState({ m99: 'guard' }, '', '');
-        return;
-      }
-      if (currentId !== 'view-anime') {
-        switchView('anime');
-        history.pushState({ m99: 'guard' }, '', '');
-        return;
-      }
+      if (shell && shell.classList.contains('fs-landscape')) { exitLandscapeFullscreen(); history.pushState({ m99: 'guard' }, '', ''); return; }
+      if (currentId === 'view-watch') { closeAnimePlayer(); history.pushState({ m99: 'guard' }, '', ''); return; }
+      if (currentId !== 'view-anime') { switchView('anime'); history.pushState({ m99: 'guard' }, '', ''); return; }
+      
       const now = Date.now();
       if (now - lastBackPress < 2000) history.back();
       else {
-        lastBackPress = now;
-        showToast(appLang === 'hi' ? 'ऐप बंद करने के लिए फिर से बैक दबाएं' : 'Press back again to exit');
+        lastBackPress = now; showToast(appLang === 'hi' ? 'ऐप बंद करने के लिए फिर से बैक दबाएं' : 'Press back again to exit');
         history.pushState({ m99: 'guard' }, '', '');
       }
     });
 
     function showToast(msg) {
       const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.style.display = 'block';
-      clearTimeout(t._timer);
-      t._timer = setTimeout(() => { t.style.display = 'none'; }, 2500);
+      t.textContent = msg; t.style.display = 'block';
+      clearTimeout(t._timer); t._timer = setTimeout(() => { t.style.display = 'none'; }, 2500);
     }
 
     async function fetchOrInitBasket(url, defaultPayload) {
       const res = await fetch(url);
       if (res.status === 404 || res.status === 400) {
-        await fetch(url, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(defaultPayload)
-        });
+        await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(defaultPayload) });
         return defaultPayload;
       }
       if (!res.ok) throw new Error('Network error');
@@ -636,10 +673,8 @@
     }
 
     async function loadAllData(force = false, notify = false) {
-      const now = Date.now();
-      if (!force && now - lastCloudFetch < 12000) return;
-      lastCloudFetch = now;
-      const pill = document.getElementById('cloudStatus');
+      const now = Date.now(); if (!force && now - lastCloudFetch < 12000) return;
+      lastCloudFetch = now; const pill = document.getElementById('cloudStatus');
 
       try {
         const la = JSON.parse(localStorage.getItem('m99_anime_cache') || '[]');
@@ -654,21 +689,13 @@
           fetchOrInitBasket(ANIME_DB_URL, { anime: [] }),
           fetchOrInitBasket(STATS_DB_URL, statsData)
         ]);
-        if (Array.isArray(da.anime)) {
-          animeList = da.anime;
-          localStorage.setItem('m99_anime_cache', JSON.stringify(animeList));
-        }
-        if (ds && typeof ds === 'object') {
-          statsData = { ...statsData, ...ds };
-          localStorage.setItem('m99_stats_cache', JSON.stringify(statsData));
-        }
-        pill.classList.remove('offline');
-        pill.textContent = 'Live Online ✓';
+        if (Array.isArray(da.anime)) { animeList = da.anime; localStorage.setItem('m99_anime_cache', JSON.stringify(animeList)); }
+        if (ds && typeof ds === 'object') { statsData = { ...statsData, ...ds }; localStorage.setItem('m99_stats_cache', JSON.stringify(statsData)); }
+        pill.classList.remove('offline'); pill.textContent = 'Live Online ✓';
         renderAnimeList(); updateProfileUI();
         if (notify) showToast('ऑनलाइन एनिमे अपडेट हो गए ✓');
       } catch (e) {
-        pill.classList.add('offline');
-        pill.textContent = 'Offline ↻';
+        pill.classList.add('offline'); pill.textContent = 'Offline ↻';
       }
     }
 
@@ -678,23 +705,13 @@
         let merged = Array.isArray(latest.anime) ? latest.anime : [];
         if (updatedSeries) {
           const idx = merged.findIndex(a => a.id === updatedSeries.id || a.title.toLowerCase() === updatedSeries.title.toLowerCase());
-          if (idx > -1) merged[idx] = updatedSeries;
-          else merged.unshift(updatedSeries);
-        } else {
-          merged = animeList;
-        }
-        const res = await fetch(ANIME_DB_URL, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ anime: merged })
-        });
+          if (idx > -1) merged[idx] = updatedSeries; else merged.unshift(updatedSeries);
+        } else { merged = animeList; }
+        const res = await fetch(ANIME_DB_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ anime: merged }) });
         if (!res.ok) throw new Error('Cloud error');
-        animeList = merged;
-        localStorage.setItem('m99_anime_cache', JSON.stringify(animeList));
+        animeList = merged; localStorage.setItem('m99_anime_cache', JSON.stringify(animeList));
         return true;
-      } catch (e) {
-        showToast('क्लाउड सेव एरर! इंटरनेट जांचें।');
-        return false;
-      }
+      } catch (e) { showToast('क्लाउड सेव एरर! इंटरनेट जांचें।'); return false; }
     }
 
     async function saveStatsCloud() {
@@ -702,21 +719,12 @@
       await fetch(STATS_DB_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(statsData) }).catch(() => {});
     }
     
-        // वन-टाइम लॉगिन / साइन-अप / गेस्ट + भाषा स्विच + व्यूज व हिस्ट्री
+        // एनिमे ग्रिड, सर्च, और OTT सिनेमाई प्लेयर
     function openAuthScreen() { document.getElementById('authModal').style.display = 'flex'; }
-
     function enterAsGuest() {
-      playSound('nav');
-      isGuestUser = true;
-      accountId = deviceId;
-      userName = 'Guest_' + deviceId.slice(2, 6).toUpperCase();
-      localStorage.setItem('m99_is_guest', 'true');
-      localStorage.setItem('m99_account_id', accountId);
-      localStorage.setItem('m99_username', userName);
-      localStorage.setItem('m99_auth_prompt_shown', 'true');
-      document.getElementById('authModal').style.display = 'none';
-      updateProfileUI();
-      showToast('गेस्ट अकाउंट से प्रवेश हो गया');
+      playSound('nav'); isGuestUser = true; accountId = deviceId; userName = 'Guest_' + deviceId.slice(2, 6).toUpperCase();
+      localStorage.setItem('m99_is_guest', 'true'); localStorage.setItem('m99_account_id', accountId); localStorage.setItem('m99_username', userName); localStorage.setItem('m99_auth_prompt_shown', 'true');
+      document.getElementById('authModal').style.display = 'none'; updateProfileUI(); showToast('गेस्ट अकाउंट से प्रवेश हो गया');
     }
 
     async function submitAuthForm(mode) {
@@ -725,74 +733,60 @@
       if (!u || !p) { showToast('कृपया नाम और पासवर्ड दोनों लिखें!'); return; }
       playSound('play'); showToast('ऑनलाइन जाँच हो रही है...');
 
-      let usersData = { users: {} };
-      try { usersData = await fetchOrInitBasket(USERS_DB_URL, { users: {} }); } catch (e) {}
-      const usersMap = usersData.users || {};
-      const key = u.toLowerCase();
+      let usersData = { users: {} }; try { usersData = await fetchOrInitBasket(USERS_DB_URL, { users: {} }); } catch (e) {}
+      const usersMap = usersData.users || {}; const key = u.toLowerCase();
 
       if (mode === 'signup') {
         if (usersMap[key]) { showToast('यह नाम पहले से बना है, लॉगिन करें!'); return; }
         usersMap[key] = { name: u, pass: p, uid: 'acc_' + key };
-        await fetch(USERS_DB_URL, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ users: usersMap })
-        }).catch(() => {});
+        await fetch(USERS_DB_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ users: usersMap }) }).catch(() => {});
         showToast('अकाउंट बन गया है! 🎉');
       } else {
         if (!usersMap[key] || usersMap[key].pass !== p) { showToast('गलत नाम या पासवर्ड!'); return; }
         showToast('सफलतापूर्वक लॉगिन हो गया! ✅');
       }
 
-      isGuestUser = false;
-      accountId = usersMap[key].uid || ('acc_' + key);
-      userName = usersMap[key].name;
-      localStorage.setItem('m99_is_guest', 'false');
-      localStorage.setItem('m99_account_id', accountId);
-      localStorage.setItem('m99_username', userName);
-      localStorage.setItem('m99_auth_prompt_shown', 'true');
-      document.getElementById('authUserInp').value = '';
-      document.getElementById('authPassInp').value = '';
-      document.getElementById('authModal').style.display = 'none';
-      updateProfileUI();
+      isGuestUser = false; accountId = usersMap[key].uid || ('acc_' + key); userName = usersMap[key].name;
+      localStorage.setItem('m99_is_guest', 'false'); localStorage.setItem('m99_account_id', accountId); localStorage.setItem('m99_username', userName); localStorage.setItem('m99_auth_prompt_shown', 'true');
+      document.getElementById('authUserInp').value = ''; document.getElementById('authPassInp').value = ''; document.getElementById('authModal').style.display = 'none'; updateProfileUI();
     }
 
     function toggleAppLanguage() {
-      playSound('nav');
-      appLang = appLang === 'hi' ? 'en' : 'hi';
-      localStorage.setItem('m99_app_lang', appLang);
+      playSound('nav'); appLang = appLang === 'hi' ? 'en' : 'hi'; localStorage.setItem('m99_app_lang', appLang);
       applyAppLanguage(); renderAnimeList(); updateProfileUI();
     }
 
     function applyAppLanguage() {
       const isHi = appLang === 'hi';
       document.getElementById('appLangBtn').textContent = isHi ? '🌐 हिंदी ⇄ EN' : '🌐 EN ⇄ हिंदी';
-      document.getElementById('animeSearch').placeholder = isHi ? 'एनिमे सीरीज़ या जॉनर खोजें...' : 'Search Anime Series or Genre...';
+      document.getElementById('animeSearch').placeholder = isHi ? 'एनिमे सीरीज़ या जॉनर खोजें...' : 'Search Anime...';
       document.getElementById('navTxtAnime').textContent = isHi ? 'एनिमे' : 'Anime';
+      document.getElementById('navTxtSearch').textContent = isHi ? 'सर्च' : 'Search';
+      document.getElementById('navTxtHistory').textContent = isHi ? 'हिस्ट्री' : 'History';
       document.getElementById('navTxtProfile').textContent = isHi ? 'प्रोफाइल' : 'Profile';
       document.getElementById('btnBackAnime').textContent = isHi ? '← वापस' : '← Back';
-      document.getElementById('btnShareApp').textContent = isHi ? '📤 ऐप शेयर करें' : '📤 Share App';
+      document.getElementById('btnShareApp').textContent = isHi ? '📤 ऐप शेयर करें' : '📤 Share';
       document.getElementById('lblComments').textContent = isHi ? 'कमेंट्स' : 'Comments';
       document.getElementById('btnSendComment').textContent = isHi ? 'भेजें' : 'Send';
-      document.getElementById('lblHistoryTitle').textContent = isHi ? '🕒 देखने की हिस्ट्री (Watch History)' : '🕒 Watch History';
+      document.getElementById('lblHistoryTitle').textContent = isHi ? '🕒 देखना जारी रखें (Continue Watching)' : '🕒 Continue Watching';
+      document.getElementById('lblRecommended').textContent = isHi ? 'अनुशंसित एनिमे (Recommended)' : 'Recommended Anime';
+      document.getElementById('lblRecent').textContent = isHi ? 'हाल की खोजें (Recent Searches)' : 'Recent Searches';
+      document.getElementById('lblTrending').textContent = isHi ? 'ट्रेंडिंग खोजें (Trending)' : 'Trending Searches';
     }
 
     function switchView(name) {
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
       document.getElementById('view-' + name).classList.add('active');
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-      const navBtn = document.getElementById('nav-' + name);
-      if (navBtn) navBtn.classList.add('active');
+      const navBtn = document.getElementById('nav-' + name); if (navBtn) navBtn.classList.add('active');
       if (name === 'profile') updateProfileUI();
-      history.pushState({ m99: name }, '', '');
-      window.scrollTo(0, 0);
+      history.pushState({ m99: name }, '', ''); window.scrollTo(0, 0);
     }
 
     function registerHumanView(id) {
-      if (viewedItems[id]) return;
-      viewedItems[id] = true;
+      if (viewedItems[id]) return; viewedItems[id] = true;
       localStorage.setItem('m99_viewed_items', JSON.stringify(viewedItems));
-      statsData.animeViews[id] = (statsData.animeViews[id] || 0) + 1;
-      saveStatsCloud();
+      statsData.animeViews[id] = (statsData.animeViews[id] || 0) + 1; saveStatsCloud();
     }
 
     function saveHistoryItem(item) {
@@ -801,214 +795,192 @@
       if (watchHistory.length > 25) watchHistory.pop();
       localStorage.setItem('m99_history', JSON.stringify(watchHistory));
     }
-    
-        // एनिमे ग्रिड, सीज़न/एपिसोड प्लेयर, ऑटो-लैंडस्केप फुलस्क्रीन, लाइक्स व कमेंट्स
-    function setAnimeLangFilter(lang) {
-      playSound('nav');
-      animeLangFilter = lang;
-      document.querySelectorAll('[id^="afilter-"]').forEach(b => b.classList.remove('active'));
-      document.getElementById('afilter-' + lang).classList.add('active');
-      renderAnimeList();
-    }
 
+    function setAnimeLangFilter(lang) { playSound('nav'); animeLangFilter = lang; document.querySelectorAll('.ftab').forEach(b => b.classList.remove('active')); document.getElementById('afilter-' + lang).classList.add('active'); renderAnimeList(); }
+    
+    // फ़ीचर्ड पोस्टर, वीडियो प्लेयर कंट्रोल, लाइक्स और कमेंट्स
     function renderAnimeList() {
       const q = (document.getElementById('animeSearch').value || '').toLowerCase();
-      const grid = document.getElementById('animeGrid');
+      const sRow = document.getElementById('animeScrollRow');
       const filtered = animeList.filter(a => {
         const matchQ = (a.title || '').toLowerCase().includes(q) || (a.genre || '').toLowerCase().includes(q);
         const langs = (a.episodes || []).map(e => e.lang || 'Hindi Dub');
         const matchL = animeLangFilter === 'all' || langs.includes(animeLangFilter);
         return matchQ && matchL;
       });
+
+      if (animeList.length > 0) {
+        const feat = animeList[0];
+        const rating = statsData.animeLikes[feat.episodes[0]?.id]?.length || 8.5;
+        document.getElementById('topHeroBanner').innerHTML = `
+          <img class="hero-img" src="${feat.poster}" alt="Hero Image" />
+          <div class="hero-overlay">
+            <span class="trending-badge">Trending ⭐ ${rating}</span>
+            <div class="hero-title">${feat.title}</div>
+            <div class="hero-btns">
+              <button class="btn" style="padding:7px 15px; font-size:12px;" onclick="playSound('play'); openAnimeSeries('${feat.id}')">▶ Details & Play</button>
+            </div>
+          </div>`;
+      } else {
+        document.getElementById('topHeroBanner').innerHTML = `<div class="empty-box"><h3>No featured anime</h3></div>`;
+      }
+
       if (!filtered.length) {
-        grid.innerHTML = `<div class="empty-box" style="grid-column:1/-1;"><h3>${appLang === 'hi' ? 'अभी कोई एनिमे नहीं है' : 'No Anime Yet'}</h3><p>${appLang === 'hi' ? 'जल्द ही नए हिंदी और इंग्लिश एनिमे एपिसोड जोड़े जाएंगे।' : 'New Hindi & English anime episodes coming soon.'}</p></div>`;
+        sRow.innerHTML = `<div class="empty-box" style="width:100%;"><h3>${appLang === 'hi' ? 'अभी कोई एनिमे नहीं है' : 'No Anime Yet'}</h3></div>`;
         return;
       }
-      grid.innerHTML = filtered.map(a => {
+
+      sRow.innerHTML = filtered.map(a => {
         const langs = [...new Set((a.episodes || []).map(e => e.lang || 'Hindi Dub'))].join(' / ');
+        const rating = statsData.animeLikes[a.episodes[0]?.id]?.length ? `⭐ ${statsData.animeLikes[a.episodes[0]?.id].length}` : '⭐ 8.2';
         return `
-          <div class="card" onclick="playSound('play'); openAnimeSeries('${a.id}')">
-            <span class="card-lang-badge">🌐 ${langs}</span>
-            <span class="card-status-badge">${a.status || 'Ongoing'}</span>
-            <img loading="lazy" src="${a.poster || ''}" alt="${a.title}" />
-            <div class="card-body">
-              <div class="card-title">${a.title}</div>
-              <div class="card-meta">
-                <span class="tag">${a.genre || 'Anime'}</span>
-                <span>${(a.episodes || []).length} Eps</span>
-              </div>
+          <div class="row-card" onclick="playSound('play'); openAnimeSeries('${a.id}')">
+            <span class="row-card-lang-badge">🌐 ${a.status || 'Ongoing'}</span>
+            <span class="row-card-rating">${rating}</span>
+            <img src="${a.poster || ''}" alt="${a.title}" />
+            <div class="row-card-body">
+              <div class="row-card-title">${a.title}</div>
             </div>
           </div>`;
       }).join('');
     }
 
     function openAnimeSeries(seriesId, targetEpId = null, resumeTime = 0) {
-      currentSeries = animeList.find(a => a.id === seriesId);
-      if (!currentSeries || !currentSeries.episodes.length) return;
+      currentSeries = animeList.find(a => a.id === seriesId); if (!currentSeries || !currentSeries.episodes.length) return;
       switchView('watch');
       const seasons = [...new Set(currentSeries.episodes.map(e => e.season || 1))].sort((a, b) => a - b);
       const sel = document.getElementById('seasonSelect');
       sel.innerHTML = seasons.map(s => `<option value="${s}">Season ${s}</option>`).join('');
       const targetEp = targetEpId ? currentSeries.episodes.find(e => e.id === targetEpId) : null;
-      currentSeason = targetEp ? (targetEp.season || 1) : seasons[0];
-      sel.value = currentSeason;
+      currentSeason = targetEp ? (targetEp.season || 1) : seasons[0]; sel.value = currentSeason;
       renderEpisodeButtons();
       const firstEp = targetEp || currentSeries.episodes.find(e => (e.season || 1) == currentSeason) || currentSeries.episodes[0];
       playEpisode(firstEp.id, resumeTime);
     }
 
-    function changeSeasonFilter() {
-      currentSeason = Number(document.getElementById('seasonSelect').value);
-      renderEpisodeButtons();
-      const ep = currentSeries.episodes.find(e => (e.season || 1) == currentSeason);
-      if (ep) playEpisode(ep.id, 0);
-    }
-
+    function changeSeasonFilter() { currentSeason = Number(document.getElementById('seasonSelect').value); renderEpisodeButtons(); const ep = currentSeries.episodes.find(e => (e.season || 1) == currentSeason); if (ep) playEpisode(ep.id, 0); }
+    
     function renderEpisodeButtons() {
-      const eps = currentSeries.episodes
-        .filter(e => (e.season || 1) == currentSeason)
-        .sort((a, b) => (a.epNum || 0) - (b.epNum || 0));
+      const eps = currentSeries.episodes.filter(e => (e.season || 1) == currentSeason).sort((a, b) => (a.epNum || 0) - (b.epNum || 0));
       document.getElementById('episodeList').innerHTML = eps.map(ep => `
-        <button class="btn ${currentEpisode && currentEpisode.id === ep.id ? '' : 'btn-dark'} btn-sm"
-          onclick="playSound('play'); playEpisode('${ep.id}', 0)">
+        <button class="btn ${currentEpisode && currentEpisode.id === ep.id ? '' : 'btn-dark'} btn-sm" onclick="playSound('play'); playEpisode('${ep.id}', 0)">
           Ep ${ep.epNum} (${ep.lang || 'Hindi Dub'})
         </button>`).join('');
     }
 
     function playEpisode(epId, resumeTime = 0) {
-      currentEpisode = currentSeries.episodes.find(e => e.id === epId);
-      if (!currentEpisode) return;
-      registerHumanView(epId);
-      renderEpisodeButtons();
+      currentEpisode = currentSeries.episodes.find(e => e.id === epId); if (!currentEpisode) return;
+      registerHumanView(epId); renderEpisodeButtons();
       const epLang = currentEpisode.lang || 'Hindi Dub';
       document.getElementById('watchEpTitle').textContent = `${currentSeries.title} • S${currentEpisode.season} Ep${currentEpisode.epNum}: ${currentEpisode.title}`;
       document.getElementById('watchEpLangBadge').textContent = `🌐 ${epLang}`;
-      document.getElementById('watchSeriesMeta').textContent = `${currentSeries.genre || 'Anime'} • ${currentSeries.status || 'Ongoing'} • ${epLang}`;
-      document.getElementById('watchSeriesDesc').textContent = currentSeries.desc || '';
+      document.getElementById('watchSeriesMeta').textContent = `${currentSeries.genre || 'Anime'} • ${epLang}`;
 
-      const vid = document.getElementById('animeVideo');
-      vid.pause(); vid.src = currentEpisode.url; vid.load();
-      vid.onloadedmetadata = () => {
-        if (resumeTime > 0 && resumeTime < vid.duration) vid.currentTime = resumeTime;
-        vid.play().catch(() => {});
-      };
+      const vid = document.getElementById('animeVideo'); vid.pause(); vid.src = currentEpisode.url; vid.load();
+      vid.onloadedmetadata = () => { if (resumeTime > 0 && resumeTime < vid.duration) vid.currentTime = resumeTime; vid.play().catch(() => {}); };
       document.getElementById('playPauseBtn').textContent = '⏸';
       renderAnimeStats(); renderAnimeComments();
     }
 
-    function closeAnimePlayer() {
-      exitLandscapeFullscreen();
-      const vid = document.getElementById('animeVideo');
-      vid.pause(); vid.removeAttribute('src'); vid.load();
-      switchView('anime');
-    }
-
-    const videoEl = document.getElementById('animeVideo');
-    let lastHistSaveSec = 0;
+    function closeAnimePlayer() { exitLandscapeFullscreen(); const vid = document.getElementById('animeVideo'); vid.pause(); vid.removeAttribute('src'); vid.load(); switchView('anime'); }
+    
+    const videoEl = document.getElementById('animeVideo'); let lastHistSaveSec = 0;
     videoEl.addEventListener('timeupdate', () => {
       if (!videoEl.duration) return;
       document.getElementById('seekBar').value = (videoEl.currentTime / videoEl.duration) * 100;
-      const m = Math.floor(videoEl.currentTime / 60);
-      const s = Math.floor(videoEl.currentTime % 60).toString().padStart(2, '0');
+      const m = Math.floor(videoEl.currentTime / 60); const s = Math.floor(videoEl.currentTime % 60).toString().padStart(2, '0');
       document.getElementById('timeDisplay').textContent = `${m}:${s}`;
       if (currentSeries && currentEpisode && Math.abs(videoEl.currentTime - lastHistSaveSec) >= 5) {
         lastHistSaveSec = videoEl.currentTime;
         saveHistoryItem({
-          id: currentEpisode.id, seriesId: currentSeries.id,
+          id: currentEpisode.id, seriesId: currentSeries.id, poster: currentSeries.poster,
           title: `${currentSeries.title} S${currentEpisode.season} Ep${currentEpisode.epNum}`,
-          time: Math.floor(videoEl.currentTime), lang: currentEpisode.lang || 'Hindi Dub'
+          time: Math.floor(videoEl.currentTime), duration: Math.floor(videoEl.duration), lang: currentEpisode.lang || 'Hindi Dub'
         });
       }
     });
 
-    function togglePlayPause() {
-      playSound('nav');
-      if (videoEl.paused) { videoEl.play(); document.getElementById('playPauseBtn').textContent = '⏸'; }
-      else { videoEl.pause(); document.getElementById('playPauseBtn').textContent = '▶'; }
-    }
+    function togglePlayPause() { playSound('nav'); if (videoEl.paused) { videoEl.play(); document.getElementById('playPauseBtn').textContent = '⏸'; } else { videoEl.pause(); document.getElementById('playPauseBtn').textContent = '▶'; } }
     function manualSeek(val) { if (videoEl.duration) videoEl.currentTime = (val / 100) * videoEl.duration; }
-    function seekRelative(sec) {
-      playSound('nav');
-      if (!videoEl.duration) return;
-      videoEl.currentTime = Math.max(0, Math.min(videoEl.duration, videoEl.currentTime + sec));
-      const badge = document.getElementById(sec < 0 ? 'badgeLeft' : 'badgeRight');
-      badge.classList.add('show'); clearTimeout(badge._t);
-      badge._t = setTimeout(() => badge.classList.remove('show'), 550);
-    }
-    let lastTapTime = 0;
-    function handleVideoTap(e, sec) {
-      const now = Date.now();
-      if (now - lastTapTime < 320) seekRelative(sec);
-      lastTapTime = now;
-    }
+    function seekRelative(sec) { playSound('nav'); if (!videoEl.duration) return; videoEl.currentTime = Math.max(0, Math.min(videoEl.duration, videoEl.currentTime + sec)); const badge = document.getElementById(sec < 0 ? 'badgeLeft' : 'badgeRight'); badge.classList.add('show'); clearTimeout(badge._t); badge._t = setTimeout(() => badge.classList.remove('show'), 550); }
+    let lastTapTime = 0; function handleVideoTap(e, sec) { const now = Date.now(); if (now - lastTapTime < 320) seekRelative(sec); lastTapTime = now; }
 
     async function toggleLandscapeFullscreen() {
-      playSound('play');
-      const shell = document.getElementById('playerShell');
+      playSound('play'); const shell = document.getElementById('playerShell');
       if (!shell.classList.contains('fs-landscape')) {
-        shell.classList.add('fs-landscape');
-        document.getElementById('fsBtn').textContent = '✕ Exit';
+        shell.classList.add('fs-landscape'); document.getElementById('fsBtn').textContent = '✕ Exit';
         let lockedNative = false;
         try {
-          if (shell.requestFullscreen) await shell.requestFullscreen();
-          else if (shell.webkitRequestFullscreen) await shell.webkitRequestFullscreen();
+          if (shell.requestFullscreen) await shell.requestFullscreen(); else if (shell.webkitRequestFullscreen) await shell.webkitRequestFullscreen();
           if (screen.orientation && screen.orientation.lock) { await screen.orientation.lock('landscape'); lockedNative = true; }
         } catch (err) {}
         if (!lockedNative && window.innerHeight > window.innerWidth) shell.classList.add('force-rotate');
-      } else {
-        exitLandscapeFullscreen();
-      }
+      } else { exitLandscapeFullscreen(); }
     }
 
     function exitLandscapeFullscreen() {
-      const shell = document.getElementById('playerShell');
-      shell.classList.remove('fs-landscape', 'force-rotate');
+      const shell = document.getElementById('playerShell'); shell.classList.remove('fs-landscape', 'force-rotate');
       document.getElementById('fsBtn').textContent = '⛶ Full';
-      try {
-        if (document.fullscreenElement) document.exitFullscreen();
-        if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
-      } catch (e) {}
+      try { if (document.fullscreenElement) document.exitFullscreen(); if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch (e) {}
     }
 
     function renderAnimeStats() {
-      const id = currentEpisode.id;
-      const views = statsData.animeViews[id] || 0;
-      const likesArr = statsData.animeLikes[id] || [];
-      const liked = likesArr.includes(accountId);
+      const id = currentEpisode.id; const views = statsData.animeViews[id] || 0; const likesArr = statsData.animeLikes[id] || []; const liked = likesArr.includes(accountId);
       document.getElementById('animeStatsRow').innerHTML = `
         <button class="pill-stat ${liked ? 'liked' : ''}" onclick="toggleAnimeLike()">❤️ ${likesArr.length} Likes</button>
         <div class="pill-stat" style="cursor:default;">👁️ ${views} Views</div>`;
     }
 
-    function toggleAnimeLike() {
-      playSound('like');
-      const id = currentEpisode.id;
-      if (!statsData.animeLikes[id]) statsData.animeLikes[id] = [];
-      const i = statsData.animeLikes[id].indexOf(accountId);
-      if (i === -1) statsData.animeLikes[id].push(accountId);
-      else statsData.animeLikes[id].splice(i, 1);
-      renderAnimeStats(); saveStatsCloud();
-    }
-
-    function renderAnimeComments() {
-      const list = statsData.animeComments[currentEpisode.id] || [];
-      document.getElementById('animeCommentsList').innerHTML = list.length
-        ? list.map(c => `<div class="comment-item"><div class="comment-author">${c.user}</div><div>${c.text}</div></div>`).join('')
-        : `<p style="font-size:12px; color:var(--muted);">No comments yet...</p>`;
-    }
-
-    function postAnimeComment() {
-      const inp = document.getElementById('animeCommentInput');
-      const txt = (inp.value || '').trim();
-      if (!txt || !currentEpisode) return;
-      playSound('like');
-      const id = currentEpisode.id;
-      if (!statsData.animeComments[id]) statsData.animeComments[id] = [];
-      statsData.animeComments[id].unshift({ user: userName, text: txt });
-      inp.value = ''; renderAnimeComments(); saveStatsCloud();
-    }
+    function toggleAnimeLike() { playSound('like'); const id = currentEpisode.id; if (!statsData.animeLikes[id]) statsData.animeLikes[id] = []; const i = statsData.animeLikes[id].indexOf(accountId); if (i === -1) statsData.animeLikes[id].push(accountId); else statsData.animeLikes[id].splice(i, 1); renderAnimeStats(); saveStatsCloud(); }
+    function renderAnimeComments() { const list = statsData.animeComments[currentEpisode.id] || []; document.getElementById('animeCommentsList').innerHTML = list.length ? list.map(c => `<div class="comment-item"><div class="comment-author">${c.user}</div><div>${c.text}</div></div>`).join('') : `<p style="font-size:12px; color:var(--muted);">No comments yet...</p>`; }
+    function postAnimeComment() { const inp = document.getElementById('animeCommentInput'); const txt = (inp.value || '').trim(); if (!txt || !currentEpisode) return; playSound('like'); const id = currentEpisode.id; if (!statsData.animeComments[id]) statsData.animeComments[id] = []; statsData.animeComments[id].unshift({ user: userName, text: txt }); inp.value = ''; renderAnimeComments(); saveStatsCloud(); }
     
-        // प्रोफाइल हिस्ट्री + ImgBB क्लाउड अपलोड + पूरा एडमिन पैनल (सीरीज़ चयन, लिंक टेस्ट, एडिट, डिलीट)
+        // सर्च, इतिहास डिलीट और एडमिन पैनल (Code: 2010)
+    function renderSearchList() {
+      const q = (document.getElementById('animeSearch').value || '').trim().toLowerCase();
+      const grid = document.getElementById('searchResultsGrid');
+      const suggBox = document.getElementById('searchSuggestions');
+      const recentBox = document.getElementById('recentSearchesList');
+      const trendBox = document.getElementById('trendingSearchesList');
+
+      if (!q) {
+        grid.style.display = 'none'; suggBox.style.display = 'block';
+        recentBox.innerHTML = recentSearches.length ? recentSearches.map((s, idx) => `
+          <div class="comment-item" style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px;">
+            <span style="cursor:pointer;" onclick="setSearchQuery('${s}')">🕒 ${s}</span>
+            <span style="color:var(--muted); cursor:pointer;" onclick="deleteRecentSearch(${idx})">✕</span>
+          </div>`).join('') : `<p style="font-size:11px; color:var(--muted);">कोई हाल की खोज नहीं है</p>`;
+
+        const trending = animeList.slice(0, 5).map(a => a.title);
+        trendBox.innerHTML = trending.length ? trending.map((t, idx) => `
+          <div class="comment-item" style="display:flex; align-items:center; gap:10px; padding:8px 10px; cursor:pointer;" onclick="setSearchQuery('${t}')">
+            <span style="color:var(--accent); font-weight:900;">${idx + 1}</span>
+            <span>${t}</span>
+            <span style="margin-left:auto; color:var(--red);">📈</span>
+          </div>`).join('') : `<p style="font-size:11px; color:var(--muted);">कोई ट्रेंडिंग नहीं है</p>`;
+        return;
+      }
+
+      suggBox.style.display = 'none'; grid.style.display = 'grid';
+      const filtered = animeList.filter(a => (a.title || '').toLowerCase().includes(q) || (a.genre || '').toLowerCase().includes(q));
+      
+      if (!filtered.length) {
+        grid.innerHTML = `<div class="empty-box" style="grid-column:1/-1;"><h3>कोई एनिमे नहीं मिला</h3></div>`;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(a => `
+        <div class="row-card" style="flex:auto;" onclick="saveSearchItem('${a.title.replace(/'/g, '')}'); playSound('play'); openAnimeSeries('${a.id}')">
+          <img src="${a.poster}" />
+          <div class="row-card-body"><div class="row-card-title">${a.title}</div></div>
+        </div>`).join('');
+    }
+
+    function setSearchQuery(q) { document.getElementById('animeSearch').value = q; renderSearchList(); }
+    function saveSearchItem(q) { recentSearches = [q, ...recentSearches.filter(s => s !== q)].slice(0, 8); localStorage.setItem('m99_recent_searches', JSON.stringify(recentSearches)); }
+    function deleteRecentSearch(idx) { recentSearches.splice(idx, 1); localStorage.setItem('m99_recent_searches', JSON.stringify(recentSearches)); renderSearchList(); }
+    function clearRecentSearches() { recentSearches = []; localStorage.setItem('m99_recent_searches', '[]'); renderSearchList(); }
+
     function updateProfileUI() {
       document.getElementById('profileDisplayName').textContent = userName;
       document.getElementById('profileAvatar').textContent = userName.charAt(0).toUpperCase();
@@ -1021,230 +993,88 @@
       } else {
         hBox.innerHTML = watchHistory.map((h, idx) => {
           const info = `${Math.floor((h.time || 0) / 60)}m ${(h.time || 0) % 60}s`;
+          const pct = h.duration ? Math.min(100, (h.time / h.duration) * 100) : 0;
           return `
-            <div class="comment-item" style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
-              <div style="cursor:pointer; flex:1;" onclick="playSound('play'); resumeHistoryItem(${idx})">
-                <div style="font-weight:700; font-size:13px;">🎬 ${h.title}</div>
-                <div style="font-size:11px; color:var(--accent);">▶ वहीं से देखें (${info}) • 🌐 ${h.lang || 'Hindi Dub'}</div>
+            <div class="hist-item">
+              <div class="hist-main" onclick="playSound('play'); resumeHistoryItem(${idx})">
+                <img class="hist-thumb" src="${h.poster || ''}" alt="poster" />
+                <div class="hist-meta">
+                  <div style="font-weight:700; font-size:12.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${h.title}</div>
+                  <div style="font-size:10px; color:var(--accent); margin-top:2px;">▶ वहीं से देखें (${info})</div>
+                  <div class="hist-pbar-bg"><div class="hist-pbar-fill" style="width:${pct}%"></div></div>
+                </div>
+                <button class="btn btn-dark btn-sm" style="padding:4px 8px; color:#f87171;" onclick="event.stopPropagation(); deleteHistoryItem(${idx})">🗑️</button>
               </div>
-              <button class="btn btn-dark btn-sm" style="padding:4px 8px; color:#f87171;" onclick="deleteHistoryItem(${idx})">✕</button>
             </div>`;
         }).join('');
       }
     }
 
-    function resumeHistoryItem(idx) {
-      const h = watchHistory[idx];
-      if (h) openAnimeSeries(h.seriesId, h.id, h.time || 0);
-    }
+    function resumeHistoryItem(idx) { const h = watchHistory[idx]; if (h) openAnimeSeries(h.seriesId, h.id, h.time || 0); }
+    function deleteHistoryItem(idx) { playSound('back'); watchHistory.splice(idx, 1); localStorage.setItem('m99_history', JSON.stringify(watchHistory)); updateProfileUI(); }
+    function clearAllHistory() { playSound('back'); watchHistory = []; localStorage.setItem('m99_history', '[]'); updateProfileUI(); showToast('पूरी हिस्ट्री साफ़ हो गई'); }
+    function saveProfileName() { const val = document.getElementById('editNameInput').value.trim(); if (!val) return; playSound('like'); userName = val; localStorage.setItem('m99_username', userName); document.getElementById('editNameInput').value = ''; updateProfileUI(); showToast('नाम सेव हो गया!'); }
+    function toggleButtonSound() { soundEnabled = !soundEnabled; localStorage.setItem('m99_sound', soundEnabled ? 'on' : 'off'); updateProfileUI(); if (soundEnabled) playSound('like'); }
+    async function shareAppWithFriends() { const shareData = { title: 'Manga 99 Anime', text: 'हिंदी और इंग्लिश डब एनिमे फ्री देखें Manga 99 पर:', url: window.location.href }; try { if (navigator.share) await navigator.share(shareData); else { await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`); showToast('शेयर लिंक कॉपी हो गया! 📋'); } } catch (e) {} }
 
-    function deleteHistoryItem(idx) {
-      playSound('back');
-      watchHistory.splice(idx, 1);
-      localStorage.setItem('m99_history', JSON.stringify(watchHistory));
-      updateProfileUI();
-    }
-
-    function clearAllHistory() {
-      playSound('back');
-      watchHistory = [];
-      localStorage.setItem('m99_history', '[]');
-      updateProfileUI();
-      showToast('पूरी हिस्ट्री साफ़ हो गई');
-    }
-
-    function saveProfileName() {
-      const val = document.getElementById('editNameInput').value.trim();
-      if (!val) return;
-      playSound('like'); userName = val; localStorage.setItem('m99_username', userName);
-      document.getElementById('editNameInput').value = ''; updateProfileUI(); showToast('नाम सेव हो गया!');
-    }
-
-    function toggleButtonSound() {
-      soundEnabled = !soundEnabled;
-      localStorage.setItem('m99_sound', soundEnabled ? 'on' : 'off');
-      updateProfileUI(); if (soundEnabled) playSound('like');
-    }
-
-    async function shareAppWithFriends() {
-      const shareData = { title: 'Manga 99 Anime', text: 'हिंदी और इंग्लिश डब एनिमे फ्री देखें Manga 99 पर:', url: window.location.href };
-      try {
-        if (navigator.share) await navigator.share(shareData);
-        else { await navigator.clipboard.writeText(`${shareData.text} ${shareData.url}`); showToast('शेयर लिंक कॉपी हो गया! 📋'); }
-      } catch (e) {}
-    }
-
-    function compressImage(file, maxW = 480, quality = 0.74) {
+    function compressImage(file, maxW = 420, quality = 0.70) {
       return new Promise(resolve => {
-        const reader = new FileReader();
-        reader.onload = e => {
-          const img = new Image();
-          img.onload = () => {
+        const reader = new FileReader(); reader.onload = e => {
+          const img = new Image(); img.onload = () => {
             const scale = Math.min(1, maxW / img.width);
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width * scale; canvas.height = img.height * scale;
-            canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-            resolve(canvas.toDataURL('image/jpeg', quality));
-          };
-          img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
+            const canvas = document.createElement('canvas'); canvas.width = img.width * scale; canvas.height = img.height * scale;
+            canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height); resolve(canvas.toDataURL('image/jpeg', quality));
+          }; img.src = e.target.result;
+        }; reader.readAsDataURL(file);
       });
     }
 
     async function uploadImageToCloud(file) {
-      const base64Data = await compressImage(file, 480, 0.74);
-      const cleanB64 = base64Data.split(',')[1];
+      const base64Data = await compressImage(file, 420, 0.70); const cleanB64 = base64Data.split(',')[1];
       try {
-        const fd = new FormData();
-        fd.append('image', cleanB64);
+        const fd = new FormData(); fd.append('image', cleanB64);
         const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: 'POST', body: fd });
-        const json = await res.json();
-        if (json && json.success && json.data && json.data.url) return json.data.url;
+        const json = await res.json(); if (json && json.success && json.data && json.data.url) return json.data.url;
       } catch (e) {}
-      return base64Data;
+      return "";
     }
 
     // गुप्त एडमिन पैनल (Code: 2010)
-    function checkPromoCode() {
-      const code = document.getElementById('promoCodeInput').value.trim();
-      document.getElementById('promoCodeInput').value = '';
-      if (code === '2010') {
-        playSound('play');
-        resetAdminForm();
-        populateAdminSeriesDropdown();
-        renderAdminLists();
-        switchView('admin');
-      } else {
-        playSound('back'); showToast('अमान्य कोड!');
-      }
-    }
-
-    function populateAdminSeriesDropdown() {
-      const sel = document.getElementById('admExistingSeries');
-      sel.innerHTML = `<option value="">-- नई एनिमे सीरीज़ बनाएं --</option>` +
-        animeList.map(s => `<option value="${s.id}">${s.title} (${s.episodes.length} Eps)</option>`).join('');
-    }
-
-    function selectExistingSeriesForAdmin() {
-      const sId = document.getElementById('admExistingSeries').value;
-      const s = animeList.find(a => a.id === sId);
-      if (s) {
-        document.getElementById('admSeriesTitle').value = s.title;
-        document.getElementById('admGenre').value = s.genre || '';
-        document.getElementById('admStatus').value = s.status || 'Ongoing';
-        document.getElementById('admDesc').value = s.desc || '';
-        document.getElementById('admEpNum').value = (s.episodes.length || 0) + 1;
-      } else {
-        document.getElementById('admSeriesTitle').value = '';
-        document.getElementById('admGenre').value = '';
-        document.getElementById('admDesc').value = '';
-        document.getElementById('admEpNum').value = 1;
-      }
-    }
-
-    function testAdminVideoUrl() {
-      const url = document.getElementById('admVideoUrl').value.trim();
-      if (!url) { showToast('पहले वीडियो लिंक डालें!'); return; }
-      playSound('play');
-      const box = document.getElementById('admTestBox');
-      const vid = document.getElementById('admPreviewVideo');
-      box.style.display = 'block';
-      vid.src = url;
-      vid.play().catch(() => {});
-    }
-
-    function resetAdminForm() {
-      document.getElementById('admEditSeriesId').value = '';
-      document.getElementById('admEditEpId').value = '';
-      document.getElementById('admExistingSeries').value = '';
-      document.getElementById('admSeriesTitle').value = '';
-      document.getElementById('admGenre').value = '';
-      document.getElementById('admStatus').value = 'Ongoing';
-      document.getElementById('admDesc').value = '';
-      document.getElementById('admSeason').value = 1;
-      document.getElementById('admEpNum').value = 1;
-      document.getElementById('admEpTitle').value = '';
-      document.getElementById('admVideoUrl').value = '';
-      document.getElementById('admPoster').value = '';
-      document.getElementById('admSaveBtn').textContent = 'एनिमे एपिसोड लाइव करें 🎬';
-      document.getElementById('admCancelEditBtn').style.display = 'none';
-      const box = document.getElementById('admTestBox');
-      const vid = document.getElementById('admPreviewVideo');
-      vid.pause(); vid.removeAttribute('src'); box.style.display = 'none';
-    }
-
-    function editAdminEpisode(sId, epId) {
-      const s = animeList.find(a => a.id === sId);
-      if (!s) return;
-      const ep = s.episodes.find(e => e.id === epId);
-      if (!ep) return;
-      playSound('nav');
-      document.getElementById('admEditSeriesId').value = s.id;
-      document.getElementById('admEditEpId').value = ep.id;
-      document.getElementById('admExistingSeries').value = s.id;
-      document.getElementById('admSeriesTitle').value = s.title;
-      document.getElementById('admGenre').value = s.genre || '';
-      document.getElementById('admStatus').value = s.status || 'Ongoing';
-      document.getElementById('admDesc').value = s.desc || '';
-      document.getElementById('admSeason').value = ep.season || 1;
-      document.getElementById('admEpNum').value = ep.epNum || 1;
-      document.getElementById('admLang').value = ep.lang || 'Hindi Dub';
-      document.getElementById('admEpTitle').value = ep.title || '';
-      document.getElementById('admVideoUrl').value = ep.url || '';
-      document.getElementById('admSaveBtn').textContent = 'बदलाव सेव करें (Update) ✅';
-      document.getElementById('admCancelEditBtn').style.display = 'inline-flex';
-      window.scrollTo(0, 0);
-    }
+    function checkPromoCode() { const code = document.getElementById('promoCodeInput').value.trim(); document.getElementById('promoCodeInput').value = ''; if (code === '2010') { playSound('play'); resetAdminForm(); populateAdminSeriesDropdown(); renderAdminLists(); switchView('admin'); } else { playSound('back'); showToast('अमान्य कोड!'); } }
+    function populateAdminSeriesDropdown() { const sel = document.getElementById('admExistingSeries'); sel.innerHTML = `<option value="">-- नई एनिमे सीरीज़ बनाएं --</option>` + animeList.map(s => `<option value="${s.id}">${s.title} (${s.episodes.length} Eps)</option>`).join(''); }
+    function selectExistingSeriesForAdmin() { const sId = document.getElementById('admExistingSeries').value; const s = animeList.find(a => a.id === sId); if (s) { document.getElementById('admSeriesTitle').value = s.title; document.getElementById('admGenre').value = s.genre || ''; document.getElementById('admStatus').value = s.status || 'Ongoing'; document.getElementById('admEpNum').value = (s.episodes.length || 0) + 1; } else { document.getElementById('admSeriesTitle').value = ''; document.getElementById('admGenre').value = ''; document.getElementById('admEpNum').value = 1; } }
+    function testAdminVideoUrl() { const url = document.getElementById('admVideoUrl').value.trim(); if (!url) { showToast('पहले वीडियो लिंक डालें!'); return; } playSound('play'); const box = document.getElementById('admTestBox'); const vid = document.getElementById('admPreviewVideo'); box.style.display = 'block'; vid.src = url; vid.play().catch(() => {}); }
+    function resetAdminForm() { document.getElementById('admEditSeriesId').value = ''; document.getElementById('admEditEpId').value = ''; document.getElementById('admExistingSeries').value = ''; document.getElementById('admSeriesTitle').value = ''; document.getElementById('admGenre').value = ''; document.getElementById('admStatus').value = 'Ongoing'; document.getElementById('admSeason').value = 1; document.getElementById('admEpNum').value = 1; document.getElementById('admEpTitle').value = ''; document.getElementById('admVideoUrl').value = ''; document.getElementById('admPoster').value = ''; document.getElementById('admSaveBtn').textContent = 'एनिमे एपिसोड लाइव करें 🎬'; document.getElementById('admCancelEditBtn').style.display = 'none'; const box = document.getElementById('admTestBox'); const vid = document.getElementById('admPreviewVideo'); vid.pause(); vid.removeAttribute('src'); box.style.display = 'none'; }
+    function editAdminEpisode(sId, epId) { const s = animeList.find(a => a.id === sId); if (!s) return; const ep = s.episodes.find(e => e.id === epId); if (!ep) return; playSound('nav'); document.getElementById('admEditSeriesId').value = s.id; document.getElementById('admEditEpId').value = ep.id; document.getElementById('admExistingSeries').value = s.id; document.getElementById('admSeriesTitle').value = s.title; document.getElementById('admGenre').value = s.genre || ''; document.getElementById('admStatus').value = s.status || 'Ongoing'; document.getElementById('admSeason').value = ep.season || 1; document.getElementById('admEpNum').value = ep.epNum || 1; document.getElementById('admLang').value = ep.lang || 'Hindi Dub'; document.getElementById('admEpTitle').value = ep.title || ''; document.getElementById('admVideoUrl').value = ep.url || ''; document.getElementById('admSaveBtn').textContent = 'बदलाव सेव करें (Update) ✅'; document.getElementById('admCancelEditBtn').style.display = 'inline-flex'; window.scrollTo(0, 0); }
 
     async function adminPublishEpisode() {
-      const editSId = document.getElementById('admEditSeriesId').value;
-      const editEpId = document.getElementById('admEditEpId').value;
-      const sTitle = document.getElementById('admSeriesTitle').value.trim();
-      const genre = document.getElementById('admGenre').value.trim() || 'Anime';
+      const editSId = document.getElementById('admEditSeriesId').value; const editEpId = document.getElementById('admEditEpId').value;
+      const sTitle = document.getElementById('admSeriesTitle').value.trim(); const genre = document.getElementById('admGenre').value.trim() || 'Anime';
       const status = document.getElementById('admStatus').value || 'Ongoing';
-      const desc = document.getElementById('admDesc').value.trim();
-      const season = Number(document.getElementById('admSeason').value) || 1;
-      const epNum = Number(document.getElementById('admEpNum').value) || 1;
-      const lang = document.getElementById('admLang').value || 'Hindi Dub';
-      const epTitle = document.getElementById('admEpTitle').value.trim() || `Episode ${epNum}`;
-      const url = document.getElementById('admVideoUrl').value.trim();
-      const posterFile = document.getElementById('admPoster').files[0];
+      const season = Number(document.getElementById('admSeason').value) || 1; const epNum = Number(document.getElementById('admEpNum').value) || 1;
+      const lang = document.getElementById('admLang').value || 'Hindi Dub'; const epTitle = document.getElementById('admEpTitle').value.trim() || `Episode ${epNum}`;
+      const url = document.getElementById('admVideoUrl').value.trim(); const posterFile = document.getElementById('admPoster').files[0];
 
       if (!sTitle || !url) { showToast('सीरीज़ का नाम और वीडियो लिंक डालें!'); return; }
       playSound('play'); showToast('क्लाउड पर सेव हो रहा है...');
 
-      let series = editSId
-        ? animeList.find(a => a.id === editSId)
-        : animeList.find(a => a.title.toLowerCase() === sTitle.toLowerCase());
-
-      let poster = series ? series.poster : '';
-      if (posterFile) poster = await uploadImageToCloud(posterFile);
+      let series = editSId ? animeList.find(a => a.id === editSId) : animeList.find(a => a.title.toLowerCase() === sTitle.toLowerCase());
+      let poster = series ? series.poster : ''; if (posterFile) poster = await uploadImageToCloud(posterFile);
 
       if (!series) {
-        series = { id: 's_' + Date.now(), title: sTitle, genre, status, desc, poster, episodes: [] };
-        animeList.unshift(series);
+        series = { id: 's_' + Date.now(), title: sTitle, genre, status, poster, episodes: [] }; animeList.unshift(series);
       } else {
-        series.title = sTitle;
-        series.genre = genre;
-        series.status = status;
-        if (desc) series.desc = desc;
-        if (poster) series.poster = poster;
+        series.title = sTitle; series.genre = genre; series.status = status; if (poster) series.poster = poster;
       }
 
       if (editEpId) {
-        const ep = series.episodes.find(e => e.id === editEpId);
-        if (ep) Object.assign(ep, { season, epNum, lang, title: epTitle, url });
+        const ep = series.episodes.find(e => e.id === editEpId); if (ep) Object.assign(ep, { season, epNum, lang, title: epTitle, url });
       } else {
         series.episodes.push({ id: 'ep_' + Date.now(), season, epNum, lang, title: epTitle, url });
       }
 
-      const ok = await saveAnimeCloud(series);
-      if (!ok) return;
-      resetAdminForm();
-      populateAdminSeriesDropdown();
-      renderAdminLists();
-      renderAnimeList();
+      const ok = await saveAnimeCloud(series); if (!ok) return;
+      resetAdminForm(); populateAdminSeriesDropdown(); renderAdminLists(); renderAnimeList();
       showToast(editEpId ? 'एपिसोड अपडेट हो गया! ✅' : 'नया एपिसोड लाइव हो गया! 🎉');
     }
 
@@ -1267,22 +1097,8 @@
         </div>`).join('') : `<p style="font-size:12px; color:var(--muted);">अभी कोई एपिसोड अपलोड नहीं है।</p>`;
     }
 
-    async function deleteAdminEpisode(sId, epId) {
-      playSound('back');
-      const s = animeList.find(a => a.id === sId);
-      if (!s) return;
-      s.episodes = s.episodes.filter(e => e.id !== epId);
-      if (!s.episodes.length) animeList = animeList.filter(a => a.id !== sId);
-      await saveAnimeCloud(); populateAdminSeriesDropdown(); renderAdminLists(); renderAnimeList();
-      showToast('एपिसोड हटा दिया गया।');
-    }
-
-    async function deleteAdminSeries(sId) {
-      playSound('back');
-      animeList = animeList.filter(a => a.id !== sId);
-      await saveAnimeCloud(); populateAdminSeriesDropdown(); renderAdminLists(); renderAnimeList();
-      showToast('पूरी सीरीज़ हटा दी गई।');
-    }
+    async function deleteAdminEpisode(sId, epId) { playSound('back'); const s = animeList.find(a => a.id === sId); if (!s) return; s.episodes = s.episodes.filter(e => e.id !== epId); if (!s.episodes.length) animeList = animeList.filter(a => a.id !== sId); await saveAnimeCloud(); populateAdminSeriesDropdown(); renderAdminLists(); renderAnimeList(); showToast('एपिसोड हटा दिया गया।'); }
+    async function deleteAdminSeries(sId) { playSound('back'); animeList = animeList.filter(a => a.id !== sId); await saveAnimeCloud(); populateAdminSeriesDropdown(); renderAdminLists(); renderAnimeList(); showToast('पूरी सीरीज़ हटा दी गई।'); }
   </script>
 </body>
 </html>

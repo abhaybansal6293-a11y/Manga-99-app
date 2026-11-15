@@ -1206,15 +1206,15 @@
       });
     }
 
-    async function uploadImageToCloud(file) {
-      const base64Data = await compressImage(file, 420, 0.70); const cleanB64 = base64Data.split(',')[1];
-      try {
-        const fd = new FormData(); fd.append('image', cleanB64);
-        const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: 'POST', body: fd });
-        const json = await res.json(); if (json && json.success && json.data && json.data.url) return json.data.url;
-      } catch (e) {}
-      return "";
-    }
+        async function uploadImageToCloud(file) {
+  const base64Data = await compressImage(file, 320, 0.62); const cleanB64 = base64Data.split(',')[1];
+  try {
+    const fd = new FormData(); fd.append('image', cleanB64);
+    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: 'POST', body: fd });
+    const json = await res.json(); if (json && json.success && json.data && json.data.url) return json.data.url;
+  } catch (e) {}
+  return base64Data;
+}
 
     // गुप्त एडमिन पैनल (Code: 2010 - आपके हाथ में पूरा पब्लिश व डिलीट कंट्रोल)
     function checkPromoCode() { const code = document.getElementById('promoCodeInput').value.trim(); document.getElementById('promoCodeInput').value = ''; if (code === '2010') { playSound('play'); resetAdminForm(); populateAdminSeriesDropdown(); renderAdminLists(); switchView('admin'); } else { playSound('back'); showToast('अमान्य कोड!'); } }

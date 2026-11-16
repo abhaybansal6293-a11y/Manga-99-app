@@ -380,28 +380,11 @@
     </div>
 
     <!-- यूज़र एनिमे मांग बॉक्स -->
-    <div class="card-box">
-      <div style="font-size:14px; font-weight:800;">🛡️ डेटा बैकअप और प्राइवेसी</div>
-      <div style="font-size:11px; color:var(--muted); margin:5px 0 9px;">अपने एनिमे डेटा की JSON कॉपी डाउनलोड करें या पहले से बना बैकअप वापस लाएं।</div><div style="font-size:11px;color:#ffc107;margin:0 0 9px;">ध्यान दें: इस HTML में Pantry ID दिखाई देती है। इसमें निजी जानकारी या पासवर्ड सेव न करें। असली सुरक्षा के लिए Backend जरूरी है।</div>
-      <div class="row-2">
-        <button class="btn-orange" onclick="exportBackup()">⬇️ बैकअप डाउनलोड</button>
-        <button class="btn-dark" onclick="document.getElementById('backupImport').click()">⬆️ बैकअप वापस लाएं</button>
-      </div>
-      <input id="backupImport" type="file" accept="application/json,.json" class="inp" style="display:none" onchange="importBackup(event)" />
-      <button class="p-pill" style="width:100%; margin-top:8px;" onclick="clearLocalAccountData()">🧹 लोकल अकाउंट डेटा साफ़ करें</button>
-    </div>
-
-    <div class="card-box">
-      <div style="font-size:14px; font-weight:800;">📩 नया एनिमे मांगें (Request Anime)</div>
-      <div style="display:flex; gap:8px; margin-top:6px;">
-        <input type="text" class="inp" style="margin-top:0;" id="reqAnimeInp" placeholder="कौन-सा एनिमे चाहिए?" />
-        <button class="btn-orange" onclick="sendAnimeRequest()">भेजें</button>
-      </div>
-    </div>
+    
 
     <!-- लोकल एडमिन UI लॉक; सर्वर-साइड सुरक्षा का विकल्प नहीं -->
     <div class="card-box">
-      <div style="font-size:13px; font-weight:800; color:var(--gold);">🔑 लोकल एडमिन लॉक</div><div style="font-size:11px;color:var(--muted);margin-top:4px;">यह केवल इस डिवाइस का UI लॉक है। असली सुरक्षा के लिए सर्वर लॉगिन चाहिए।</div>
+      <div style="font-size:13px; font-weight:800; color:var(--gold);">🔑 प्रोमो कोड / विशेष एक्सेस</div><div style="font-size:11px;color:var(--muted);margin-top:4px;">विशेष एक्सेस या प्रोमो कोड दर्ज करें</div>
       <div style="display:flex; gap:8px; margin-top:6px;">
         <input type="password" class="inp" style="margin-top:0;" id="secretCodeInp" placeholder="कोड डालें..." />
         <button class="btn-orange" onclick="unlockAdmin()">लागू करें</button>
@@ -1565,55 +1548,7 @@
     userName = vault[k].name; localStorage.setItem('m99_username', userName);
     document.getElementById('authModal').style.display = 'none'; refreshProfile();
   }
-  function exportBackup() {
-    const payload = {
-      format: 'manga99-backup-v2', exportedAt: new Date().toISOString(), state: cloudState,
-      deviceData: {
-        username: userName, watchlist: readJSON('m99_watchlist', []), history: readJSON('m99_history', []),
-        recentSearches: readJSON('m99_recent_searches', []), watchedCount: localStorage.getItem('m99_watched_count') || '0',
-        likedSeries: readJSON('m99_liked_series', {}), viewedSeries: readJSON('m99_viewed_series', {}),
-        viewedEpisodes: readJSON('m99_viewed_episodes', {}), dataSaver, soundOn
-      }
-    };
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob), a = document.createElement('a');
-    a.href = url; a.download = 'manga99-backup.json'; a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1500);
-    toast('बैकअप डाउनलोड शुरू हुआ ✓');
-  }
-  async function importBackup(event) {
-    const file = event.target.files && event.target.files[0]; if (!file) return;
-    if (file.size > 25 * 1024 * 1024) { toast('बैकअप फ़ाइल 25 MB से बड़ी है'); event.target.value = ''; return; }
-    try {
-      const parsed = JSON.parse(await file.text());
-      const data = parsed.state || parsed;
-      const list = data.animeList || data.animes || data.series || data.items || data.movies;
-      if (!Array.isArray(list) || list.length > 1500) throw new Error('Invalid backup');
-      if (!confirm('मौजूदा एनिमे डेटा और उपलब्ध डिवाइस सेटिंग्स बैकअप से बदलें? जारी रखें?')) return;
-      normalizeCloudState(data);
-      const d = parsed.deviceData || {};
-      if (d.username) { userName = String(d.username).slice(0, 40); localStorage.setItem('m99_username', userName); }
-      if (Array.isArray(d.watchlist)) writeJSON('m99_watchlist', d.watchlist);
-      if (Array.isArray(d.history)) writeJSON('m99_history', d.history.slice(0, 100));
-      if (Array.isArray(d.recentSearches)) writeJSON('m99_recent_searches', d.recentSearches.slice(0, 6));
-      if (d.likedSeries && typeof d.likedSeries === 'object') writeJSON('m99_liked_series', d.likedSeries);
-      if (d.viewedSeries && typeof d.viewedSeries === 'object') writeJSON('m99_viewed_series', d.viewedSeries);
-      if (d.viewedEpisodes && typeof d.viewedEpisodes === 'object') writeJSON('m99_viewed_episodes', d.viewedEpisodes);
-      if (d.watchedCount != null) localStorage.setItem('m99_watched_count', String(Math.max(0, Number(d.watchedCount) || 0)));
-      if (typeof d.dataSaver === 'boolean') { dataSaver = d.dataSaver; localStorage.setItem('m99_datasaver', dataSaver); }
-      if (typeof d.soundOn === 'boolean') { soundOn = d.soundOn; localStorage.setItem('m99_sound', soundOn); }
-      await saveLocalState();
-      const synced = await saveCloudData(); renderEverything();
-      toast(synced ? 'बैकअप रिस्टोर और क्लाउड सिंक सफल ✓' : 'बैकअप लोकल में रिस्टोर हुआ; Cloud Sync बाकी है');
-    } catch (e) { toast('बैकअप फ़ाइल सही JSON फ़ॉर्मेट में नहीं है'); }
-    finally { event.target.value = ''; }
-  }
-  async function clearLocalAccountData() {
-    if (!confirm('इस डिवाइस का लोकल प्रोफाइल, हिस्ट्री और सेव की गई पसंद साफ़ करें? क्लाउड डेटा नहीं हटेगा।')) return;
-    ['m99_username','m99_history','m99_watchlist','m99_recent_searches','m99_local_accounts_vault','m99_liked_series','m99_viewed_series','m99_viewed_episodes','m99_watched_count','m99_progress','m99_admin_pin','m99_admin_pin_v2'].forEach(k => localStorage.removeItem(k));
-    userName = 'Manga 99'; refreshProfile(); renderHistoryAndSchedule();
-    toast('लोकल प्रोफाइल डेटा साफ़ हुआ');
-  }
+  
 
   async function sendAnimeRequest() { const inp = document.getElementById('reqAnimeInp'), t = (inp.value || '').trim(); if (!t) return toast('एनिमे का नाम लिखें'); if (t.length > 120) return toast('मांग 120 अक्षरों तक रखें'); playUiSound('like'); cloudState.requests.unshift({ user: userName, title: t }); inp.value = ''; const synced = await saveCloudData(); toast(synced ? 'आपकी मांग क्लाउड पर भेज दी गई ✓' : 'मांग लोकल में सेव है; Cloud Sync बाकी है'); }
 

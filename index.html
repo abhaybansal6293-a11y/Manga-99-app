@@ -24,16 +24,15 @@
     body { background: var(--bg); color: var(--text); padding-bottom: calc(78px + env(safe-area-inset-bottom)); overflow-x: hidden; }
     button, .nav-btn, .poster-card { touch-action: manipulation; }
     input, textarea, select { font-size: 16px; }
-    img { max-width: 100%; }
+    img { max-width: 100%; color: transparent; }
     button { min-height: 36px; }
-    nav.bottom-nav { padding-bottom: calc(8px + env(safe-area-inset-bottom)); z-index: 700; isolation: isolate; backdrop-filter: none; -webkit-backdrop-filter: none; }
+    nav.bottom-nav { padding-bottom: calc(8px + env(safe-area-inset-bottom)); z-index: 700; isolation: isolate; }
     #resumeMiniBar { z-index: 680 !important; }
     #playerScreen { z-index: 1200 !important; }
     #authModal { z-index: 1300; }
     #toast { z-index: 20000; }
-    img { color: transparent; }
-
-    /* स्प्लैश लोडिंग स्क्रीन */
+    
+        /* स्प्लैश लोडिंग स्क्रीन */
     #splashScreen {
       position: fixed; inset: 0; background: radial-gradient(circle at center, #241004 0%, #07080c 72%);
       display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999;
@@ -76,8 +75,8 @@
       background: rgba(0, 230, 118, 0.14); border: 1px solid rgba(0, 230, 118, 0.4); color: var(--green);
       padding: 5px 8px; border-radius: 20px; font-size: 10px; font-weight: 800; cursor: pointer;
     }
-
-    /* TRENDING ★ 1 बैनर */
+    
+        /* TRENDING ★ 1 बैनर */
     .hero-wrap { padding: 12px 14px 6px; }
     .hero-card {
       position: relative; height: 215px; border-radius: 18px; overflow: hidden;
@@ -130,8 +129,8 @@
       font-size: 9px; font-weight: 900; padding: 3px 7px; border-radius: 6px;
     }
     .poster-title { padding: 8px; font-size: 12px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-    /* फ़िल्टर चिप्स */
+    
+        /* फ़िल्टर चिप्स */
     .chip-bar { display: flex; gap: 7px; overflow-x: auto; padding: 4px 14px 10px; scrollbar-width: none; }
     .chip-bar::-webkit-scrollbar { display: none; }
     .f-chip {
@@ -186,8 +185,8 @@
       padding: 10px 12px; border-radius: 10px; font-size: 13px; margin-top: 8px; outline: none;
     }
     .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-
-    /* वीडियो प्लेयर स्क्रीन - पक्की 16:9 ऊंचाई के साथ ताकि वीडियो बिना Full दबाए साफ़ दिखे */
+    
+        /* वीडियो प्लेयर स्क्रीन */
     #playerScreen {
       position: fixed; inset: 0; background: var(--bg); z-index: 1200; display: none;
       flex-direction: column; overflow-y: auto; padding-bottom: 84px;
@@ -213,11 +212,6 @@
       position: absolute; top: 10px; left: 10px; z-index: 30; background: rgba(0,0,0,0.68);
       color: var(--gold); border: 1px solid rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer;
     }
-    .smart-skip {
-      position: absolute; right: 12px; bottom: 52px; z-index: 32; background: var(--primary); color: #fff;
-      border: none; padding: 8px 14px; border-radius: 9px; font-size: 12px; font-weight: 900;
-      display: none; cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,0.75);
-    }
     .seek-flash {
       position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.75);
       color: #fff; padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: 900; display: none; z-index: 28; pointer-events: none;
@@ -239,6 +233,7 @@
     /* कमेंट्स व ऑथ मोडल */
     .c-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px; margin-top: 8px; }
     .c-item.pinned { border-color: var(--gold); background: rgba(255, 193, 7, 0.08); }
+    .admin-badge { background: rgba(255,193,7,0.18); color: var(--gold); border: 1px solid var(--gold); font-size: 10px; padding: 1px 6px; border-radius: 6px; margin-left: 6px; }
     #authModal {
       position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 950; display: none;
       align-items: center; justify-content: center; padding: 18px;
@@ -250,7 +245,7 @@
 
     /* बॉटम नेविगेशन */
     nav.bottom-nav {
-      position: fixed; bottom: 0; left: 0; right: 0; background: rgba(11, 13, 20, 0.98); backdrop-filter: none; -webkit-backdrop-filter: none;
+      position: fixed; bottom: 0; left: 0; right: 0; background: rgba(11, 13, 20, 0.98);
       border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 8px 0; z-index: 700;
     }
     .nav-btn {
@@ -266,6 +261,7 @@
     }
   </style>
 </head>
+
 <body>
 
   <!-- लोडिंग स्क्रीन -->
@@ -287,7 +283,7 @@
     </div>
   </header>
 
-  <!-- टैब 1: एनिमे (होम - एकदम साफ़, बिना Watchlist/History के) -->
+  <!-- टैब 1: एनिमे -->
   <div id="tabAnime" class="tab-page active">
     <div class="hero-wrap" id="heroContainer"></div>
 
@@ -306,8 +302,8 @@
     </div>
     <div class="grid-2" id="recommendedGrid"></div>
   </div>
-
-  <!-- टैब 2: सर्च -->
+  
+    <!-- टैब 2: सर्च -->
   <div id="tabSearch" class="tab-page">
     <div class="search-box">
       <input type="text" class="search-inp" id="searchInp" placeholder="एनिमे सीरीज़ या जॉनर खोजें..." oninput="renderSearch()" />
@@ -336,8 +332,8 @@
     <div class="day-tabs" id="scheduleDays"></div>
     <div class="grid-2" id="scheduleGrid"></div>
   </div>
-
-  <!-- टैब 4: प्रोफाइल और सेटिंग्स -->
+  
+    <!-- टैब 4: प्रोफाइल और सेटिंग्स -->
   <div id="tabProfile" class="tab-page">
     <div class="prof-hero">
       <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
@@ -353,7 +349,6 @@
       <button class="btn-dark" style="width:100%; margin-top:12px; border-color:rgba(255,94,0,0.45);" onclick="openAuthModal()">👤 अकाउंट बनाएं / लॉगिन करें</button>
     </div>
 
-    <!-- अलग My Watchlist सेक्शन प्रोफाइल के अंदर -->
     <div class="card-box">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
         <div style="font-size:15px; font-weight:900;">❤️ मेरी वॉचलिस्ट (My Watchlist)</div>
@@ -379,19 +374,23 @@
       </div>
     </div>
 
-    <!-- यूज़र एनिमे मांग बॉक्स -->
-    
-
-    <!-- लोकल एडमिन UI लॉक; सर्वर-साइड सुरक्षा का विकल्प नहीं -->
     <div class="card-box">
-      <div style="font-size:13px; font-weight:800; color:var(--gold);">🔑 प्रोमो कोड / विशेष एक्सेस</div><div style="font-size:11px;color:var(--muted);margin-top:4px;">विशेष एक्सेस या प्रोमो कोड दर्ज करें</div>
+      <div style="font-size:14px; font-weight:800;">📩 नया एनिमे मांगें (Request Anime)</div>
       <div style="display:flex; gap:8px; margin-top:6px;">
-        <input type="password" class="inp" style="margin-top:0;" id="secretCodeInp" placeholder="कोड डालें..." />
-        <button class="btn-orange" onclick="unlockAdmin()">लागू करें</button>
+        <input type="text" class="inp" style="margin-top:0;" id="reqAnimeInp" placeholder="कौन-सा एनिमे चाहिए?" />
+        <button class="btn-orange" onclick="sendAnimeRequest()">भेजें</button>
       </div>
     </div>
 
-    <!-- एडमिन पैनल -->
+    <div class="card-box">
+      <div style="font-size:13px; font-weight:800; color:var(--gold);">🎟️ प्रोमो कोड</div>
+      <div style="display:flex; gap:8px; margin-top:6px;">
+        <input type="password" class="inp" style="margin-top:0;" id="secretCodeInp" placeholder="प्रोमो कोड डालें..." />
+        <button class="btn-orange" onclick="unlockAdmin()">लागू करें</button>
+      </div>
+    </div>
+    
+        <!-- एडमिन पैनल (बिना इंट्रो/आउट्रो ट्रैकर के साफ़ फॉर्म) -->
     <div id="adminArea" style="display:none;">
       <div class="card-box" style="border-color:var(--gold);">
         <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -455,35 +454,6 @@
           <input type="text" class="inp" id="admSub" placeholder="सबटाइटल .vtt लिंक (वैकल्पिक)" />
         </div>
 
-        <!-- ऑटोमैटिक इंट्रो और आउट्रो स्किप ट्रैकर -->
-        <div style="background:rgba(255,94,0,0.08); border:1px solid rgba(255,94,0,0.3); padding:10px; border-radius:10px; margin-top:10px;">
-          <div style="display:flex; justify-content:space-between; align-items:center; gap:6px;">
-            <div style="font-size:12px; font-weight:800; color:var(--primary);">⏩ ऑटोमैटिक इंट्रो / आउट्रो ट्रैकर</div>
-            <button type="button" class="p-pill" style="background:var(--primary);border-color:var(--primary);font-size:11px;" onclick="autoTrackIntroOutro()">✨ ऑटो ट्रैक करें</button>
-          </div>
-          <div style="font-size:11px; color:var(--muted); margin-top:4px;">वीडियो की लंबाई के हिसाब से इंट्रो (0:00–1:25) व आउट्रो (अंतिम 1:25) अपने-आप भरें या नीचे से कैप्चर करें।</div>
-          <div class="row-2">
-            <input type="text" class="inp" id="admIntroStart" placeholder="इंट्रो शुरू (जैसे 0 या 0:30)" />
-            <input type="text" class="inp" id="admIntroEnd" placeholder="इंट्रो खत्म (जैसे 85 या 1:25)" />
-          </div>
-          <div class="row-2">
-            <input type="text" class="inp" id="admOutroStart" placeholder="आउट्रो शुरू (जैसे 22:10)" />
-            <input type="text" class="inp" id="admOutroEnd" placeholder="आउट्रो खत्म (जैसे 23:40)" />
-          </div>
-          <button type="button" class="p-pill" style="width:100%; margin-top:8px;" onclick="previewAdminVideo()">▶ प्रिव्यू चलाएं व लाइव समय कैप्चर करें</button>
-          <div id="admPreviewBox" style="display:none; margin-top:8px;">
-            <video id="admPreviewVid" controls playsinline style="width:100%; border-radius:8px; max-height:175px;"></video>
-            <div class="row-2" style="margin-top:6px;">
-              <button type="button" class="p-pill" onclick="captureTime('admIntroStart')">⏱️ अभी = इंट्रो शुरू</button>
-              <button type="button" class="p-pill" onclick="captureTime('admIntroEnd')">⏱️ अभी = इंट्रो खत्म</button>
-            </div>
-            <div class="row-2" style="margin-top:6px;">
-              <button type="button" class="p-pill" onclick="captureTime('admOutroStart')">⏱️ अभी = आउट्रो शुरू</button>
-              <button type="button" class="p-pill" onclick="captureTime('admOutroEnd')">⏱️ अभी = आउट्रो खत्म</button>
-            </div>
-          </div>
-        </div>
-
         <button class="btn-orange" style="width:100%; margin-top:12px; justify-content:center; padding:12px;" onclick="publishEpisode()">🚀 एपिसोड पब्लिश / अपडेट करें</button>
       </div>
 
@@ -499,8 +469,8 @@
       </div>
     </div>
   </div>
-
-  <!-- वीडियो प्लेयर स्क्रीन (पक्की 16:9 ऊंचाई के साथ) -->
+  
+    <!-- वीडियो प्लेयर स्क्रीन (बिना Skip Intro/Outro बटन के साफ़ प्लेयर) -->
   <div id="playerScreen">
     <div class="p-topbar">
       <button class="p-pill" onclick="closePlayer()">← वापस</button>
@@ -511,8 +481,6 @@
     <div class="video-stage" id="videoStage" onclick="handleStageDoubleTap(event)">
       <video id="mainVideo" controls playsinline webkit-playsinline preload="metadata" ontimeupdate="onVideoProgress()" onended="onVideoComplete()" onerror="videoPlaybackError()"><track id="mainSubtitleTrack" kind="subtitles" srclang="hi" label="Subtitles" /></video>
       <button class="lock-btn" id="lockBtn" onclick="event.stopPropagation(); toggleLock()">🔓 Lock</button>
-      <button class="smart-skip" id="introSkipBtn" onclick="event.stopPropagation(); skipSegment('intro')">Skip Intro ⏩</button>
-      <button class="smart-skip" id="outroSkipBtn" onclick="event.stopPropagation(); skipSegment('outro')">Skip Outro ⏩</button>
       <div class="seek-flash" id="flashLeft" style="left:16px;">⏪ -10s</div>
       <div class="seek-flash" id="flashRight" style="right:16px;">+10s ⏩</div>
 
@@ -567,13 +535,13 @@
       <div id="commentsContainer" style="margin-top:8px;"></div>
     </div>
   </div>
-
-  <!-- 100% लोकल सुरक्षित खाता मोडल -->
+  
+    <!-- 100% लोकल सुरक्षित खाता मोडल -->
   <div id="authModal">
     <div class="auth-box">
       <div class="splash-badge" style="width:56px; height:56px; font-size:22px; margin:0 auto 10px; animation:none;">99</div>
       <h2 style="font-size:20px; font-weight:900;">MANGA 99</h2>
-      <p style="font-size:12px; color:var(--muted); margin-top:4px;">यह लोकल डेमो अकाउंट है; यह किसी सर्वर से जुड़ा नहीं है। असली/महत्वपूर्ण पासवर्ड यहाँ न डालें</p>
+      <p style="font-size:12px; color:var(--muted); margin-top:4px;">अपना प्रोफाइल नाम और पासवर्ड सेट करें</p>
       <input type="text" class="inp" id="authUser" placeholder="अपना नाम लिखें" />
       <input type="password" class="inp" id="authPass" placeholder="पासवर्ड लिखें" />
       <div class="row-2" style="margin-top:12px;">
@@ -599,22 +567,33 @@
   </nav>
 
   <div id="toast"></div>
+  
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-<script>
-  const PANTRY_ID = '3afc55b2-5dd7-47b5-b5d3-82da6d3cea1b';
-  const PRIMARY_BASKET = 'manga99_anime_live_v2';
-  const PANTRY_BASE = `https://getpantry.cloud/apiv1/pantry/${PANTRY_ID}`;
-  // कोई private API key client HTML में नहीं रखी जाती।
+  const firebaseConfig = {
+    apiKey: "AIzaSyDSRWztrtVdn7h6zKwXN3DuQkDJHH2UIq8",
+    authDomain: "manga-99.firebaseapp.com",
+    databaseURL: "https://manga-99-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "manga-99",
+    storageBucket: "manga-99.firebasestorage.app",
+    messagingSenderId: "249227373181",
+    appId: "1:249227373181:web:93406d5c31f464fb789f14"
+  };
 
-  let activeBasketName = localStorage.getItem('m99_active_basket') || PRIMARY_BASKET;
+  const fbApp = initializeApp(firebaseConfig);
+  const fbDb = getDatabase(fbApp);
+  const fbRootRef = ref(fbDb, 'manga99_data');
+
   let cloudState = { animeList: [], requests: [], comments: {} };
   let curAnime = null, curEp = null, curSeason = 1, activeFilter = 'ALL', activeDay = 'सोमवार';
-  let adminOpen = false, screenLocked = false, autoTimer = null, lastTap = 0, cloudFetched = false;
+  let adminOpen = false, screenLocked = false, autoTimer = null, lastTap = 0;
   let soundOn = localStorage.getItem('m99_sound') !== 'false';
   let dataSaver = localStorage.getItem('m99_datasaver') === 'true';
   let userName = localStorage.getItem('m99_username') || 'Manga 99';
 
-  // लोडिंग स्क्रीन की खास सिनेमैटिक आवाज़ (Web Audio API)
+  // लोडिंग स्क्रीन की खास सिनेमैटिक आवाज़
   let audioCtx = null, splashSoundPlayed = false;
   function playSplashChord() {
     if (!soundOn || splashSoundPlayed) return;
@@ -637,8 +616,7 @@
       });
     } catch (e) {}
   }
-  function unlockAndPlaySplashSound() { playSplashChord(); }
-  // लोडिंग शुरू होते ही और पहले टच पर तुरंत आवाज़ बजाना
+  window.unlockAndPlaySplashSound = () => { playSplashChord(); };
   setTimeout(playSplashChord, 120);
   document.addEventListener('pointerdown', () => {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -650,16 +628,9 @@
     const sp = document.getElementById('splashScreen');
     if (sp) { sp.style.opacity = '0'; setTimeout(() => { sp.style.display = 'none'; }, 350); }
   }
-  window.addEventListener('error', () => { hideSplash(); });
-  window.addEventListener('offline', () => { const b = document.getElementById('liveBadge'); if (b) b.textContent = 'Offline • Local'; });
-  window.addEventListener('online', () => { if (cloudSyncPending) saveCloudData(); else loadCloudData(false); });
-  setTimeout(() => {
-    const sp = document.getElementById('splashScreen');
-    if (sp) { sp.style.opacity = '0'; setTimeout(() => { sp.style.display = 'none'; }, 350); }
-  }, 950);
-
-  // फोन का बैक बटन दबाने पर पूरी ऐप कटने से बचाने वाला नेविगेशन लॉक
-  history.replaceState({ m99Page: 'home' }, '');
+  setTimeout(hideSplash, 950);
+  
+    history.replaceState({ m99Page: 'home' }, '');
   window.addEventListener('popstate', () => {
     const pScreen = document.getElementById('playerScreen');
     const aModal = document.getElementById('authModal');
@@ -676,7 +647,6 @@
       history.pushState({ m99Page: 'home' }, '');
     } else {
       history.pushState({ m99Page: 'home' }, '');
-      toast('ऐप से बाहर जाने के लिए होम बटन दबाएं');
     }
   });
 
@@ -698,10 +668,9 @@
   function toast(msg) {
     const el = document.getElementById('toast');
     el.textContent = msg; el.style.display = 'block';
-    clearTimeout(el._t); el._t = setTimeout(() => { el.style.display = 'none'; }, 2800);
+    clearTimeout(el._t); el._t = setTimeout(() => { el.style.display = 'none'; }, 2600);
   }
 
-  // Untrusted cloud/user strings are escaped before HTML insertion.
   function escapeHtml(value) {
     return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   }
@@ -726,28 +695,10 @@
   }
   function writeJSON(key, value) {
     try { localStorage.setItem(key, JSON.stringify(value)); return true; }
-    catch (e) { toast('डिवाइस की स्टोरेज भर गई है'); return false; }
+    catch (e) { return false; }
   }
-  async function fetchTimed(url, options = {}, timeoutMs = 15000) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeoutMs);
-    try { return await fetch(url, { ...options, signal: controller.signal }); }
-    finally { clearTimeout(timer); }
-  }
-
-  function toSeconds(v) {
-    if (v === undefined || v === null || v === '') return null;
-    const s = String(v).trim();
-    if (s.includes(':')) {
-      const p = s.split(':').map(Number);
-      if (p.length === 2 && !isNaN(p[0]) && !isNaN(p[1])) return p[0] * 60 + p[1];
-    }
-    const n = parseFloat(s);
-    return isNaN(n) ? null : n;
-  }
-
-
-  function deduplicateAnimeList(list) {
+  
+    function deduplicateAnimeList(list) {
     const map = new Map();
     (list || []).forEach(item => {
       const key = (item.title || '').trim().toLowerCase();
@@ -775,58 +726,33 @@
     return Array.from(map.values());
   }
 
-  function parseAnyAnimeArray(rawObj) {
-    let arr = [];
-    if (Array.isArray(rawObj)) arr = rawObj;
-    else if (rawObj && typeof rawObj === 'object') {
-      arr = rawObj.animeList || rawObj.animes || rawObj.series || rawObj.data || rawObj.items || rawObj.movies || [];
-      if (!Array.isArray(arr) || arr.length === 0) {
-        for (const k of Object.keys(rawObj)) {
-          if (['requests', 'comments', 'messages', 'users'].includes(k)) continue;
-          const candidate = rawObj[k];
-          if (!Array.isArray(candidate) || !candidate.length || !candidate[0] || typeof candidate[0] !== 'object') continue;
-          const first = candidate[0];
-          const looksLikeAnime = ['episodes','epList','videos','poster','image','img','banner','thumbnail','videoUrl','url','link'].some(key => first[key]) || (first.title && (first.status || first.genre || first.mood || first.rating));
-          if (looksLikeAnime) { arr = candidate; break; }
-        }
-      }
+  function normalizeFirebaseData(raw) {
+    if (!raw || typeof raw !== 'object') {
+      cloudState = { animeList: [], requests: [], comments: {} };
+      return;
     }
-    if (!Array.isArray(arr)) arr = [];
-    const mapped = arr.filter(item => item && typeof item === 'object').map((item, idx) => {
-      const rawEpsValue = item.episodes || item.epList || item.videos || [];
-      const rawEps = Array.isArray(rawEpsValue) ? rawEpsValue : [];
-      const eps = rawEps.map((e, eIdx) => ({
+    const rawAnime = Array.isArray(raw.animeList) ? raw.animeList : (raw.animeList ? Object.values(raw.animeList) : []);
+    const cleanAnime = rawAnime.filter(Boolean).map((item, idx) => {
+      const rawEps = Array.isArray(item.episodes) ? item.episodes : (item.episodes ? Object.values(item.episodes) : []);
+      const eps = rawEps.filter(Boolean).map((e, eIdx) => ({
         id: e.id || ('ep_' + idx + '_' + eIdx),
-        season: Number(e.season || e.seasonNum || 1),
-        num: e.num || e.epNum || e.episode || (eIdx + 1),
-        title: e.title || e.epTitle || e.name || '',
-        url: e.url || e.videoUrl || e.link || e.video || e.mp4 || '',
-        url2: e.url2 || e.videoUrl2 || '',
-        lang: e.lang || e.audioLang || item.lang || 'हिंदी डब',
+        season: Number(e.season || 1),
+        num: Number(e.num || (eIdx + 1)),
+        title: e.title || '',
+        url: e.url || '',
+        url2: e.url2 || '',
+        lang: e.lang || item.lang || 'हिंदी डब',
         subUrl: e.subUrl || '',
-        introStart: e.introStart ?? '',
-        introEnd: e.introEnd ?? '',
-        outroStart: e.outroStart ?? '',
-        outroEnd: e.outroEnd ?? '',
         createdAt: e.createdAt || (Date.now() - eIdx * 1000)
       }));
-      if (eps.length === 0 && (item.url || item.videoUrl || item.link || item.video)) {
-        eps.push({
-          id: 'ep_' + idx + '_0', season: 1, num: 1, title: item.title || item.name || 'Movie',
-          url: item.url || item.videoUrl || item.link || item.video, url2: '',
-          lang: item.lang || item.audioLang || 'हिंदी डब', subUrl: '',
-          introStart: item.introStart ?? '', introEnd: item.introEnd ?? '',
-          outroStart: item.outroStart ?? '', outroEnd: item.outroEnd ?? '', createdAt: Date.now()
-        });
-      }
       return {
         id: item.id || ('anm_' + idx),
-        title: item.title || item.name || 'Anime',
-        poster: item.poster || item.image || item.img || item.banner || item.thumbnail || '',
+        title: item.title || 'Anime',
+        poster: item.poster || '',
         status: item.status || 'Completed',
         rating: item.rating || '5',
-        mood: item.mood || item.genre || 'एक्शन',
-        lang: item.lang || item.audioLang || 'हिंदी डब',
+        mood: item.mood || 'एक्शन',
+        lang: item.lang || 'हिंदी डब',
         releaseDay: item.releaseDay || 'रविवार',
         trailerUrl: item.trailerUrl || '',
         likes: Number(item.likes || 0),
@@ -834,230 +760,70 @@
         episodes: eps
       };
     });
-    return deduplicateAnimeList(mapped);
-  }
-
-  // IndexedDB मुख्य लोकल स्टोरेज है; localStorage fallback भी रखा गया है।
-  const LOCAL_DB_NAME = 'Manga99CoreDB';
-  function openCoreDB() {
-    return new Promise((resolve, reject) => {
-      if (!('indexedDB' in window)) return reject(new Error('IndexedDB unavailable'));
-      const req = indexedDB.open(LOCAL_DB_NAME, 1);
-      req.onupgradeneeded = () => {
-        const db = req.result;
-        if (!db.objectStoreNames.contains('state')) db.createObjectStore('state');
-      };
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () => reject(req.error || new Error('IndexedDB open failed'));
-      req.onblocked = () => reject(new Error('IndexedDB blocked'));
-    });
-  }
-  async function saveLocalState(state = cloudState) {
-    let snapshot;
-    try { snapshot = JSON.stringify(state); } catch (e) { return false; }
-    let saved = false;
-    try {
-      const db = await openCoreDB();
-      await new Promise((resolve, reject) => {
-        const tx = db.transaction('state', 'readwrite');
-        tx.objectStore('state').put(snapshot, 'main');
-        tx.oncomplete = resolve; tx.onerror = () => reject(tx.error); tx.onabort = () => reject(tx.error || new Error('Local save aborted'));
-      });
-      db.close(); saved = true;
-    } catch (e) { /* localStorage fallback below */ }
-    try { localStorage.setItem('m99_full_cache', snapshot); saved = true; }
-    catch (e) { if (!saved) toast('लोकल स्टोरेज कम है; बैकअप डाउनलोड करें'); }
-    return saved;
-  }
-  async function readLocalState() {
-    try {
-      const db = await openCoreDB();
-      const value = await new Promise((resolve, reject) => {
-        const req = db.transaction('state', 'readonly').objectStore('state').get('main');
-        req.onsuccess = () => resolve(req.result); req.onerror = () => reject(req.error);
-      });
-      db.close();
-      if (value) return JSON.parse(value);
-    } catch (e) {}
-    return readJSON('m99_full_cache', null);
-  }
-  function normalizeCloudState(data) {
-    if (!data || typeof data !== 'object' || Array.isArray(data)) return false;
-    const parsed = parseAnyAnimeArray(data);
+    const rawReqs = Array.isArray(raw.requests) ? raw.requests : (raw.requests ? Object.values(raw.requests) : []);
+    const cleanComments = {};
+    if (raw.comments && typeof raw.comments === 'object') {
+      for (const [k, v] of Object.entries(raw.comments)) {
+        cleanComments[k] = Array.isArray(v) ? v.filter(Boolean) : (v ? Object.values(v).filter(Boolean) : []);
+      }
+    }
     cloudState = {
-      animeList: deduplicateAnimeList(parsed).slice(0, 1500),
-      requests: Array.isArray(data.requests) ? data.requests.slice(0, 5000) : [],
-      comments: data.comments && typeof data.comments === 'object' && !Array.isArray(data.comments) ? data.comments : {}
+      animeList: deduplicateAnimeList(cleanAnime),
+      requests: rawReqs.filter(Boolean),
+      comments: cleanComments
     };
-    return true;
   }
 
-  // Immutable generation shards: split large anime/episode/comment data into small JSON baskets.
-  const CLOUD_MAX_SHARDS = 500;
-  const CLOUD_MAX_BASKET_BYTES = 88 * 1024;
-  const CLOUD_TOTAL_SOFT_LIMIT = 900 * 1024;
-  let cloudSaveQueue = Promise.resolve();
-  let localMutationVersion = 0;
-  let cloudSaveSequence = 0;
-  let cloudSyncPending = localStorage.getItem('m99_cloud_sync_pending') === 'true';
-  async function putPantryBasket(name, payload) {
-    const url = `${PANTRY_BASE}/basket/${encodeURIComponent(name)}`;
-    const body = JSON.stringify(payload);
-    let response = await fetchTimed(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body });
-    if ([404, 405, 501].includes(response.status)) {
-      response = await fetchTimed(url, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body });
-    }
-    if (!response.ok) throw new Error(`Pantry write failed (${response.status})`);
-    return response;
-  }
-  function makeCloudChunks(stateSnapshot, generation) {
-    const chunks = [];
-    const add = payload => {
-      const item = { manga99Format: 3, generation, ...payload };
-      const bytes = new TextEncoder().encode(JSON.stringify(item)).length;
-      if (bytes > CLOUD_MAX_BASKET_BYTES) throw new Error('एक डेटा हिस्सा Cloud Basket की सुरक्षित आकार सीमा से बड़ा है');
-      chunks.push(item);
-    };
-    for (const anime of (stateSnapshot.animeList || [])) {
-      const eps = Array.isArray(anime.episodes) ? anime.episodes : [];
-      if (!eps.length) { add({ animeList: [{ ...anime, episodes: [] }] }); continue; }
-      let group = [];
-      for (const ep of eps) {
-        const candidate = [...group, ep];
-        const test = { manga99Format: 3, generation, animeList: [{ ...anime, episodes: candidate }] };
-        if (new TextEncoder().encode(JSON.stringify(test)).length > CLOUD_MAX_BASKET_BYTES) {
-          if (!group.length) throw new Error(`'${anime.title}' का एक एपिसोड डेटा भी Cloud Basket में फिट नहीं हुआ`);
-          add({ animeList: [{ ...anime, episodes: group }] });
-          group = [ep];
-          const single = { manga99Format: 3, generation, animeList: [{ ...anime, episodes: group }] };
-          if (new TextEncoder().encode(JSON.stringify(single)).length > CLOUD_MAX_BASKET_BYTES) throw new Error(`'${anime.title}' का एक एपिसोड डेटा बहुत बड़ा है`);
-        } else group = candidate;
-      }
-      if (group.length) add({ animeList: [{ ...anime, episodes: group }] });
-    }
-    const requests = stateSnapshot.requests || [];
-    for (let i = 0; i < requests.length; i += 25) add({ requests: requests.slice(i, i + 25) });
-    const comments = stateSnapshot.comments || {};
-    for (const [animeId, list] of Object.entries(comments)) {
-      const rows = Array.isArray(list) ? list : [];
-      for (let i = 0; i < rows.length; i += 12) add({ comments: { [animeId]: rows.slice(i, i + 12) } });
-    }
-    if (!chunks.length) add({ animeList: [] });
-    const totalBytes = chunks.reduce((sum, item) => sum + new TextEncoder().encode(JSON.stringify(item)).length, 0);
-    if (totalBytes > CLOUD_TOTAL_SOFT_LIMIT) throw new Error('कुल Cloud डेटा Pantry की छोटी स्टोरेज के लिए बहुत बड़ा है; पुराने/अनावश्यक डेटा या बड़े पोस्टर कम करें');
-    if (chunks.length > CLOUD_MAX_SHARDS) throw new Error('बहुत अधिक Cloud हिस्से बन रहे हैं; डेटा कम करें');
-    return chunks;
-  }
-  async function writeCloudShards(stateSnapshot) {
-    const generation = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
-    const chunks = makeCloudChunks(stateSnapshot, generation);
-    // A few concurrent writes improve speed without flooding Pantry.
-    for (let i = 0; i < chunks.length; i += 3) {
-      await Promise.all(chunks.slice(i, i + 3).map((chunk, j) => putPantryBasket(`${PRIMARY_BASKET}_part_${i + j + 1}`, { ...chunk, part: i + j + 1 })));
-    }
-    // Commit pointer last; each shard also carries this generation so partial writes are detected.
-    const manifest = { manga99Format: 3, storage: 'stable', generation, shardCount: chunks.length, updatedAt: Date.now() };
-    await putPantryBasket(`${PRIMARY_BASKET}_manifest`, manifest);
-    return true;
-  }
-  async function readPantryBasket(name) {
-    const response = await fetchTimed(`${PANTRY_BASE}/basket/${encodeURIComponent(name)}`, { cache: 'no-store' });
-    if (!response.ok) throw new Error(`Pantry read failed (${response.status})`);
-    return response.json();
-  }
-  async function loadCloudData(manual = false) {
-    const local = await readLocalState();
-    if (normalizeCloudState(local)) renderEverything();
-    if (cloudSyncPending && navigator.onLine) {
-      if (manual) toast('लोकल बदलाव Cloud पर सिंक किए जा रहे हैं...');
-      return await saveCloudData();
-    }
-    const versionAtStart = localMutationVersion;
-    if (!navigator.onLine) {
-      const badge = document.getElementById('liveBadge'); if (badge) badge.textContent = local ? 'Offline • Local' : 'Offline';
-      cloudFetched = true; if (manual) toast(local ? 'लोकल बैकअप से डेटा उपलब्ध है' : 'इंटरनेट उपलब्ध नहीं है'); return false;
-    }
+  // Firebase Realtime Live Listener
+  onValue(fbRootRef, (snapshot) => {
+    const val = snapshot.val();
+    normalizeFirebaseData(val);
+    writeJSON('m99_fb_cache', cloudState);
+    const badge = document.getElementById('liveBadge');
+    if (badge) badge.textContent = 'Live Online ✓';
+    renderEverything();
+  }, (error) => {
+    console.warn('Firebase read error:', error);
+    const cached = readJSON('m99_fb_cache', null);
+    if (cached) { normalizeFirebaseData(cached); renderEverything(); }
+    const badge = document.getElementById('liveBadge');
+    if (badge) badge.textContent = 'Offline • Local';
+  });
+
+  window.loadCloudData = async (manual = false) => {
     try {
-      let manifest = null;
-      try { manifest = await readPantryBasket(`${PRIMARY_BASKET}_manifest`); } catch (e) {}
-      let remoteState = null;
-      if (manifest && [2, 3].includes(Number(manifest.manga99Format)) && Number(manifest.shardCount) > 0) {
-        const count = Number(manifest.shardCount);
-        if (!Number.isInteger(count) || count > CLOUD_MAX_SHARDS) throw new Error('Cloud shard count is invalid or exceeds the safe limit');
-        const generation = manifest.generation ? String(manifest.generation) : '';
-        const stableStorage = manifest.storage === 'stable' || !generation;
-        const shards = [];
-        for (let i = 1; i <= count; i += 3) {
-          const names = [i, i + 1, i + 2].filter(n => n <= count).map(n => stableStorage ? `${PRIMARY_BASKET}_part_${n}` : `${PRIMARY_BASKET}_g${generation}_p${n}`);
-          const batch = await Promise.all(names.map(name => readPantryBasket(name)));
-          if (Number(manifest.manga99Format) === 3 && generation && batch.some(part => part.generation !== generation)) throw new Error('Cloud update is incomplete; retry sync');
-          shards.push(...batch);
-        }
-        const merged = shards.flatMap(x => parseAnyAnimeArray(x));
-        const reqs = Number(manifest.manga99Format) === 2 ? (manifest.requests || []) : shards.flatMap(x => Array.isArray(x.requests) ? x.requests : []);
-        const comments = Number(manifest.manga99Format) === 2 ? (manifest.comments || {}) : shards.reduce((acc, x) => {
-          if (x.comments && typeof x.comments === 'object') for (const [id, arr] of Object.entries(x.comments)) acc[id] = [...(acc[id] || []), ...(Array.isArray(arr) ? arr : [])];
-          return acc;
-        }, {});
-        remoteState = { animeList: merged, requests: reqs, comments };
-      } else {
-        remoteState = await readPantryBasket(activeBasketName);
-      }
-      if (localMutationVersion !== versionAtStart) {
-        const badge = document.getElementById('liveBadge'); if (badge) badge.textContent = 'Local changes pending';
-        cloudFetched = true; return false;
-      }
-      if (normalizeCloudState(remoteState)) {
-        await saveLocalState();
-        const badge = document.getElementById('liveBadge'); if (badge) badge.textContent = 'Live Online ✓';
-        renderEverything(); cloudFetched = true;
-        if (manual) toast(`क्लाउड से ${cloudState.animeList.length} एनिमे लोड हुए ✓`);
-        return true;
-      }
-      throw new Error('Cloud data format is not valid');
+      const snap = await get(fbRootRef);
+      normalizeFirebaseData(snap.val());
+      writeJSON('m99_fb_cache', cloudState);
+      renderEverything();
+      const badge = document.getElementById('liveBadge');
+      if (badge) badge.textContent = 'Live Online ✓';
+      if (manual) toast(`Firebase से ${cloudState.animeList.length} एनिमे सिंक हुए ✓`);
+      return true;
     } catch (e) {
-      const badge = document.getElementById('liveBadge'); if (badge) badge.textContent = local ? 'Local Backup ✓' : 'Cloud unavailable';
-      cloudFetched = true; if (manual) toast('क्लाउड लोड नहीं हुआ; लोकल डेटा सुरक्षित है');
-      console.warn('MANGA 99 cloud load:', e); return false;
+      if (manual) toast('नेटवर्क या Firebase रूल्स जांचें');
+      return false;
     }
-  }
+  };
+
   async function saveCloudData() {
-    localMutationVersion++;
-    const sequence = ++cloudSaveSequence;
-    const snapshot = JSON.parse(JSON.stringify(cloudState));
-    cloudSyncPending = true;
-    try { localStorage.setItem('m99_cloud_sync_pending', 'true'); } catch (e) {}
-    await saveLocalState(snapshot);
-    if (!navigator.onLine) {
-      const badge = document.getElementById('liveBadge'); if (badge) badge.textContent = 'Offline • Local';
-      return false;
-    }
-    const task = cloudSaveQueue.catch(() => false).then(() => writeCloudShards(snapshot));
-    cloudSaveQueue = task.catch(() => false);
+    writeJSON('m99_fb_cache', cloudState);
     try {
-      await task;
-      if (sequence === cloudSaveSequence) {
-        cloudSyncPending = false;
-        try { localStorage.removeItem('m99_cloud_sync_pending'); } catch (e) {}
-      }
-      const badge = document.getElementById('liveBadge'); if (badge) badge.textContent = cloudSyncPending ? 'Sync pending…' : 'Live Online ✓';
-      return !cloudSyncPending;
+      await set(fbRootRef, cloudState);
+      const badge = document.getElementById('liveBadge');
+      if (badge) badge.textContent = 'Live Online ✓';
+      return true;
     } catch (e) {
-      cloudSyncPending = true;
-      try { localStorage.setItem('m99_cloud_sync_pending', 'true'); } catch (err) {}
-      const badge = document.getElementById('liveBadge'); if (badge) badge.textContent = 'Local Backup ✓';
-      console.error('MANGA 99 cloud save error:', e);
-      toast('क्लाउड सेव नहीं हुआ; लोकल बैकअप सुरक्षित है');
+      console.error('Firebase save error:', e);
+      toast('Firebase में सेव नहीं हुआ; Database Rules जांचें');
       return false;
     }
   }
-
-  let pausedVideoOnTabSwitch = false;
+  
+    let pausedVideoOnTabSwitch = false;
   function pauseBackgroundVideo() {
     const pScreen = document.getElementById('playerScreen');
     const v = document.getElementById('mainVideo');
-    const admV = document.getElementById('admPreviewVid');
-    if (admV && !admV.paused) admV.pause();
     if (pScreen && pScreen.style.display === 'flex') {
       if (v && !v.paused) {
         v.pause();
@@ -1072,14 +838,12 @@
     }
   }
 
-  function openTab(id, btn, fromPop = false) {
+  window.openTab = (id, btn, fromPop = false) => {
     if (!fromPop) {
       playUiSound('nav');
       if (id !== 'tabAnime') history.pushState({ m99Page: id }, '');
     }
-    // वीडियो चलते हुए किसी भी टैब (होम, सर्च, हिस्ट्री, प्रोफाइल) पर जाने पर वीडियो व उसकी आवाज़ तुरंत बंद हो जाए
     pauseBackgroundVideo();
-
     document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
     document.getElementById(id).classList.add('active');
@@ -1087,15 +851,15 @@
     if (id === 'tabSearch') renderSearch();
     if (id === 'tabHistory') renderHistoryAndSchedule();
     if (id === 'tabProfile') refreshProfile();
-  }
+  };
 
-  function toggleLang() { playUiSound('nav'); toast('अभी ऐप का इंटरफ़ेस हिन्दी में उपलब्ध है'); }
-  function applyFilter(val, btn) {
+  window.toggleLang = () => { playUiSound('nav'); toast('अभी ऐप का इंटरफ़ेस हिन्दी में उपलब्ध है'); };
+  window.applyFilter = (val, btn) => {
     playUiSound('nav'); activeFilter = val;
     document.querySelectorAll('.f-chip').forEach(c => c.classList.remove('active'));
     btn.classList.add('active');
     renderRecommended();
-  }
+  };
 
   function renderEverything() {
     renderHeroAndHome();
@@ -1106,7 +870,6 @@
     if (adminOpen) renderAdminLists();
   }
 
-  // होम स्क्रीन
   function renderHeroAndHome() {
     const list = cloudState.animeList || [];
     const wl = readJSON('m99_watchlist', []);
@@ -1115,9 +878,9 @@
       const top = list[0], isSaved = wl.includes(top.id);
       const poster = safeMediaUrl(top.poster, 'image');
       const trailer = safeMediaUrl(top.trailerUrl, 'video');
-      heroBox.innerHTML = `<div class="hero-card"><img loading="lazy" referrerpolicy="no-referrer" src="${escapeHtml(poster)}" onerror="this.removeAttribute('src');this.style.background='#1c1e28'" /><div class="hero-grad"><span class="trending-tag">TRENDING ★ 1</span><div class="hero-title">${escapeHtml(top.title)}</div><div class="hero-actions"><button class="btn-orange" onclick="launchPlayer(${jsArg(top.id)}, 0)">▶ Details &amp; Play</button><button class="btn-dark" onclick="toggleWatchlistId(${jsArg(top.id)})">${isSaved ? '✓ My Watchlist' : '+ My Watchlist'}</button>${trailer ? `<button class="btn-dark" onclick="playTrailer(${jsArg(trailer)}, ${jsArg(top.title)})">🎬 ट्रेलर</button>` : ''}<button class="btn-dark" onclick="notifyAnime(${jsArg(top.title)})">🔔</button></div></div></div>`;
+      heroBox.innerHTML = `<div class="hero-card"><img loading="lazy" referrerpolicy="no-referrer" src="${escapeHtml(poster)}" onerror="this.removeAttribute('src');this.style.background='#1c1e28'" /><div class="hero-grad"><span class="trending-tag">TRENDING ★ 1</span><div class="hero-title">${escapeHtml(top.title)}</div><div class="hero-actions"><button class="btn-orange" onclick="launchPlayer(${jsArg(top.id)}, 0)">▶ Details &amp; Play</button><button class="btn-dark" onclick="toggleWatchlistId(${jsArg(top.id)})">${isSaved ? '✓ My Watchlist' : '+ My Watchlist'}</button>${trailer ? `<button class="btn-dark" onclick="playTrailer(${jsArg(trailer)}, ${jsArg(top.title)})">🎬 ट्रेलर</button>` : ''}</div></div></div>`;
     } else {
-      heroBox.innerHTML = `<div class="card-box" style="margin:0; text-align:center; color:var(--muted);">क्लाउड से एनिमे लोड हो रहे हैं... ऊपर <b>Live Online ✓</b> पर टैप करें।</div>`;
+      heroBox.innerHTML = `<div class="card-box" style="margin:0; text-align:center; color:var(--muted);">Firebase से एनिमे लोड हो रहे हैं... एडमिन पैनल से पहला एनिमे जोड़ें।</div>`;
     }
     const epsFlat = [];
     list.forEach(a => (a.episodes || []).forEach((ep, idx) => epsFlat.push({ a, ep, idx, ts: Number(ep.createdAt) || 0 })));
@@ -1131,7 +894,7 @@
     document.getElementById('recommendedGrid').innerHTML = list.map(a => `<div class="poster-card" onclick="launchPlayer(${jsArg(a.id)}, 0)"><span class="badge-tl ${a.status === 'Ongoing' ? 'ongoing' : ''}">${escapeHtml(a.status || 'Completed')}</span><span class="badge-tr">★ ${escapeHtml(a.rating || '5')}</span><img loading="lazy" referrerpolicy="no-referrer" src="${escapeHtml(safeMediaUrl(a.poster, 'image'))}" onerror="this.removeAttribute('src')" /><div class="poster-title">${escapeHtml(a.title)}</div></div>`).join('');
   }
 
-  function toggleWatchlistId(id) {
+  window.toggleWatchlistId = (id) => {
     playUiSound('like');
     let wl = readJSON('m99_watchlist', []);
     wl = wl.includes(id) ? wl.filter(x => x !== id) : [...wl, id];
@@ -1142,25 +905,21 @@
       document.getElementById('pWatchlistBtn').textContent = wl.includes(id) ? '✓ My Watchlist' : '+ My Watchlist';
     }
     toast(wl.includes(id) ? 'My Watchlist में सेव हो गया ✓' : 'My Watchlist से हटाया गया');
-  }
-
-  function notifyAnime(title) { playUiSound('like'); toast(`"${title}" के लिए नोटिफिकेशन सुविधा अभी उपलब्ध नहीं है`); }
-
-  // सर्च टैब
-  function renderSearch() {
+  };
+  
+    window.renderSearch = () => {
     const q = (document.getElementById('searchInp').value || '').toLowerCase().trim();
     const list = (cloudState.animeList || []).filter(a => !q || (a.title || '').toLowerCase().includes(q) || (a.mood || '').toLowerCase().includes(q));
     document.getElementById('trendingSearchList').innerHTML = list.map((a, i) => `<div class="trend-item" onclick="saveRecentSearch(${jsArg(a.title)}); launchPlayer(${jsArg(a.id)}, 0)"><div><span class="trend-num">${i + 1}</span><b>${escapeHtml(a.title)}</b></div><span>📺</span></div>`).join('');
     const rec = readJSON('m99_recent_searches', []);
     document.getElementById('recentSearchesBox').innerHTML = rec.length ? rec.map(r => `<button type="button" class="p-pill" style="display:inline-block; margin:3px;" onclick="document.getElementById('searchInp').value=${jsArg(r)}; renderSearch();">${escapeHtml(r)}</button>`).join('') : 'कोई हाल की खोज नहीं है';
-  }
-  function saveRecentSearch(t) {
+  };
+  window.saveRecentSearch = (t) => {
     let rec = readJSON('m99_recent_searches', []).filter(x => x !== t);
     rec.unshift(t); localStorage.setItem('m99_recent_searches', JSON.stringify(rec.slice(0, 6)));
-  }
-  function clearRecentSearches() { playUiSound('back'); localStorage.removeItem('m99_recent_searches'); renderSearch(); }
+  };
+  window.clearRecentSearches = () => { playUiSound('back'); localStorage.removeItem('m99_recent_searches'); renderSearch(); };
 
-  // हिस्ट्री, ऑफ़लाइन वॉल्ट और शेड्यूल
   async function renderHistoryAndSchedule() {
     const hist = readJSON('m99_history', []);
     document.getElementById('fullHistoryList').innerHTML = hist.length ? hist.map((h, i) => `<div class="hist-card"><div style="display:flex; align-items:center; gap:10px; flex:1; cursor:pointer;" onclick="launchPlayer(${jsArg(h.animeId)}, ${Number(h.epIdx) || 0})"><img loading="lazy" src="${escapeHtml(safeMediaUrl(h.poster, 'image'))}" style="width:58px; height:44px; border-radius:8px; object-fit:cover;" /><div><b>${escapeHtml(h.title)} S${escapeHtml(h.season || 1)} Ep${escapeHtml(h.epNum)}</b><div style="font-size:11px; color:var(--primary);">▶ यहीं से देखें (${escapeHtml(h.timeStr || '0m 10s')})</div></div></div><button class="p-pill" onclick="removeHistoryItem(${i})">🗑️</button></div>`).join('') : `<div style="text-align:center; color:var(--muted); font-size:12px; padding:16px;">इतिहास खाली है।</div>`;
@@ -1179,13 +938,12 @@
     const dayList = (cloudState.animeList || []).filter(a => (a.releaseDay || 'रविवार') === activeDay);
     document.getElementById('scheduleGrid').innerHTML = dayList.length ? dayList.map(a => `<div class="poster-card" onclick="launchPlayer(${jsArg(a.id)}, 0)"><img loading="lazy" src="${escapeHtml(safeMediaUrl(a.poster, 'image'))}" /><div class="poster-title">${escapeHtml(a.title)}</div></div>`).join('') : `<div style="grid-column:1/-1; text-align:center; color:var(--muted); font-size:12px; padding:14px;">${activeDay} को कोई नया एपिसोड तय नहीं है।</div>`;
   }
-  function setSchedDay(d) { playUiSound('nav'); activeDay = d; renderHistoryAndSchedule(); }
-  function removeHistoryItem(i) { playUiSound('back'); let h = readJSON('m99_history', []); h.splice(i, 1); localStorage.setItem('m99_history', JSON.stringify(h)); renderHistoryAndSchedule(); }
-  function clearAllHistory() { playUiSound('back'); localStorage.removeItem('m99_history'); renderHistoryAndSchedule(); toast('इतिहास साफ़ कर दिया गया'); }
-
-  // वीडियो प्लेयर (बिना Full दबाए साफ दिखाई देने वाला)
-
-  function resumePausedPlayer() {
+  window.setSchedDay = (d) => { playUiSound('nav'); activeDay = d; renderHistoryAndSchedule(); };
+  window.removeHistoryItem = (i) => { playUiSound('back'); let h = readJSON('m99_history', []); h.splice(i, 1); localStorage.setItem('m99_history', JSON.stringify(h)); renderHistoryAndSchedule(); };
+  window.clearAllHistory = () => { playUiSound('back'); localStorage.removeItem('m99_history'); renderHistoryAndSchedule(); toast('इतिहास साफ़ कर दिया गया'); };
+  
+    let offlineObjectUrl = null;
+  window.resumePausedPlayer = () => {
     playUiSound('play');
     const rBar = document.getElementById('resumeMiniBar');
     if (rBar) rBar.style.display = 'none';
@@ -1197,9 +955,9 @@
       if (v && v.src) v.play().catch(() => {});
       pausedVideoOnTabSwitch = false;
     }
-  }
+  };
 
-  function launchPlayer(animeId, epIdx) {
+  window.launchPlayer = (animeId, epIdx) => {
     if (offlineObjectUrl) { URL.revokeObjectURL(offlineObjectUrl); offlineObjectUrl = null; }
     const a = (cloudState.animeList || []).find(x => x.id === animeId);
     if (!a || !a.episodes || !a.episodes.length) return toast('इस सीरीज़ में अभी वीडियो उपलब्ध नहीं है');
@@ -1208,21 +966,21 @@
     const rBar = document.getElementById('resumeMiniBar'); if (rBar) rBar.style.display = 'none';
     document.getElementById('playerScreen').style.display = 'flex';
     loadPlayerEpisode(epIdx < a.episodes.length ? epIdx : 0);
-  }
-  function playTrailer(url, title) {
+  };
+  window.playTrailer = (url, title) => {
     playUiSound('play'); curAnime = { id: 'trailer', title, likes: 0, views: 0, episodes: [{ id: 'tr', num: 1, title: 'Trailer', url, lang: 'Promo' }] };
     history.pushState({ m99Page: 'player' }, '');
     document.getElementById('playerScreen').style.display = 'flex';
     loadPlayerEpisode(0);
-  }
-  function changePlayerSeason(sVal) {
+  };
+  window.changePlayerSeason = (sVal) => {
     playUiSound('nav');
     curSeason = Number(sVal || 1);
     const firstIdx = curAnime.episodes.findIndex(e => Number(e.season || 1) === curSeason);
     loadPlayerEpisode(firstIdx >= 0 ? firstIdx : 0);
-  }
+  };
 
-  function loadPlayerEpisode(idx) {
+  window.loadPlayerEpisode = (idx) => {
     stopAutoplay(); curEp = curAnime.episodes[idx];
     curSeason = Number(curEp.season || 1);
     const seasons = [...new Set((curAnime.episodes || []).map(e => Number(e.season || 1)))].sort((a, b) => a - b);
@@ -1247,8 +1005,7 @@
     if (subtitleTrack) { if (subtitleUrl) { subtitleTrack.src = subtitleUrl; subtitleTrack.track.mode = 'showing'; } else { subtitleTrack.removeAttribute('src'); subtitleTrack.track.mode = 'disabled'; } }
     lastProgressSave = 0;
     const targetSrc = safeMediaUrl((dataSaver && curEp.url2) ? curEp.url2 : curEp.url, 'video');
-    vid.pause();
-    vid.removeAttribute('src');
+    vid.pause(); vid.removeAttribute('src');
     if (!targetSrc) { vid.load(); toast('इस एपिसोड का वीडियो लिंक सही नहीं है'); }
     else {
       vid.src = targetSrc; vid.load();
@@ -1276,12 +1033,9 @@
       const viewedMap = readJSON('m99_viewed_series', {});
       const likedMap = readJSON('m99_liked_series', {});
       const isLiked = !!likedMap[seriesKey];
-
       if (!viewedMap[seriesKey]) {
-        viewedMap[seriesKey] = true;
-        writeJSON('m99_viewed_series', viewedMap);
-        curAnime.views = Number(curAnime.views || 0) + 1;
-        saveCloudData();
+        viewedMap[seriesKey] = true; writeJSON('m99_viewed_series', viewedMap);
+        curAnime.views = Number(curAnime.views || 0) + 1; saveCloudData();
       }
       const viewedEpisodes = readJSON('m99_viewed_episodes', {});
       const episodeKey = `${curAnime.id}:${curEp.id}`;
@@ -1296,44 +1050,42 @@
       lBtn.style.background = isLiked ? 'rgba(255,94,0,0.18)' : '';
     }
     renderPlayerComments();
-  }
-  function togglePlayerWatchlist() { if (curAnime && curAnime.id !== 'trailer') toggleWatchlistId(curAnime.id); }
-  function likeCurrentSeries() {
+  };
+  
+    window.togglePlayerWatchlist = () => { if (curAnime && curAnime.id !== 'trailer') toggleWatchlistId(curAnime.id); };
+  window.likeCurrentSeries = () => {
     if (!curAnime || curAnime.id === 'trailer' || curAnime.id === 'offline') return;
     playUiSound('like');
     const seriesKey = (curAnime.title || curAnime.id).trim().toLowerCase();
     const likedMap = readJSON('m99_liked_series', {});
     const lBtn = document.getElementById('pLikeBtn');
-
     if (likedMap[seriesKey]) {
       delete likedMap[seriesKey];
       curAnime.likes = Math.max(0, Number(curAnime.likes || 1) - 1);
       lBtn.textContent = `🤍 ${curAnime.likes} Likes`;
-      lBtn.style.borderColor = '';
-      lBtn.style.background = '';
+      lBtn.style.borderColor = ''; lBtn.style.background = '';
       toast('लाइक हटा दिया गया');
     } else {
       likedMap[seriesKey] = true;
       curAnime.likes = Number(curAnime.likes || 0) + 1;
       lBtn.textContent = `❤️ ${curAnime.likes} Likes`;
-      lBtn.style.borderColor = 'var(--primary)';
-      lBtn.style.background = 'rgba(255,94,0,0.18)';
+      lBtn.style.borderColor = 'var(--primary)'; lBtn.style.background = 'rgba(255,94,0,0.18)';
       toast('लाइक सेव हो गया ❤️');
     }
     localStorage.setItem('m99_liked_series', JSON.stringify(likedMap));
     saveCloudData();
-  }
-  function changeServer(url, btn) {
-    const safe = safeMediaUrl(url, 'video'); if (!safe) return toast('यह वीडियो सर्वर लिंक सुरक्षित/सही नहीं है');
+  };
+  window.changeServer = (url, btn) => {
+    const safe = safeMediaUrl(url, 'video'); if (!safe) return toast('यह वीडियो सर्वर लिंक सही नहीं है');
     playUiSound('nav'); const vid = document.getElementById('mainVideo'), t = Number(vid.currentTime) || 0;
     document.querySelectorAll('#serverButtonsRow .p-pill').forEach(b => { b.style.background = ''; b.style.borderColor = ''; });
     btn.style.background = 'var(--primary)'; btn.style.borderColor = 'var(--primary)';
     vid.pause(); vid.src = safe; vid.load();
-    const restore = () => { try { if (t > 0 && Number.isFinite(vid.duration)) vid.currentTime = Math.min(t, Math.max(0, vid.duration - 1)); } catch(e) {} vid.removeEventListener('loadedmetadata', restore); vid.play().catch(() => toast('सर्वर बदल गया; Play दबाकर वीडियो चलाएं')); };
+    const restore = () => { try { if (t > 0 && Number.isFinite(vid.duration)) vid.currentTime = Math.min(t, Math.max(0, vid.duration - 1)); } catch(e) {} vid.removeEventListener('loadedmetadata', restore); vid.play().catch(() => {}); };
     vid.addEventListener('loadedmetadata', restore, { once: true });
-  }
-  function skipSeconds(sec) { playUiSound('nav'); const v = document.getElementById('mainVideo'); v.currentTime = Math.max(0, Math.min(v.duration || 99999, (v.currentTime || 0) + sec)); }
-  function handleStageDoubleTap(e) {
+  };
+  window.skipSeconds = (sec) => { playUiSound('nav'); const v = document.getElementById('mainVideo'); v.currentTime = Math.max(0, Math.min(v.duration || 99999, (v.currentTime || 0) + sec)); };
+  window.handleStageDoubleTap = (e) => {
     if (screenLocked) return; const now = Date.now();
     if (now - lastTap < 300) {
       const r = e.currentTarget.getBoundingClientRect();
@@ -1341,55 +1093,30 @@
       else { skipSeconds(10); const f = document.getElementById('flashRight'); f.style.display = 'block'; setTimeout(() => f.style.display = 'none', 550); }
     }
     lastTap = now;
-  }
+  };
   const spdList = [1, 1.25, 1.5, 2, 0.75]; let spdIdx = 0;
-  function cycleSpeed() { playUiSound('nav'); spdIdx = (spdIdx + 1) % spdList.length; document.getElementById('mainVideo').playbackRate = spdList[spdIdx]; document.getElementById('speedBtn').textContent = `${spdList[spdIdx]}x`; }
-  function goLandscapeFull() { playUiSound('nav'); const st = document.getElementById('videoStage'); if (st.requestFullscreen) st.requestFullscreen().catch(() => {}); else if (document.getElementById('mainVideo').webkitEnterFullscreen) document.getElementById('mainVideo').webkitEnterFullscreen(); }
+  window.cycleSpeed = () => { playUiSound('nav'); spdIdx = (spdIdx + 1) % spdList.length; document.getElementById('mainVideo').playbackRate = spdList[spdIdx]; document.getElementById('speedBtn').textContent = `${spdList[spdIdx]}x`; };
+  window.goLandscapeFull = () => { playUiSound('nav'); const st = document.getElementById('videoStage'); if (st.requestFullscreen) st.requestFullscreen().catch(() => {}); else if (document.getElementById('mainVideo').webkitEnterFullscreen) document.getElementById('mainVideo').webkitEnterFullscreen(); };
   document.addEventListener('fullscreenchange', () => { try { if (document.fullscreenElement) screen.orientation?.lock?.('landscape').catch(() => {}); else screen.orientation?.unlock?.(); } catch (e) {} });
-  function toggleLock() { playUiSound('nav'); screenLocked = !screenLocked; document.getElementById('mainVideo').controls = !screenLocked; document.getElementById('lockBtn').textContent = screenLocked ? '🔒 Unlock' : '🔓 Lock'; }
+  window.toggleLock = () => { playUiSound('nav'); screenLocked = !screenLocked; document.getElementById('mainVideo').controls = !screenLocked; document.getElementById('lockBtn').textContent = screenLocked ? '🔒 Unlock' : '🔓 Lock'; };
 
   let lastProgressSave = 0;
-  function onVideoProgress() {
+  window.onVideoProgress = () => {
     const v = document.getElementById('mainVideo'); if (!curEp || !v.duration) return;
     if (curAnime && curAnime.id !== 'trailer' && curAnime.id !== 'offline' && Date.now() - lastProgressSave > 10000) {
       const progress = readJSON('m99_progress', {});
       progress[`${curAnime.id}:${curEp.id}`] = { time: Math.floor(v.currentTime), duration: Math.floor(v.duration), updatedAt: Date.now() };
       writeJSON('m99_progress', progress); lastProgressSave = Date.now();
     }
-    const cur = v.currentTime, dur = v.duration;
-    let iS = toSeconds(curEp.introStart), iE = toSeconds(curEp.introEnd);
-    let oS = toSeconds(curEp.outroStart), oE = toSeconds(curEp.outroEnd);
-
-    // यदि एडमिन ने समय खाली छोड़ा है और वीडियो 4 मिनट से बड़ा है, तो ऑटोमैटिक इंट्रो/आउट्रो ट्रैकर काम करेगा (केवल बटन दिखेगा, यूज़र चाहे तो स्किप करे या न करे)
-    if (iS === null && iE === null && dur >= 240) { iS = 0; iE = 85; }
-    if (oS === null && oE === null && dur >= 300) { oS = Math.max(0, dur - 85); oE = dur; }
-
-    const iBtn = document.getElementById('introSkipBtn');
-    if (iS !== null && iE !== null && cur >= iS && cur < iE) { iBtn.textContent = `Skip Intro ⏩`; iBtn.style.display = 'block'; }
-    else { iBtn.style.display = 'none'; }
-
-    const oBtn = document.getElementById('outroSkipBtn');
-    if (oS !== null && oE !== null && cur >= oS && cur < oE) { oBtn.textContent = `Skip Outro ⏩`; oBtn.style.display = 'block'; }
-    else { oBtn.style.display = 'none'; }
-
+    const cur = v.currentTime;
     if (curAnime && curAnime.id !== 'trailer' && curAnime.id !== 'offline' && Math.floor(cur) % 5 === 0) {
       let hist = JSON.parse(localStorage.getItem('m99_history') || '[]').filter(h => h.animeId !== curAnime.id);
       const m = Math.floor(cur / 60), s = Math.floor(cur % 60);
       hist.unshift({ animeId: curAnime.id, title: curAnime.title, poster: curAnime.poster, epIdx: curAnime.episodes.findIndex(e => e.id === curEp.id), season: curSeason, epNum: curEp.num, timeStr: `${m}m ${s}s` });
       localStorage.setItem('m99_history', JSON.stringify(hist.slice(0, 15)));
     }
-  }
-  function skipSegment(type) {
-    playUiSound('nav');
-    const v = document.getElementById('mainVideo');
-    let target = toSeconds(type === 'intro' ? curEp.introEnd : curEp.outroEnd);
-    if (target === null && v.duration) {
-      target = type === 'intro' ? 85 : Math.max(0, v.duration - 2);
-    }
-    if (target !== null) v.currentTime = Math.min(v.duration || target, target);
-    document.getElementById(type === 'intro' ? 'introSkipBtn' : 'outroSkipBtn').style.display = 'none';
-  }
-  function onVideoComplete() {
+  };
+  window.onVideoComplete = () => {
     if (!curAnime || curAnime.id === 'trailer') return;
     const idx = curAnime.episodes.findIndex(e => e.id === curEp.id);
     if (idx >= 0 && idx + 1 < curAnime.episodes.length) {
@@ -1397,12 +1124,11 @@
       ov.style.display = 'flex'; tx.textContent = `अगला एपिसोड (${curAnime.episodes[idx + 1].num}) ${sec} सेकंड में चालू हो रहा है...`;
       autoTimer = setInterval(() => { sec--; if (sec <= 0) playNextNow(); else tx.textContent = `अगला एपिसोड (${curAnime.episodes[idx + 1].num}) ${sec} सेकंड में चालू हो रहा है...`; }, 1000);
     }
-  }
-  function playNextNow() { stopAutoplay(); const idx = curAnime.episodes.findIndex(e => e.id === curEp.id); if (idx >= 0 && idx + 1 < curAnime.episodes.length) loadPlayerEpisode(idx + 1); }
-  function stopAutoplay() { clearInterval(autoTimer); document.getElementById('nextEpOverlay').style.display = 'none'; }
-  let offlineObjectUrl = null;
-  function videoPlaybackError() { toast('वीडियो नहीं चला। लिंक, सर्वर या इंटरनेट कनेक्शन जाँचें।'); }
-  function closePlayer(fromPop = false) {
+  };
+  window.playNextNow = () => { stopAutoplay(); const idx = curAnime.episodes.findIndex(e => e.id === curEp.id); if (idx >= 0 && idx + 1 < curAnime.episodes.length) loadPlayerEpisode(idx + 1); };
+  window.stopAutoplay = () => { clearInterval(autoTimer); document.getElementById('nextEpOverlay').style.display = 'none'; };
+  window.videoPlaybackError = () => { toast('वीडियो नहीं चला। लिंक या इंटरनेट कनेक्शन जाँचें।'); };
+  window.closePlayer = (fromPop = false) => {
     if (!fromPop) playUiSound('back');
     stopAutoplay();
     const v = document.getElementById('mainVideo'); v.pause(); v.removeAttribute('src'); v.load();
@@ -1411,13 +1137,12 @@
     document.getElementById('playerScreen').style.display = 'none';
     screenLocked = false; v.controls = true; document.getElementById('lockBtn').textContent = '🔓 Lock';
     if (offlineObjectUrl) { URL.revokeObjectURL(offlineObjectUrl); offlineObjectUrl = null; }
-  }
+  };
+  
+    window.shareEpisode = () => { if (!curAnime || !curEp) return; playUiSound('nav'); const t = `MANGA 99: ${curAnime.title} — S${curSeason} Ep ${curEp.num}`; if (navigator.share) navigator.share({ title: 'MANGA 99', text: t }).catch(() => {}); else if (navigator.clipboard?.writeText) navigator.clipboard.writeText(t).then(() => toast('एपिसोड का नाम कॉपी हुआ'), () => {}); };
+  window.shareApp = () => { playUiSound('nav'); const link = location.protocol === 'http:' || location.protocol === 'https:' ? location.href : ''; const t = `MANGA 99 • हिंदी डब और ओरिजिनल एनिमे ऐप${link ? ' — ' + link : ''}`; if (navigator.share) navigator.share({ title: 'MANGA 99', text: t, url: link || undefined }).catch(() => {}); else if (navigator.clipboard?.writeText) navigator.clipboard.writeText(t).then(() => toast('ऐप का टेक्स्ट कॉपी हुआ'), () => {}); };
+  window.shareClipTime = () => { if (!curAnime || !curEp) return; playUiSound('nav'); const s = Math.floor(document.getElementById('mainVideo').currentTime || 0); const t = `MANGA 99: ${curAnime.title} (Ep ${curEp.num}) — ${Math.floor(s/60)}:${s%60<10?'0':''}${s%60}`; if (navigator.clipboard?.writeText) navigator.clipboard.writeText(t).then(() => toast('क्लिप का समय कॉपी हुआ'), () => {}); };
 
-  function shareEpisode() { if (!curAnime || !curEp) return; playUiSound('nav'); const t = `MANGA 99: ${curAnime.title} — S${curSeason} Ep ${curEp.num}`; if (navigator.share) navigator.share({ title: 'MANGA 99', text: t }).catch(() => {}); else if (navigator.clipboard?.writeText) navigator.clipboard.writeText(t).then(() => toast('एपिसोड का नाम कॉपी हुआ'), () => toast('शेयर उपलब्ध नहीं है')); else toast('इस ब्राउज़र में शेयर उपलब्ध नहीं है'); }
-  function shareApp() { playUiSound('nav'); const link = location.protocol === 'http:' || location.protocol === 'https:' ? location.href : ''; const t = `MANGA 99 • हिंदी डब और ओरिजिनल एनिमे ऐप${link ? ' — ' + link : ''}`; if (navigator.share) navigator.share({ title: 'MANGA 99', text: t, url: link || undefined }).catch(() => {}); else if (navigator.clipboard?.writeText) navigator.clipboard.writeText(t).then(() => toast('ऐप का टेक्स्ट कॉपी हुआ'), () => toast('शेयर उपलब्ध नहीं है')); else toast('इस ब्राउज़र में शेयर उपलब्ध नहीं है'); }
-  function shareClipTime() { if (!curAnime || !curEp) return; playUiSound('nav'); const s = Math.floor(document.getElementById('mainVideo').currentTime || 0); const t = `MANGA 99: ${curAnime.title} (Ep ${curEp.num}) — ${Math.floor(s/60)}:${s%60<10?'0':''}${s%60}`; if (navigator.clipboard?.writeText) navigator.clipboard.writeText(t).then(() => toast('क्लिप का समय कॉपी हुआ'), () => toast('कॉपी उपलब्ध नहीं है')); else toast(t); }
-
-  // ऑफ़लाइन वॉल्ट: browser quota and download size are checked before storing.
   function openVaultDB() {
     return new Promise((res, rej) => {
       if (!('indexedDB' in window)) return rej(new Error('IndexedDB unavailable'));
@@ -1426,36 +1151,26 @@
       r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
     });
   }
-  async function saveEpisodeOffline() {
+  window.saveEpisodeOffline = async () => {
     if (!curEp || !curEp.url || !curAnime || curAnime.id === 'trailer' || curAnime.id === 'offline') return toast('यह वीडियो ऑफ़लाइन सेव नहीं किया जा सकता');
     const url = safeMediaUrl(dataSaver && curEp.url2 ? curEp.url2 : curEp.url, 'video');
     if (!url) return toast('वीडियो URL सही नहीं है');
     const btn = document.getElementById('pOfflineBtn'); btn.textContent = '⏳ डाउनलोड...'; btn.disabled = true;
     try {
-      const response = await fetchTimed(url, { mode: 'cors' }, 120000);
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const declared = Number(response.headers.get('content-length') || 0);
-      const maxBytes = 250 * 1024 * 1024;
-      if (declared > maxBytes) throw new Error('Episode exceeds 250 MB limit');
+      const response = await fetch(url, { mode: 'cors' });
+      if (!response.ok) throw new Error('Download failed');
       const blob = await response.blob();
-      if (!blob.size || blob.size > maxBytes) throw new Error('Episode is empty or exceeds 250 MB limit');
-      if (navigator.storage?.estimate) {
-        const estimate = await navigator.storage.estimate();
-        if (estimate.quota && estimate.usage + blob.size > estimate.quota * 0.9) throw new Error('Not enough browser storage');
-      }
       const db = await openVaultDB();
       await new Promise((resolve, reject) => {
         const tx = db.transaction('episodes', 'readwrite');
         tx.objectStore('episodes').put({ key: `${curAnime.id}_${curEp.id}`, title: curAnime.title, animeId: curAnime.id, epId: curEp.id, epNum: curEp.num, season: curEp.season || curSeason, mb: (blob.size / 1048576).toFixed(1), blob, savedAt: Date.now() });
-        tx.oncomplete = resolve; tx.onerror = () => reject(tx.error); tx.onabort = () => reject(tx.error || new Error('Offline save aborted'));
+        tx.oncomplete = resolve; tx.onerror = () => reject(tx.error);
       });
       db.close(); btn.textContent = '✅ सेव है'; toast('ऑफ़लाइन वॉल्ट में सेव हो गया!');
-    } catch (e) {
-      console.warn('Offline save:', e); btn.textContent = '⬇️ ऑफ़लाइन सेव';
-      toast('ऑफ़लाइन सेव नहीं हुआ: सर्वर CORS, नेटवर्क या स्टोरेज सीमा हो सकती है');
-    } finally { btn.disabled = false; }
-  }
-  async function playVaultItem(key) {
+    } catch (e) { btn.textContent = '⬇️ ऑफ़लाइन सेव'; toast('ऑफ़लाइन सेव नहीं हो पाया'); }
+    finally { btn.disabled = false; }
+  };
+  window.playVaultItem = async (key) => {
     try {
       const db = await openVaultDB();
       const item = await new Promise((resolve, reject) => {
@@ -1468,26 +1183,24 @@
       curAnime = { id: 'offline', title: item.title, episodes: [{ id: key, num: item.epNum, season: item.season || 1, url: offlineObjectUrl, lang: 'Offline' }] };
       history.pushState({ m99Page: 'player' }, ''); document.getElementById('playerScreen').style.display = 'flex'; loadPlayerEpisode(0);
     } catch (e) { toast('ऑफ़लाइन वीडियो खोला नहीं जा सका'); }
-  }
-  async function deleteVaultItem(key) {
+  };
+  window.deleteVaultItem = async (key) => {
     try {
       const db = await openVaultDB();
       await new Promise((resolve, reject) => { const tx = db.transaction('episodes', 'readwrite'); tx.objectStore('episodes').delete(key); tx.oncomplete = resolve; tx.onerror = () => reject(tx.error); });
       db.close(); renderHistoryAndSchedule(); toast('ऑफ़लाइन वीडियो हटाया गया');
-    } catch (e) { toast('ऑफ़लाइन वीडियो हटाया नहीं जा सका'); }
-  }
+    } catch (e) {}
+  };
 
-  // कमेंट्स
   function renderPlayerComments() {
     const box = document.getElementById('commentsContainer');
     if (!curAnime || curAnime.id === 'trailer' || curAnime.id === 'offline') { box.innerHTML = ''; return; }
     const list = [...(cloudState.comments[curAnime.id] || [])].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
     box.innerHTML = list.length ? list.map(c => `<div class="c-item ${c.pinned ? 'pinned' : ''}"><div style="display:flex; justify-content:space-between; font-size:12px; font-weight:800;"><span>${escapeHtml(c.user)}${c.isAdmin ? '<span class="admin-badge">👑 एडमिन</span>' : ''} ${c.pinned ? '📌' : ''}</span>${adminOpen ? `<button class="p-pill" style="padding:2px 6px; font-size:10px;" onclick="pinComment(${jsArg(c.id)})">${c.pinned ? 'अनपिन' : 'पिन'}</button>` : ''}</div><div style="font-size:13px; margin-top:4px; white-space:pre-wrap; overflow-wrap:anywhere;">${escapeHtml(c.text)}</div></div>`).join('') : `<div style="font-size:12px; color:var(--muted);">No comments yet...</div>`;
   }
-  async function addComment() { const inp = document.getElementById('commentInp'), txt = (inp.value || '').trim(); if (!txt || !curAnime) return; if (txt.length > 500) return toast('कमेंट 500 अक्षरों से छोटा रखें'); playUiSound('like'); if (!cloudState.comments[curAnime.id]) cloudState.comments[curAnime.id] = []; cloudState.comments[curAnime.id].push({ id: 'c_' + Date.now(), user: userName, text: txt, isAdmin: adminOpen, pinned: false }); inp.value = ''; renderPlayerComments(); await saveCloudData(); }
-  async function pinComment(cid) { const it = (cloudState.comments[curAnime.id] || []).find(c => c.id === cid); if (it) it.pinned = !it.pinned; renderPlayerComments(); await saveCloudData(); }
+  window.addComment = async () => { const inp = document.getElementById('commentInp'), txt = (inp.value || '').trim(); if (!txt || !curAnime) return; playUiSound('like'); if (!cloudState.comments[curAnime.id]) cloudState.comments[curAnime.id] = []; cloudState.comments[curAnime.id].push({ id: 'c_' + Date.now(), user: userName, text: txt, isAdmin: adminOpen, pinned: false }); inp.value = ''; renderPlayerComments(); await saveCloudData(); };
+  window.pinComment = async (cid) => { const it = (cloudState.comments[curAnime.id] || []).find(c => c.id === cid); if (it) it.pinned = !it.pinned; renderPlayerComments(); await saveCloudData(); };
 
-  // प्रोफाइल व अलग My Watchlist सेक्शन
   function refreshProfile() {
     document.getElementById('profNameDisplay').textContent = userName;
     document.getElementById('profAvatar').textContent = (userName[0] || 'M').toUpperCase();
@@ -1495,89 +1208,44 @@
     document.getElementById('profBadgeText').textContent = `Anime Member • ${w} Episodes देखे`;
     document.getElementById('soundBtn').textContent = soundOn ? 'ON' : 'OFF';
     document.getElementById('dataSaverBtn').textContent = dataSaver ? 'ON' : 'OFF';
-
-    // प्रोफाइल के अंदर अलग My Watchlist रेंडर करना
     const wl = readJSON('m99_watchlist', []);
     const savedList = (cloudState.animeList || []).filter(a => wl.includes(a.id));
     document.getElementById('watchlistCountLabel').textContent = `${savedList.length} Saved`;
-    const wlRow = document.getElementById('profileWatchlistRow');
-    wlRow.innerHTML = savedList.length ? savedList.map(a => `<div class="poster-card h-item" onclick="launchPlayer(${jsArg(a.id)}, 0)"><span class="badge-saved">❤️ Saved</span><img loading="lazy" src="${escapeHtml(safeMediaUrl(a.poster, 'image'))}" /><div class="poster-title">${escapeHtml(a.title)}</div></div>`).join('') : `<div style="font-size:12px; color:var(--muted); padding:6px 0;">अभी My Watchlist खाली है — किसी भी एनिमे पर <b>+ My Watchlist</b> दबाकर यहाँ सेव करें।</div>`;
+    document.getElementById('profileWatchlistRow').innerHTML = savedList.length ? savedList.map(a => `<div class="poster-card h-item" onclick="launchPlayer(${jsArg(a.id)}, 0)"><span class="badge-saved">❤️ Saved</span><img loading="lazy" src="${escapeHtml(safeMediaUrl(a.poster, 'image'))}" /><div class="poster-title">${escapeHtml(a.title)}</div></div>`).join('') : `<div style="font-size:12px; color:var(--muted); padding:6px 0;">अभी My Watchlist खाली है</div>`;
   }
-  function saveProfileName() { const n = (document.getElementById('renameInp').value || '').trim(); if (!n) return; playUiSound('like'); userName = n; localStorage.setItem('m99_username', n); document.getElementById('renameInp').value = ''; refreshProfile(); toast('नाम बदल दिया गया ✓'); }
-  function toggleSound() { soundOn = !soundOn; localStorage.setItem('m99_sound', soundOn); if (soundOn) { splashSoundPlayed = false; playSplashChord(); } refreshProfile(); }
-  function toggleDataSaver() { playUiSound('nav'); dataSaver = !dataSaver; localStorage.setItem('m99_datasaver', dataSaver); refreshProfile(); if (curAnime && curEp && document.getElementById('playerScreen').style.display === 'flex') { const url = (dataSaver && curEp.url2) ? curEp.url2 : curEp.url; const btn = document.querySelector('#serverButtonsRow .p-pill'); if (btn) changeServer(url, btn); } }
-  function openAuthModal() { playUiSound('nav'); history.pushState({ m99Page: 'auth' }, ''); document.getElementById('authModal').style.display = 'flex'; }
-  function continueAsGuest() { playUiSound('nav'); document.getElementById('authModal').style.display = 'none'; }
-  async function simpleHash(s, salt = '') {
-    const value = `${salt}:${s}`;
-    if (window.crypto && window.crypto.subtle) {
-      const bytes = new TextEncoder().encode(value);
-      const digest = await window.crypto.subtle.digest('SHA-256', bytes);
-      return Array.from(new Uint8Array(digest), b => b.toString(16).padStart(2, '0')).join('');
-    }
-    // This fallback is for demo compatibility only, not secure password storage.
-    return btoa(unescape(encodeURIComponent(value)));
-  }
-  function randomSalt() {
-    const bytes = new Uint8Array(16);
-    if (window.crypto?.getRandomValues) window.crypto.getRandomValues(bytes);
-    else for (let i = 0; i < bytes.length; i++) bytes[i] = Math.floor(Math.random() * 256);
-    return Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
-  }
-  async function handleAuth(mode) {
-    const u = (document.getElementById('authUser').value || '').trim();
-    const p = (document.getElementById('authPass').value || '');
+  window.saveProfileName = () => { const n = (document.getElementById('renameInp').value || '').trim(); if (!n) return; playUiSound('like'); userName = n; localStorage.setItem('m99_username', n); document.getElementById('renameInp').value = ''; refreshProfile(); toast('नाम बदल दिया गया ✓'); };
+  window.toggleSound = () => { soundOn = !soundOn; localStorage.setItem('m99_sound', soundOn); if (soundOn) { splashSoundPlayed = false; playSplashChord(); } refreshProfile(); };
+  window.toggleDataSaver = () => { playUiSound('nav'); dataSaver = !dataSaver; localStorage.setItem('m99_datasaver', dataSaver); refreshProfile(); if (curAnime && curEp && document.getElementById('playerScreen').style.display === 'flex') { const url = (dataSaver && curEp.url2) ? curEp.url2 : curEp.url; const btn = document.querySelector('#serverButtonsRow .p-pill'); if (btn) changeServer(url, btn); } };
+  window.openAuthModal = () => { playUiSound('nav'); history.pushState({ m99Page: 'auth' }, ''); document.getElementById('authModal').style.display = 'flex'; };
+  window.continueAsGuest = () => { playUiSound('nav'); document.getElementById('authModal').style.display = 'none'; };
+  window.handleAuth = (mode) => {
+    const u = (document.getElementById('authUser').value || '').trim(), p = (document.getElementById('authPass').value || '');
     if (!u || !p) return toast('नाम और पासवर्ड दोनों लिखें');
-    if (u.length > 40 || p.length < 8 || p.length > 128) return toast('नाम 40 अक्षरों तक और पासवर्ड 8–128 अक्षर रखें');
     playUiSound('play');
     const vault = readJSON('m99_local_accounts_vault', {}), k = u.toLowerCase();
     if (mode === 'signup') {
       if (vault[k]) return toast('यह नाम पहले से बना है, लॉगिन करें');
-      const salt = randomSalt(), h = await simpleHash(p, salt);
-      vault[k] = { name: u, salt, h };
-      if (!writeJSON('m99_local_accounts_vault', vault)) return;
-      toast('लोकल डेमो अकाउंट बन गया');
+      vault[k] = { name: u, p }; writeJSON('m99_local_accounts_vault', vault); toast('अकाउंट बन गया ✓');
     } else {
-      if (!vault[k]) return toast('गलत नाम या पासवर्ड!');
-      const h = await simpleHash(p, vault[k].salt || '');
-      // Older local demo accounts stored an unsalted SHA-256 hash.
-      const legacy = !vault[k].salt && await simpleHash(p);
-      if (h !== vault[k].h && legacy !== vault[k].h) return toast('गलत नाम या पासवर्ड!');
-      toast('लोकल डेमो लॉगिन सफल');
+      if (!vault[k] || vault[k].p !== p) return toast('गलत नाम या पासवर्ड!');
+      toast('लॉगिन सफल ✓');
     }
     userName = vault[k].name; localStorage.setItem('m99_username', userName);
     document.getElementById('authModal').style.display = 'none'; refreshProfile();
-  }
+  };
+  window.sendAnimeRequest = async () => { const inp = document.getElementById('reqAnimeInp'), t = (inp.value || '').trim(); if (!t) return toast('एनिमे का नाम लिखें'); playUiSound('like'); cloudState.requests.unshift({ user: userName, title: t }); inp.value = ''; const synced = await saveCloudData(); toast(synced ? 'आपकी मांग भेज दी गई ✓' : 'मांग सेव हुई'); };
   
-
-  async function sendAnimeRequest() { const inp = document.getElementById('reqAnimeInp'), t = (inp.value || '').trim(); if (!t) return toast('एनिमे का नाम लिखें'); if (t.length > 120) return toast('मांग 120 अक्षरों तक रखें'); playUiSound('like'); cloudState.requests.unshift({ user: userName, title: t }); inp.value = ''; const synced = await saveCloudData(); toast(synced ? 'आपकी मांग क्लाउड पर भेज दी गई ✓' : 'मांग लोकल में सेव है; Cloud Sync बाकी है'); }
-
-  // यह केवल लोकल UI लॉक है। Pantry ID और static HTML के कारण यह production security नहीं है।
-  async function unlockAdmin() {
+    // एडमिन पैनल (प्रोमो कोड: 80090034)
+  window.unlockAdmin = () => {
     const field = document.getElementById('secretCodeInp');
     const entered = (field.value || '').trim();
-    if (entered.length < 8 || entered.length > 128) return toast('पासकोड 8–128 अक्षरों का रखें');
-    let saved = readJSON('m99_admin_pin_v2', null);
-    if (!saved) {
-      const legacy = localStorage.getItem('m99_admin_pin');
-      if (legacy) {
-        const salt = randomSalt();
-        saved = { salt, hash: await simpleHash(legacy, salt) };
-        writeJSON('m99_admin_pin_v2', saved); localStorage.removeItem('m99_admin_pin');
-      } else {
-        if (!confirm('पहली बार इस डिवाइस का लोकल एडमिन लॉक सेट करें? यह असली सर्वर सुरक्षा नहीं है।')) return;
-        const salt = randomSalt();
-        saved = { salt, hash: await simpleHash(entered, salt) };
-        if (!writeJSON('m99_admin_pin_v2', saved)) return;
-      }
-    }
-    const candidate = await simpleHash(entered, saved.salt);
-    if (candidate === saved.hash) {
+    if (entered === '80090034') {
       playUiSound('play'); adminOpen = true;
       document.getElementById('adminArea').style.display = 'block';
-      renderAdminLists(); field.value = ''; toast('लोकल एडमिन पैनल खुल गया');
-    } else { playUiSound('back'); toast('गलत पासकोड'); }
-  }
+      renderAdminLists(); field.value = ''; toast('एडमिन पैनल खुल गया ✓');
+    } else { playUiSound('back'); toast('गलत कोड'); }
+  };
+
   function renderAdminLists() {
     document.getElementById('existingSeriesDrop').innerHTML = `<option value="-1">-- नई सीरीज़ बनाएं या पुरानी चुनें --</option>` + (cloudState.animeList || []).map((a, i) => `<option value="${i}">${escapeHtml(a.title)}</option>`).join('');
     let tv = 0; (cloudState.animeList || []).forEach(a => tv += (a.views || 0));
@@ -1586,7 +1254,7 @@
     document.getElementById('adminSeriesList').innerHTML = (cloudState.animeList || []).map((a, sIdx) => `<div style="background:var(--surface-2); padding:10px; border-radius:10px; margin-top:8px;"><div style="display:flex; justify-content:space-between; align-items:center;"><b>${escapeHtml(a.title)}</b><button class="p-pill" style="color:#ff5252;" onclick="deleteSeriesAdmin(${sIdx})">हटाएं</button></div><div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;">${(a.episodes || []).map((ep, eIdx) => `<span style="display:inline-flex; gap:3px;"><button class="p-pill" onclick="loadEpForEdit(${sIdx}, ${eIdx})">✏️ S${escapeHtml(ep.season || 1)} Ep${escapeHtml(ep.num)}</button><button class="p-pill" style="color:#ff5252;" onclick="deleteEpAdmin(${sIdx}, ${eIdx})">🗑️</button></span>`).join('')}</div></div>`).join('');
   }
 
-  function addNewSeasonForAdmin() {
+  window.addNewSeasonForAdmin = () => {
     playUiSound('like');
     const idx = parseInt(document.getElementById('existingSeriesDrop').value, 10);
     let nextS = (parseInt(document.getElementById('admSeasonNum').value || '1', 10) || 1) + 1;
@@ -1600,10 +1268,10 @@
     document.getElementById('admEpTitle').value = '';
     document.getElementById('admUrl1').value = '';
     document.getElementById('admUrl2').value = '';
-    toast(`नया Season ${nextS} (Ep 1) तैयार है! नीचे वीडियो लिंक डालें ✨`);
-  }
+    toast(`नया Season ${nextS} (Ep 1) तैयार है!`);
+  };
 
-  function fillSeriesForAdmin() {
+  window.fillSeriesForAdmin = () => {
     const idx = parseInt(document.getElementById('existingSeriesDrop').value, 10);
     if (idx < 0) return resetAdminFields();
     const a = cloudState.animeList[idx];
@@ -1611,63 +1279,31 @@
     document.getElementById('admStatus').value = a.status || 'Completed'; document.getElementById('admRating').value = a.rating || '5';
     document.getElementById('admMood').value = a.mood || 'एक्शन'; document.getElementById('admDay').value = a.releaseDay || 'रविवार';
     document.getElementById('admPoster').value = a.poster || ''; document.getElementById('admTrailer').value = a.trailerUrl || '';
-    const maxS = Math.max(1, ...(a.episodes || []).map(e => Number(e.season || 1))); document.getElementById('admSeasonNum').value = maxS; document.getElementById('admEpNum').value = (a.episodes || []).filter(e => Number(e.season || 1) === maxS).length + 1;
-  }
-  function loadEpForEdit(sIdx, eIdx) {
+    const maxS = Math.max(1, ...(a.episodes || []).map(e => Number(e.season || 1)));
+    document.getElementById('admSeasonNum').value = maxS;
+    document.getElementById('admEpNum').value = (a.episodes || []).filter(e => Number(e.season || 1) === maxS).length + 1;
+  };
+
+  window.loadEpForEdit = (sIdx, eIdx) => {
     playUiSound('nav'); const a = cloudState.animeList[sIdx], ep = a.episodes[eIdx];
     document.getElementById('editSeriesIdx').value = sIdx; document.getElementById('editEpIdx').value = eIdx;
     document.getElementById('admTitle').value = a.title || ''; document.getElementById('admStatus').value = a.status || 'Completed';
     document.getElementById('admRating').value = a.rating || '5'; document.getElementById('admMood').value = a.mood || 'एक्शन';
     document.getElementById('admDay').value = a.releaseDay || 'रविवार'; document.getElementById('admPoster').value = a.poster || '';
-    document.getElementById('admTrailer').value = a.trailerUrl || ''; document.getElementById('admSeasonNum').value = ep.season || 1; document.getElementById('admEpNum').value = ep.num || 1;
-    document.getElementById('admEpTitle').value = ep.title || ''; document.getElementById('admUrl1').value = ep.url || '';
-    document.getElementById('admUrl2').value = ep.url2 || ''; document.getElementById('admLang').value = ep.lang || 'हिंदी डब';
-    document.getElementById('admSub').value = ep.subUrl || ''; document.getElementById('admIntroStart').value = ep.introStart ?? '';
-    document.getElementById('admIntroEnd').value = ep.introEnd ?? ''; document.getElementById('admOutroStart').value = ep.outroStart ?? '';
-    document.getElementById('admOutroEnd').value = ep.outroEnd ?? ''; toast(`Ep ${ep.num} एडिट के लिए लोड हो गया`);
-  }
-  function resetAdminFields() {
+    document.getElementById('admTrailer').value = a.trailerUrl || ''; document.getElementById('admSeasonNum').value = ep.season || 1;
+    document.getElementById('admEpNum').value = ep.num || 1; document.getElementById('admEpTitle').value = ep.title || '';
+    document.getElementById('admUrl1').value = ep.url || ''; document.getElementById('admUrl2').value = ep.url2 || '';
+    document.getElementById('admLang').value = ep.lang || 'हिंदी डब'; document.getElementById('admSub').value = ep.subUrl || '';
+    toast(`Ep ${ep.num} एडिट के लिए लोड हो गया`);
+  };
+
+  window.resetAdminFields = () => {
     document.getElementById('editSeriesIdx').value = '-1'; document.getElementById('editEpIdx').value = '-1';
-    document.getElementById('admSeasonNum').value = '1'; ['admTitle','admPoster','admTrailer','admEpNum','admEpTitle','admUrl1','admUrl2','admSub','admIntroStart','admIntroEnd','admOutroStart','admOutroEnd'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('existingSeriesDrop').value = '-1'; document.getElementById('admPreviewBox').style.display = 'none';
-  }
+    document.getElementById('admSeasonNum').value = '1';
+    ['admTitle','admPoster','admTrailer','admEpNum','admEpTitle','admUrl1','admUrl2','admSub'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('existingSeriesDrop').value = '-1';
+  };
 
-  function fmtMinSec(sec) {
-    const s = Math.max(0, Math.floor(sec));
-    return `${Math.floor(s / 60)}:${(s % 60) < 10 ? '0' : ''}${s % 60}`;
-  }
-  function autoTrackIntroOutro() {
-    const url = (document.getElementById('admUrl1').value || '').trim();
-    if (!url) return toast('पहले Server 1 का MP4 वीडियो लिंक डालें!');
-    playUiSound('play');
-    toast('वीडियो की लंबाई जांच कर इंट्रो व आउट्रो ट्रैक हो रहा है...');
-    const tempVid = document.createElement('video');
-    tempVid.preload = 'metadata';
-    tempVid.src = url;
-    tempVid.onloadedmetadata = () => {
-      const dur = tempVid.duration || 0;
-      if (dur > 180) {
-        document.getElementById('admIntroStart').value = '0:00';
-        document.getElementById('admIntroEnd').value = '1:25';
-        document.getElementById('admOutroStart').value = fmtMinSec(dur - 85);
-        document.getElementById('admOutroEnd').value = fmtMinSec(dur);
-        toast(`ऑटो ट्रैक पूरा! (कुल लंबाई ${fmtMinSec(dur)}) ✅`);
-      } else {
-        document.getElementById('admIntroStart').value = '0:00';
-        document.getElementById('admIntroEnd').value = '0:30';
-        toast('छोटा वीडियो है: 0:00 से 0:30 सेट किया गया ✓');
-      }
-      tempVid.src = '';
-    };
-    tempVid.onerror = () => {
-      document.getElementById('admIntroStart').value = '0:00';
-      document.getElementById('admIntroEnd').value = '1:25';
-      toast('डिफ़ॉल्ट इंट्रो समय (0:00 - 1:25) भर दिया गया ✓');
-    };
-  }
-
-  function previewAdminVideo() { const u = (document.getElementById('admUrl1').value || '').trim(); if (!u) return toast('पहले Server 1 लिंक डालें'); document.getElementById('admPreviewBox').style.display = 'block'; const v = document.getElementById('admPreviewVid'); v.src = u; v.play().catch(() => {}); }
-  function captureTime(id) { playUiSound('like'); const s = Math.floor(document.getElementById('admPreviewVid').currentTime || 0); document.getElementById(id).value = s; toast(`समय सेव हुआ: ${s} सेकंड`); }
   function compressImg(file, maxW = 480, q = 0.62) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -1681,45 +1317,36 @@
           canvas.width = Math.max(1, Math.round(img.width * scale));
           canvas.height = Math.max(1, Math.round(img.height * scale));
           const ctx = canvas.getContext('2d');
-          if (!ctx) return reject(new Error('Canvas unavailable'));
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          let quality = q, data = canvas.toDataURL('image/jpeg', quality);
-          while (data.length > 18 * 1024 && quality > 0.30) { quality -= 0.07; data = canvas.toDataURL('image/jpeg', quality); }
-          if (data.length > 18 * 1024) return reject(new Error('Poster is too large for cloud JSON'));
-          resolve(data);
+          resolve(canvas.toDataURL('image/jpeg', q));
         };
         img.src = e.target.result;
       };
       reader.readAsDataURL(file);
     });
   }
-  async function uploadPosterToImgbb(e) {
+
+  window.uploadPosterToImgbb = async (e) => {
     const f = e.target.files && e.target.files[0]; if (!f) return;
-    if (!['image/jpeg','image/png','image/webp'].includes(f.type)) { toast('JPG, PNG या WebP इमेज चुनें'); e.target.value=''; return; }
-    if (f.size > 8 * 1024 * 1024) { toast('पोस्टर 8 MB से छोटा रखें'); e.target.value=''; return; }
-    toast('पोस्टर छोटा किया जा रहा है...');
+    toast('पोस्टर तैयार किया जा रहा है...');
     try {
-      const b64 = await compressImg(f, 360, 0.48);
+      const b64 = await compressImg(f, 420, 0.65);
       document.getElementById('admPoster').value = b64;
-      toast('छोटा पोस्टर तैयार है ✓');
-    } catch (err) { toast('पोस्टर बहुत बड़ा है; छोटा JPG/WebP या hosted image URL इस्तेमाल करें'); }
+      toast('पोस्टर तैयार है ✓');
+    } catch (err) { toast('पोस्टर लोड नहीं हो पाया'); }
     finally { e.target.value = ''; }
-  }
-  async function publishEpisode() {
+  };
+
+  window.publishEpisode = async () => {
     const sIdx = parseInt(document.getElementById('editSeriesIdx').value, 10), eIdx = parseInt(document.getElementById('editEpIdx').value, 10);
     const title = (document.getElementById('admTitle').value || '').trim(), url1 = (document.getElementById('admUrl1').value || '').trim();
     const seasonValue = Number(document.getElementById('admSeasonNum').value || 1), episodeValue = Number(document.getElementById('admEpNum').value || 1);
-    if (!Number.isInteger(seasonValue) || seasonValue < 1 || !Number.isInteger(episodeValue) || episodeValue < 1) return toast('सीजन और एपिसोड नंबर 1 या उससे बड़ा पूर्णांक होना चाहिए');
     if (!title || !url1) return toast('सीरीज़ का नाम और Server 1 वीडियो लिंक ज़रूरी है!');
-    if (title.length > 120 || !safeMediaUrl(url1, 'video')) return toast('सीरीज़ नाम 120 अक्षरों तक रखें और सही HTTP/HTTPS वीडियो लिंक डालें');
-    const url2Input = (document.getElementById('admUrl2').value || '').trim();
-    if (url2Input && !safeMediaUrl(url2Input, 'video')) return toast('Server 2 का लिंक सही HTTP/HTTPS URL होना चाहिए');
-    const posterInput = (document.getElementById('admPoster').value || '').trim();
-    if (posterInput && !safeMediaUrl(posterInput, 'image')) return toast('पोस्टर लिंक सही HTTP/HTTPS या compressed image होना चाहिए');
     playUiSound('play');
     let series = sIdx >= 0 ? cloudState.animeList[sIdx] : cloudState.animeList.find(a => a.title.toLowerCase() === title.toLowerCase());
     if (!series) { series = { id: 'anm_' + Date.now(), title, likes: 1, views: 1, episodes: [] }; cloudState.animeList.push(series); }
-    series.title = title; const p = (document.getElementById('admPoster').value || '').trim(); if (p) series.poster = p;
+    series.title = title;
+    const p = (document.getElementById('admPoster').value || '').trim(); if (p) series.poster = p;
     series.status = document.getElementById('admStatus').value; series.rating = document.getElementById('admRating').value || '5';
     series.mood = document.getElementById('admMood').value; series.releaseDay = document.getElementById('admDay').value;
     series.trailerUrl = (document.getElementById('admTrailer').value || '').trim(); series.lang = document.getElementById('admLang').value;
@@ -1729,10 +1356,8 @@
       season: seasonValue,
       num: episodeValue,
       title: (document.getElementById('admEpTitle').value || '').trim(),
-      url: safeMediaUrl(url1, 'video'), url2: safeMediaUrl(url2Input, 'video'),
+      url: url1, url2: (document.getElementById('admUrl2').value || '').trim(),
       lang: document.getElementById('admLang').value, subUrl: (document.getElementById('admSub').value || '').trim(),
-      introStart: (document.getElementById('admIntroStart').value || '').trim(), introEnd: (document.getElementById('admIntroEnd').value || '').trim(),
-      outroStart: (document.getElementById('admOutroStart').value || '').trim(), outroEnd: (document.getElementById('admOutroEnd').value || '').trim(),
       createdAt: Date.now()
     };
     if (eIdx >= 0 && series.episodes[eIdx]) series.episodes[eIdx] = epObj;
@@ -1742,23 +1367,25 @@
     }
     series.episodes.sort((a, b) => (Number(a.season || 1) - Number(b.season || 1)) || (Number(a.num) - Number(b.num)));
     cloudState.animeList = deduplicateAnimeList(cloudState.animeList);
-    const synced = await saveCloudData(); resetAdminFields(); renderEverything(); toast(synced ? 'एपिसोड क्लाउड पर सेव हो गया ✓' : 'एपिसोड इस डिवाइस में सेव है; Cloud Sync बाकी है');
-  }
-  async function deleteSeriesAdmin(i) { if (!cloudState.animeList[i] || !confirm(`'${cloudState.animeList[i].title}' सीरीज़ और उसके सभी एपिसोड हटाएं?`)) return; playUiSound('back'); cloudState.animeList.splice(i, 1); await saveCloudData(); renderEverything(); toast('सीरीज़ हटाई गई'); }
-  async function deleteEpAdmin(sIdx, eIdx) { if (!cloudState.animeList[sIdx]?.episodes?.[eIdx] || !confirm('यह एपिसोड हटाएं?')) return; playUiSound('back'); cloudState.animeList[sIdx].episodes.splice(eIdx, 1); await saveCloudData(); renderEverything(); toast('एपिसोड हटाया गया'); }
+    const synced = await saveCloudData(); resetAdminFields(); renderEverything();
+    toast(synced ? 'एपिसोड Firebase पर लाइव सेव हो गया ✓' : 'सेव करने में दिक्कत आई');
+  };
 
+  window.deleteSeriesAdmin = async (i) => {
+    if (!cloudState.animeList[i] || !confirm(`'${cloudState.animeList[i].title}' सीरीज़ हटाएं?`)) return;
+    playUiSound('back'); cloudState.animeList.splice(i, 1); await saveCloudData(); renderEverything(); toast('सीरीज़ हटाई गई');
+  };
+  window.deleteEpAdmin = async (sIdx, eIdx) => {
+    if (!cloudState.animeList[sIdx]?.episodes?.[eIdx] || !confirm('यह एपिसोड हटाएं?')) return;
+    playUiSound('back'); cloudState.animeList[sIdx].episodes.splice(eIdx, 1); await saveCloudData(); renderEverything(); toast('एपिसोड हटाया गया');
+  };
 
-  window.addEventListener('pagehide', () => {
-    try { localStorage.setItem('m99_full_cache', JSON.stringify(cloudState)); } catch (e) {}
-  });
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       const v = document.getElementById('mainVideo');
       if (v && !v.paused) v.pause();
     }
   });
-
-  loadCloudData(false).catch(() => { hideSplash(); document.getElementById('liveBadge').textContent = 'Offline • Local'; });
 </script>
 </body>
 </html>

@@ -76,13 +76,13 @@
       padding: 5px 8px; border-radius: 20px; font-size: 10px; font-weight: 800; cursor: pointer;
     }
     
-        /* TRENDING ★ 1 बैनर */
+        /* TRENDING ★ 1 - 6 ऑटो रोटेट बैनर */
     .hero-wrap { padding: 12px 14px 6px; }
     .hero-card {
-      position: relative; height: 215px; border-radius: 18px; overflow: hidden;
+      position: relative; height: 225px; border-radius: 18px; overflow: hidden;
       background: #141720; border: 1px solid var(--border); box-shadow: 0 12px 28px rgba(0,0,0,0.5);
     }
-    .hero-card img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.76); }
+    .hero-card img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.76); transition: opacity 0.35s ease; }
     .hero-grad {
       position: absolute; inset: 0; background: linear-gradient(to top, #07080c 12%, rgba(7,8,12,0.2) 70%, transparent 100%);
       padding: 16px; display: flex; flex-direction: column; justify-content: flex-end;
@@ -92,7 +92,10 @@
       padding: 4px 9px; border-radius: 6px; width: fit-content; margin-bottom: 6px; letter-spacing: 0.6px;
     }
     .hero-title { font-size: 21px; font-weight: 900; margin-bottom: 10px; text-shadow: 0 2px 8px rgba(0,0,0,0.8); }
-    .hero-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .hero-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .hero-dots { display: flex; gap: 5px; margin-top: 8px; justify-content: center; }
+    .hero-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,0.28); cursor: pointer; transition: all 0.25s; }
+    .hero-dot.active { width: 18px; border-radius: 4px; background: var(--primary); }
     .btn-orange {
       background: var(--primary); color: #fff; border: none; padding: 9px 15px; border-radius: 10px;
       font-size: 12px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
@@ -102,35 +105,38 @@
       padding: 9px 13px; border-radius: 10px; font-size: 12px; font-weight: 800; cursor: pointer;
     }
 
-    /* सेक्शन हेडर और स्क्रॉल रो */
+    /* सेक्शन हेडर, स्क्रॉल रो और पोस्टर कार्ड (ऊपर और नीचे एक जैसा पूरा पोस्टर साइज) */
     .sec-head { padding: 14px 14px 8px; display: flex; justify-content: space-between; align-items: center; }
     .sec-title { font-size: 15px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
     .h-row { display: flex; gap: 11px; overflow-x: auto; padding: 0 14px 8px; scrollbar-width: none; }
     .h-row::-webkit-scrollbar { display: none; }
-
-    /* कार्ड और ग्रिड */
     .poster-card {
       background: var(--surface); border: 1px solid var(--border); border-radius: 13px; overflow: hidden;
       position: relative; cursor: pointer;
     }
     .poster-card.h-item { min-width: 136px; max-width: 136px; }
-    .poster-card img { width: 100%; height: 175px; object-fit: cover; display: block; background: #181b24; }
+    .poster-img-wrap { position: relative; width: 100%; aspect-ratio: 2 / 3; background: #181b24; overflow: hidden; }
+    .poster-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .badge-tl {
       position: absolute; top: 7px; left: 7px; font-size: 9px; font-weight: 900; padding: 3px 7px;
-      border-radius: 6px; color: #fff; background: rgba(16, 185, 129, 0.92);
+      border-radius: 6px; color: #fff; background: rgba(16, 185, 129, 0.92); z-index: 2;
     }
     .badge-tl.ongoing { background: rgba(59, 130, 246, 0.92); }
-    .badge-tr {
-      position: absolute; top: 7px; right: 7px; font-size: 10px; font-weight: 900; padding: 3px 6px;
-      border-radius: 6px; background: rgba(0, 0, 0, 0.72); color: var(--gold);
+    .badge-lang-tr {
+      position: absolute; top: 7px; right: 7px; font-size: 9px; font-weight: 900; padding: 3px 7px;
+      border-radius: 6px; background: rgba(255, 94, 0, 0.92); color: #fff; z-index: 2;
+    }
+    .badge-rating-br {
+      position: absolute; bottom: 7px; right: 7px; font-size: 10px; font-weight: 900; padding: 3px 7px;
+      border-radius: 6px; background: rgba(0, 0, 0, 0.78); color: var(--gold); z-index: 2;
     }
     .badge-saved {
       position: absolute; top: 7px; left: 7px; background: rgba(220, 38, 38, 0.92); color: #fff;
-      font-size: 9px; font-weight: 900; padding: 3px 7px; border-radius: 6px;
+      font-size: 9px; font-weight: 900; padding: 3px 7px; border-radius: 6px; z-index: 2;
     }
     .poster-title { padding: 8px; font-size: 12px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     
-        /* फ़िल्टर चिप्स */
+        /* फ़िल्टर चिप्स और ग्रिड */
     .chip-bar { display: flex; gap: 7px; overflow-x: auto; padding: 4px 14px 10px; scrollbar-width: none; }
     .chip-bar::-webkit-scrollbar { display: none; }
     .f-chip {
@@ -144,19 +150,21 @@
     .tab-page { display: none; }
     .tab-page.active { display: block; }
 
-    /* सर्च टैब */
+    /* सर्च टैब (पोस्टर फोटो के साथ) */
     .search-box { padding: 14px; }
     .search-inp {
       width: 100%; background: var(--surface-2); border: 1px solid var(--border); color: #fff;
       padding: 13px 15px; border-radius: 14px; font-size: 14px; outline: none;
     }
     .trend-item {
-      background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px;
-      margin-top: 8px; display: flex; align-items: center; justify-content: space-between; cursor: pointer;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 9px 11px;
+      margin-top: 8px; display: flex; align-items: center; justify-content: space-between; gap: 10px; cursor: pointer;
     }
+    .trend-left { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; }
+    .trend-poster { width: 44px; height: 60px; border-radius: 8px; object-fit: cover; background: #1c1e28; flex-shrink: 0; }
     .trend-num {
-      width: 24px; height: 24px; border-radius: 6px; background: rgba(255, 94, 0, 0.16); color: var(--primary);
-      display: inline-flex; align-items: center; justify-content: center; font-weight: 900; font-size: 12px; margin-right: 10px;
+      width: 22px; height: 22px; border-radius: 6px; background: rgba(255, 94, 0, 0.16); color: var(--primary);
+      display: inline-flex; align-items: center; justify-content: center; font-weight: 900; font-size: 11px; flex-shrink: 0;
     }
 
     /* हिस्ट्री और शेड्यूल टैब */
@@ -172,9 +180,7 @@
     }
 
     /* प्रोफाइल टैब */
-    .prof-hero {
-      margin: 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 15px;
-    }
+    .prof-hero { margin: 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 15px; }
     .avatar-circle {
       width: 52px; height: 52px; border-radius: 50%; background: var(--primary-grad);
       display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 900; flex-shrink: 0;
@@ -186,7 +192,7 @@
     }
     .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     
-        /* वीडियो प्लेयर स्क्रीन */
+        /* वीडियो प्लेयर और ऑटो फुल-स्क्रीन रोटेशन */
     #playerScreen {
       position: fixed; inset: 0; background: var(--bg); z-index: 1200; display: none;
       flex-direction: column; overflow-y: auto; padding-bottom: 84px;
@@ -206,12 +212,27 @@
     }
     .video-stage video {
       position: relative; z-index: 2; width: 100% !important; height: 100% !important;
-      display: block !important; object-fit: contain; background: #000;
+      display: block !important; object-fit: contain !important; background: #000;
+    }
+    /* किसी भी फोन के लिए लैंडस्केप फुल-स्क्रीन (बिना वीडियो कटे) */
+    .video-stage.pseudo-landscape {
+      position: fixed !important; top: 50% !important; left: 50% !important;
+      width: 100vh !important; height: 100vw !important; max-height: none !important;
+      transform: translate(-50%, -50%) rotate(90deg) !important;
+      z-index: 99999 !important; background: #000 !important;
+    }
+    .video-stage:fullscreen, .video-stage:-webkit-full-screen {
+      width: 100vw !important; height: 100vh !important; max-height: none !important; background: #000 !important;
     }
     .lock-btn {
       position: absolute; top: 10px; left: 10px; z-index: 30; background: rgba(0,0,0,0.68);
       color: var(--gold); border: 1px solid rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 8px; font-size: 11px; font-weight: 800; cursor: pointer;
     }
+    .exit-rot-btn {
+      position: absolute; top: 10px; right: 10px; z-index: 35; background: rgba(255,94,0,0.92);
+      color: #fff; border: none; padding: 6px 11px; border-radius: 8px; font-size: 11px; font-weight: 900; display: none; cursor: pointer;
+    }
+    .video-stage.pseudo-landscape .exit-rot-btn { display: block; }
     .seek-flash {
       position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.75);
       color: #fff; padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: 900; display: none; z-index: 28; pointer-events: none;
@@ -230,7 +251,7 @@
     }
     .ep-pill-btn.active { background: var(--primary); border-color: var(--primary); }
 
-    /* कमेंट्स व ऑथ मोडल */
+    /* कमेंट्स, ऑथ और बॉटम नेव */
     .c-item { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px; margin-top: 8px; }
     .c-item.pinned { border-color: var(--gold); background: rgba(255, 193, 7, 0.08); }
     .admin-badge { background: rgba(255,193,7,0.18); color: var(--gold); border: 1px solid var(--gold); font-size: 10px; padding: 1px 6px; border-radius: 6px; margin-left: 6px; }
@@ -242,8 +263,6 @@
       width: 100%; max-width: 360px; background: var(--surface); border: 1px solid var(--border);
       border-radius: 20px; padding: 22px; text-align: center;
     }
-
-    /* बॉटम नेविगेशन */
     nav.bottom-nav {
       position: fixed; bottom: 0; left: 0; right: 0; background: rgba(11, 13, 20, 0.98);
       border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 8px 0; z-index: 700;
@@ -283,7 +302,7 @@
     </div>
   </header>
 
-  <!-- टैब 1: एनिमे -->
+  <!-- टैब 1: एनिमे (बिना भाषा वाले चिप्स के साफ़ होम स्क्रीन) -->
   <div id="tabAnime" class="tab-page active">
     <div class="hero-wrap" id="heroContainer"></div>
 
@@ -293,12 +312,10 @@
     <div class="sec-head"><div class="sec-title">🔥 अनुशंसित एनिमे (Recommended)</div></div>
     <div class="chip-bar" id="filterChips">
       <button class="f-chip active" onclick="applyFilter('ALL', this)">All / सभी</button>
-      <button class="f-chip" onclick="applyFilter('हिंदी डब', this)">हिंदी डब (Hindi)</button>
-      <button class="f-chip" onclick="applyFilter('English Dub', this)">English Dub</button>
-      <button class="f-chip" onclick="applyFilter('Japanese Sub', this)">Japanese Sub</button>
       <button class="f-chip" onclick="applyFilter('एक्शन', this)">⚔️ एक्शन</button>
       <button class="f-chip" onclick="applyFilter('रोमांस', this)">💖 रोमांस</button>
       <button class="f-chip" onclick="applyFilter('रहस्य', this)">🕵️ रहस्य</button>
+      <button class="f-chip" onclick="applyFilter('कॉमेडी', this)">😂 कॉमेडी</button>
     </div>
     <div class="grid-2" id="recommendedGrid"></div>
   </div>
@@ -390,7 +407,7 @@
       </div>
     </div>
     
-        <!-- एडमिन पैनल (बिना इंट्रो/आउट्रो ट्रैकर के साफ़ फॉर्म) -->
+        <!-- एडमिन पैनल -->
     <div id="adminArea" style="display:none;">
       <div class="card-box" style="border-color:var(--gold);">
         <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -447,7 +464,7 @@
         <input type="text" class="inp" id="admUrl2" placeholder="Server 2 (डेटा सेवर / बैकअप .mp4 लिंक)" />
         <div class="row-2">
           <select class="inp" id="admLang">
-            <option value="हिंदी डब">ऑडियो: हिंदी डब</option>
+            <option value="Hindi dub">ऑडियो: Hindi dub</option>
             <option value="English Dub">ऑडियो: English Dub</option>
             <option value="Japanese Sub">ऑडियो: Japanese Sub</option>
           </select>
@@ -470,7 +487,7 @@
     </div>
   </div>
   
-    <!-- वीडियो प्लेयर स्क्रीन (बिना Skip Intro/Outro बटन के साफ़ प्लेयर) -->
+    <!-- वीडियो प्लेयर स्क्रीन -->
   <div id="playerScreen">
     <div class="p-topbar">
       <button class="p-pill" onclick="closePlayer()">← वापस</button>
@@ -481,6 +498,7 @@
     <div class="video-stage" id="videoStage" onclick="handleStageDoubleTap(event)">
       <video id="mainVideo" controls playsinline webkit-playsinline preload="metadata" ontimeupdate="onVideoProgress()" onended="onVideoComplete()" onerror="videoPlaybackError()"><track id="mainSubtitleTrack" kind="subtitles" srclang="hi" label="Subtitles" /></video>
       <button class="lock-btn" id="lockBtn" onclick="event.stopPropagation(); toggleLock()">🔓 Lock</button>
+      <button class="exit-rot-btn" id="exitRotBtn" onclick="event.stopPropagation(); exitLandscapeFull()">✕ Exit Full</button>
       <div class="seek-flash" id="flashLeft" style="left:16px;">⏪ -10s</div>
       <div class="seek-flash" id="flashRight" style="right:16px;">+10s ⏩</div>
 
@@ -507,13 +525,13 @@
     <div style="padding:14px;">
       <div style="font-size:16px; font-weight:900;" id="pFullTitle">Anime Title</div>
       <div style="display:flex; gap:8px; align-items:center; margin-top:7px; flex-wrap:wrap;">
-        <span style="background:rgba(255,94,0,0.16); color:var(--primary); border:1px solid rgba(255,94,0,0.4); font-size:11px; font-weight:800; padding:3px 9px; border-radius:6px;" id="pLangBadge">हिंदी डब</span>
-        <span style="font-size:12px; color:var(--muted);" id="pSubText">Movie • Hindi Dub</span>
+        <span style="background:rgba(255,94,0,0.16); color:var(--primary); border:1px solid rgba(255,94,0,0.4); font-size:11px; font-weight:800; padding:3px 9px; border-radius:6px;" id="pLangBadge">Hindi dub</span>
+        <span style="font-size:12px; color:var(--muted);" id="pSubText">Movie • Hindi dub</span>
       </div>
 
       <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
-        <button class="p-pill" id="pLikeBtn" onclick="likeCurrentSeries()">❤️ 1 Likes</button>
-        <span class="p-pill" id="pViewBadge">👁️ 2 Views</span>
+        <button class="p-pill" id="pLikeBtn" onclick="likeCurrentSeries()">🤍 0 Likes</button>
+        <span class="p-pill" id="pViewBadge">👁️ 0 Views</span>
         <button class="p-pill" onclick="shareEpisode()">📤 Share</button>
         <button class="p-pill" id="pOfflineBtn" onclick="saveEpisodeOffline()">⬇️ ऑफ़लाइन सेव</button>
         <button class="p-pill" onclick="shareClipTime()">⏱️ क्लिप शेयर</button>
@@ -527,7 +545,7 @@
       <div style="font-size:14px; font-weight:800; margin-top:18px; margin-bottom:8px;">✨ मिलते-जुलते एनिमे</div>
       <div class="h-row" style="padding:0;" id="similarRow"></div>
 
-      <div style="font-size:14px; font-weight:800; margin-top:16px; margin-bottom:8px;">कमेंट्स</div>
+      <div style="font-size:14px; font-weight:800; margin-top:16px; margin-bottom:8px;" id="commentsHeaderTitle">कमेंट्स (0)</div>
       <div style="display:flex; gap:8px;">
         <input type="text" class="inp" style="margin-top:0;" id="commentInp" placeholder="अपना कमेंट लिखें..." />
         <button class="btn-orange" onclick="addComment()">भेजें</button>
@@ -536,7 +554,7 @@
     </div>
   </div>
   
-    <!-- 100% लोकल सुरक्षित खाता मोडल -->
+    <!-- लोकल सुरक्षित खाता मोडल -->
   <div id="authModal">
     <div class="auth-box">
       <div class="splash-badge" style="width:56px; height:56px; font-size:22px; margin:0 auto 10px; animation:none;">99</div>
@@ -589,6 +607,7 @@
   let cloudState = { animeList: [], requests: [], comments: {} };
   let curAnime = null, curEp = null, curSeason = 1, activeFilter = 'ALL', activeDay = 'सोमवार';
   let adminOpen = false, screenLocked = false, autoTimer = null, lastTap = 0;
+  let heroSlideIdx = 0, heroAutoTimer = null;
   let soundOn = localStorage.getItem('m99_sound') !== 'false';
   let dataSaver = localStorage.getItem('m99_datasaver') === 'true';
   let userName = localStorage.getItem('m99_username') || 'Manga 99';
@@ -741,7 +760,7 @@
         title: e.title || '',
         url: e.url || '',
         url2: e.url2 || '',
-        lang: e.lang || item.lang || 'हिंदी डब',
+        lang: e.lang || item.lang || 'Hindi dub',
         subUrl: e.subUrl || '',
         createdAt: e.createdAt || (Date.now() - eIdx * 1000)
       }));
@@ -752,11 +771,11 @@
         status: item.status || 'Completed',
         rating: item.rating || '5',
         mood: item.mood || 'एक्शन',
-        lang: item.lang || 'हिंदी डब',
+        lang: item.lang || 'Hindi dub',
         releaseDay: item.releaseDay || 'रविवार',
         trailerUrl: item.trailerUrl || '',
-        likes: Number(item.likes || 0),
-        views: Number(item.views || 0),
+        likes: Math.max(0, Number(item.likes || 0)),
+        views: Math.max(0, Number(item.views || 0)),
         episodes: eps
       };
     });
@@ -782,6 +801,17 @@
     const badge = document.getElementById('liveBadge');
     if (badge) badge.textContent = 'Live Online ✓';
     renderEverything();
+    if (curAnime && document.getElementById('playerScreen').style.display === 'flex') {
+      const updated = cloudState.animeList.find(x => x.id === curAnime.id);
+      if (updated) {
+        curAnime = updated;
+        document.getElementById('pViewBadge').textContent = `👁️ ${Number(curAnime.views || 0)} Views`;
+        const seriesKey = (curAnime.title || curAnime.id).trim().toLowerCase();
+        const isLiked = !!readJSON('m99_liked_series', {})[seriesKey];
+        document.getElementById('pLikeBtn').textContent = `${isLiked ? '❤️' : '🤍'} ${Number(curAnime.likes || 0)} Likes`;
+        renderPlayerComments();
+      }
+    }
   }, (error) => {
     console.warn('Firebase read error:', error);
     const cached = readJSON('m99_fb_cache', null);
@@ -825,10 +855,7 @@
     const pScreen = document.getElementById('playerScreen');
     const v = document.getElementById('mainVideo');
     if (pScreen && pScreen.style.display === 'flex') {
-      if (v && !v.paused) {
-        v.pause();
-        pausedVideoOnTabSwitch = true;
-      }
+      if (v && !v.paused) { v.pause(); pausedVideoOnTabSwitch = true; }
       pScreen.style.display = 'none';
       const rBar = document.getElementById('resumeMiniBar');
       if (rBar && curAnime && curEp) {
@@ -862,7 +889,8 @@
   };
 
   function renderEverything() {
-    renderHeroAndHome();
+    renderHeroBanner();
+    renderLatestUnique();
     renderRecommended();
     renderSearch();
     renderHistoryAndSchedule();
@@ -870,28 +898,103 @@
     if (adminOpen) renderAdminLists();
   }
 
-  function renderHeroAndHome() {
-    const list = cloudState.animeList || [];
+  // 1. Top 6 Trending Auto-Rotate Banner
+  function renderHeroBanner() {
+    const list = (cloudState.animeList || []).slice(0, 6);
     const wl = readJSON('m99_watchlist', []);
     const heroBox = document.getElementById('heroContainer');
-    if (list.length > 0) {
-      const top = list[0], isSaved = wl.includes(top.id);
+    clearInterval(heroAutoTimer);
+
+    if (list.length === 0) {
+      heroBox.innerHTML = `<div class="card-box" style="margin:0; text-align:center; color:var(--muted);">Firebase से एनिमे लोड हो रहे हैं... एडमिन पैनल से पहला एनिमे जोड़ें।</div>`;
+      return;
+    }
+
+    if (heroSlideIdx >= list.length) heroSlideIdx = 0;
+
+    const drawSlide = () => {
+      const top = list[heroSlideIdx];
+      if (!top) return;
+      const isSaved = wl.includes(top.id);
       const poster = safeMediaUrl(top.poster, 'image');
       const trailer = safeMediaUrl(top.trailerUrl, 'video');
-      heroBox.innerHTML = `<div class="hero-card"><img loading="lazy" referrerpolicy="no-referrer" src="${escapeHtml(poster)}" onerror="this.removeAttribute('src');this.style.background='#1c1e28'" /><div class="hero-grad"><span class="trending-tag">TRENDING ★ 1</span><div class="hero-title">${escapeHtml(top.title)}</div><div class="hero-actions"><button class="btn-orange" onclick="launchPlayer(${jsArg(top.id)}, 0)">▶ Details &amp; Play</button><button class="btn-dark" onclick="toggleWatchlistId(${jsArg(top.id)})">${isSaved ? '✓ My Watchlist' : '+ My Watchlist'}</button>${trailer ? `<button class="btn-dark" onclick="playTrailer(${jsArg(trailer)}, ${jsArg(top.title)})">🎬 ट्रेलर</button>` : ''}</div></div></div>`;
-    } else {
-      heroBox.innerHTML = `<div class="card-box" style="margin:0; text-align:center; color:var(--muted);">Firebase से एनिमे लोड हो रहे हैं... एडमिन पैनल से पहला एनिमे जोड़ें।</div>`;
+      heroBox.innerHTML = `
+        <div class="hero-card">
+          <img loading="lazy" referrerpolicy="no-referrer" src="${escapeHtml(poster)}" onerror="this.removeAttribute('src');this.style.background='#1c1e28'" />
+          <div class="hero-grad">
+            <span class="trending-tag">TRENDING ★ ${heroSlideIdx + 1}</span>
+            <div class="hero-title">${escapeHtml(top.title)}</div>
+            <div class="hero-actions">
+              <button class="btn-orange" onclick="launchPlayer(${jsArg(top.id)}, 0)">▶ Details &amp; Play</button>
+              <button class="btn-dark" onclick="toggleWatchlistId(${jsArg(top.id)})">${isSaved ? '✓ My Watchlist' : '+ My Watchlist'}</button>
+              ${trailer ? `<button class="btn-dark" onclick="playTrailer(${jsArg(trailer)}, ${jsArg(top.title)})">🎬 ट्रेलर</button>` : ''}
+            </div>
+            ${list.length > 1 ? `<div class="hero-dots">${list.map((_, dIdx) => `<span class="hero-dot ${dIdx === heroSlideIdx ? 'active' : ''}" onclick="setHeroSlide(${dIdx})"></span>`).join('')}</div>` : ''}
+          </div>
+        </div>`;
+    };
+
+    drawSlide();
+    if (list.length > 1) {
+      heroAutoTimer = setInterval(() => {
+        heroSlideIdx = (heroSlideIdx + 1) % list.length;
+        drawSlide();
+      }, 4000);
     }
-    const epsFlat = [];
-    list.forEach(a => (a.episodes || []).forEach((ep, idx) => epsFlat.push({ a, ep, idx, ts: Number(ep.createdAt) || 0 })));
-    epsFlat.sort((x, y) => y.ts - x.ts);
-    document.getElementById('latestRow').innerHTML = epsFlat.slice(0, 10).map(it => `<div class="poster-card h-item" onclick="launchPlayer(${jsArg(it.a.id)}, ${it.idx})"><span class="badge-tl">नया • Ep ${escapeHtml(it.ep.num)}</span><img loading="lazy" referrerpolicy="no-referrer" src="${escapeHtml(safeMediaUrl(it.a.poster, 'image'))}" onerror="this.removeAttribute('src')" /><div class="poster-title">${escapeHtml(it.a.title)}</div></div>`).join('');
   }
 
+  window.setHeroSlide = (idx) => {
+    playUiSound('nav');
+    heroSlideIdx = idx;
+    renderHeroBanner();
+  };
+
+  // 2. Latest सेक्शन: हर एनिमे सीरीज़ का केवल एक ही सबसे नया कार्ड दिखेगा (डुप्लीकेट नहीं होंगे)
+  function renderLatestUnique() {
+    const list = cloudState.animeList || [];
+    const latestPerSeries = [];
+
+    list.forEach(a => {
+      const eps = a.episodes || [];
+      if (!eps.length) return;
+      let latestIdx = 0;
+      let maxTs = Number(eps[0].createdAt) || 0;
+      eps.forEach((ep, idx) => {
+        const ts = Number(ep.createdAt) || 0;
+        if (ts >= maxTs) { maxTs = ts; latestIdx = idx; }
+      });
+      latestPerSeries.push({ a, ep: eps[latestIdx], idx: latestIdx, ts: maxTs });
+    });
+
+    latestPerSeries.sort((x, y) => y.ts - x.ts);
+    document.getElementById('latestRow').innerHTML = latestPerSeries.slice(0, 12).map(it => `
+      <div class="poster-card h-item" onclick="launchPlayer(${jsArg(it.a.id)}, ${it.idx})">
+        <div class="poster-img-wrap">
+          <span class="badge-tl">नया • Ep ${escapeHtml(it.ep.num)}</span>
+          <span class="badge-lang-tr">${escapeHtml(it.ep.lang || it.a.lang || 'Hindi dub')}</span>
+          <span class="badge-rating-br">★ ${escapeHtml(it.a.rating || '5')}</span>
+          <img loading="lazy" referrerpolicy="no-referrer" src="${escapeHtml(safeMediaUrl(it.a.poster, 'image'))}" onerror="this.removeAttribute('src')" />
+        </div>
+        <div class="poster-title">${escapeHtml(it.a.title)}</div>
+      </div>`).join('');
+  }
+
+  // 3. Recommended सेक्शन: पूरा पोस्टर साइज + ऊपर दाईं तरफ भाषा + नीचे दाईं तरफ रेटिंग
   function renderRecommended() {
     let list = cloudState.animeList || [];
-    if (activeFilter !== 'ALL') list = list.filter(a => (a.lang || '') === activeFilter || (a.mood || '') === activeFilter || (a.episodes || []).some(e => (e.lang || '') === activeFilter));
-    document.getElementById('recommendedGrid').innerHTML = list.map(a => `<div class="poster-card" onclick="launchPlayer(${jsArg(a.id)}, 0)"><span class="badge-tl ${a.status === 'Ongoing' ? 'ongoing' : ''}">${escapeHtml(a.status || 'Completed')}</span><span class="badge-tr">★ ${escapeHtml(a.rating || '5')}</span><img loading="lazy" referrerpolicy="no-referrer" src="${escapeHtml(safeMediaUrl(a.poster, 'image'))}" onerror="this.removeAttribute('src')" /><div class="poster-title">${escapeHtml(a.title)}</div></div>`).join('');
+    if (activeFilter !== 'ALL') {
+      list = list.filter(a => (a.mood || '') === activeFilter);
+    }
+    document.getElementById('recommendedGrid').innerHTML = list.map(a => `
+      <div class="poster-card" onclick="launchPlayer(${jsArg(a.id)}, 0)">
+        <div class="poster-img-wrap">
+          <span class="badge-tl ${a.status === 'Ongoing' ? 'ongoing' : ''}">${escapeHtml(a.status || 'Completed')}</span>
+          <span class="badge-lang-tr">${escapeHtml(a.lang || 'Hindi dub')}</span>
+          <span class="badge-rating-br">★ ${escapeHtml(a.rating || '5')}</span>
+          <img loading="lazy" referrerpolicy="no-referrer" src="${escapeHtml(safeMediaUrl(a.poster, 'image'))}" onerror="this.removeAttribute('src')" />
+        </div>
+        <div class="poster-title">${escapeHtml(a.title)}</div>
+      </div>`).join('');
   }
 
   window.toggleWatchlistId = (id) => {
@@ -899,7 +1002,7 @@
     let wl = readJSON('m99_watchlist', []);
     wl = wl.includes(id) ? wl.filter(x => x !== id) : [...wl, id];
     localStorage.setItem('m99_watchlist', JSON.stringify(wl));
-    renderHeroAndHome();
+    renderHeroBanner();
     refreshProfile();
     if (curAnime && curAnime.id === id) {
       document.getElementById('pWatchlistBtn').textContent = wl.includes(id) ? '✓ My Watchlist' : '+ My Watchlist';
@@ -907,10 +1010,22 @@
     toast(wl.includes(id) ? 'My Watchlist में सेव हो गया ✓' : 'My Watchlist से हटाया गया');
   };
   
-    window.renderSearch = () => {
+    // 4. सर्च में पोस्टर फोटो के साथ रिजल्ट दिखाना
+  window.renderSearch = () => {
     const q = (document.getElementById('searchInp').value || '').toLowerCase().trim();
-    const list = (cloudState.animeList || []).filter(a => !q || (a.title || '').toLowerCase().includes(q) || (a.mood || '').toLowerCase().includes(q));
-    document.getElementById('trendingSearchList').innerHTML = list.map((a, i) => `<div class="trend-item" onclick="saveRecentSearch(${jsArg(a.title)}); launchPlayer(${jsArg(a.id)}, 0)"><div><span class="trend-num">${i + 1}</span><b>${escapeHtml(a.title)}</b></div><span>📺</span></div>`).join('');
+    const list = (cloudState.animeList || []).filter(a => !q || (a.title || '').toLowerCase().includes(q) || (a.mood || '').toLowerCase().includes(q) || (a.lang || '').toLowerCase().includes(q));
+    document.getElementById('trendingSearchList').innerHTML = list.map((a, i) => `
+      <div class="trend-item" onclick="saveRecentSearch(${jsArg(a.title)}); launchPlayer(${jsArg(a.id)}, 0)">
+        <div class="trend-left">
+          <span class="trend-num">${i + 1}</span>
+          <img loading="lazy" class="trend-poster" src="${escapeHtml(safeMediaUrl(a.poster, 'image'))}" onerror="this.style.visibility='hidden'" />
+          <div style="min-width:0;">
+            <div style="font-weight:800; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(a.title)}</div>
+            <div style="font-size:11px; color:var(--muted); margin-top:2px;">${escapeHtml(a.lang || 'Hindi dub')} • ★ ${escapeHtml(a.rating || '5')}</div>
+          </div>
+        </div>
+        <span style="color:var(--primary); font-weight:900; font-size:13px;">▶</span>
+      </div>`).join('');
     const rec = readJSON('m99_recent_searches', []);
     document.getElementById('recentSearchesBox').innerHTML = rec.length ? rec.map(r => `<button type="button" class="p-pill" style="display:inline-block; margin:3px;" onclick="document.getElementById('searchInp').value=${jsArg(r)}; renderSearch();">${escapeHtml(r)}</button>`).join('') : 'कोई हाल की खोज नहीं है';
   };
@@ -936,7 +1051,7 @@
     const days = ['सोमवार', 'मंगलवार', 'बुधवार', 'गुरुवार', 'शुक्रवार', 'शनिवार', 'रविवार'];
     document.getElementById('scheduleDays').innerHTML = days.map(d => `<button class="day-btn ${d === activeDay ? 'active' : ''}" onclick="setSchedDay('${d}')">${d}</button>`).join('');
     const dayList = (cloudState.animeList || []).filter(a => (a.releaseDay || 'रविवार') === activeDay);
-    document.getElementById('scheduleGrid').innerHTML = dayList.length ? dayList.map(a => `<div class="poster-card" onclick="launchPlayer(${jsArg(a.id)}, 0)"><img loading="lazy" src="${escapeHtml(safeMediaUrl(a.poster, 'image'))}" /><div class="poster-title">${escapeHtml(a.title)}</div></div>`).join('') : `<div style="grid-column:1/-1; text-align:center; color:var(--muted); font-size:12px; padding:14px;">${activeDay} को कोई नया एपिसोड तय नहीं है।</div>`;
+    document.getElementById('scheduleGrid').innerHTML = dayList.length ? dayList.map(a => `<div class="poster-card" onclick="launchPlayer(${jsArg(a.id)}, 0)"><div class="poster-img-wrap"><img loading="lazy" src="${escapeHtml(safeMediaUrl(a.poster, 'image'))}" /></div><div class="poster-title">${escapeHtml(a.title)}</div></div>`).join('') : `<div style="grid-column:1/-1; text-align:center; color:var(--muted); font-size:12px; padding:14px;">${activeDay} को कोई नया एपिसोड तय नहीं है।</div>`;
   }
   window.setSchedDay = (d) => { playUiSound('nav'); activeDay = d; renderHistoryAndSchedule(); };
   window.removeHistoryItem = (i) => { playUiSound('back'); let h = readJSON('m99_history', []); h.splice(i, 1); localStorage.setItem('m99_history', JSON.stringify(h)); renderHistoryAndSchedule(); };
@@ -991,8 +1106,8 @@
     const wl = readJSON('m99_watchlist', []);
     document.getElementById('pWatchlistBtn').textContent = wl.includes(curAnime.id) ? '✓ My Watchlist' : '+ My Watchlist';
     document.getElementById('pFullTitle').textContent = `${curAnime.title} • S${curSeason} Ep${curEp.num}: ${curEp.title || curAnime.title}`;
-    document.getElementById('pLangBadge').textContent = curEp.lang || 'हिंदी डब';
-    document.getElementById('pSubText').textContent = `Season ${curSeason} • ${curEp.title || 'Episode'} • ${curEp.lang || 'Hindi Dub'}`;
+    document.getElementById('pLangBadge').textContent = curEp.lang || 'Hindi dub';
+    document.getElementById('pSubText').textContent = `Season ${curSeason} • ${curEp.title || 'Episode'} • ${curEp.lang || 'Hindi dub'}`;
 
     const srvs = [];
     if (curEp.url) srvs.push({ name: 'Server 1 (HD)', url: curEp.url });
@@ -1023,11 +1138,12 @@
     document.getElementById('pEpisodesRow').innerHTML = curAnime.episodes
       .map((ep, i) => ({ ep, i }))
       .filter(x => Number(x.ep.season || 1) === curSeason)
-      .map(({ ep, i }) => `<button class="ep-pill-btn ${ep.id === curEp.id ? 'active' : ''}" onclick="loadPlayerEpisode(${i})">Ep ${escapeHtml(ep.num)} (${escapeHtml(ep.lang || 'Hindi Dub')})</button>`)
+      .map(({ ep, i }) => `<button class="ep-pill-btn ${ep.id === curEp.id ? 'active' : ''}" onclick="loadPlayerEpisode(${i})">Ep ${escapeHtml(ep.num)} (${escapeHtml(ep.lang || 'Hindi dub')})</button>`)
       .join('');
     const sim = (cloudState.animeList || []).filter(x => x.id !== curAnime.id);
-    document.getElementById('similarRow').innerHTML = sim.map(item => `<div class="poster-card h-item" onclick="launchPlayer(${jsArg(item.id)}, 0)"><img loading="lazy" src="${escapeHtml(safeMediaUrl(item.poster, 'image'))}" /><div class="poster-title">${escapeHtml(item.title)}</div></div>`).join('');
+    document.getElementById('similarRow').innerHTML = sim.map(item => `<div class="poster-card h-item" onclick="launchPlayer(${jsArg(item.id)}, 0)"><div class="poster-img-wrap"><img loading="lazy" src="${escapeHtml(safeMediaUrl(item.poster, 'image'))}" /></div><div class="poster-title">${escapeHtml(item.title)}</div></div>`).join('');
 
+    // असली Views और Likes काउंट (Firebase Live Sync के साथ)
     if (curAnime.id !== 'trailer' && curAnime.id !== 'offline') {
       const seriesKey = (curAnime.title || curAnime.id).trim().toLowerCase();
       const viewedMap = readJSON('m99_viewed_series', {});
@@ -1035,7 +1151,7 @@
       const isLiked = !!likedMap[seriesKey];
       if (!viewedMap[seriesKey]) {
         viewedMap[seriesKey] = true; writeJSON('m99_viewed_series', viewedMap);
-        curAnime.views = Number(curAnime.views || 0) + 1; saveCloudData();
+        curAnime.views = Math.max(0, Number(curAnime.views || 0)) + 1; saveCloudData();
       }
       const viewedEpisodes = readJSON('m99_viewed_episodes', {});
       const episodeKey = `${curAnime.id}:${curEp.id}`;
@@ -1043,9 +1159,9 @@
         viewedEpisodes[episodeKey] = true; writeJSON('m99_viewed_episodes', viewedEpisodes);
         localStorage.setItem('m99_watched_count', String(Object.keys(viewedEpisodes).length)); refreshProfile();
       }
-      document.getElementById('pViewBadge').textContent = `👁️ ${Number(curAnime.views || 0)} Views`;
+      document.getElementById('pViewBadge').textContent = `👁️ ${Math.max(0, Number(curAnime.views || 0))} Views`;
       const lBtn = document.getElementById('pLikeBtn');
-      lBtn.textContent = `${isLiked ? '❤️' : '🤍'} ${Number(curAnime.likes || 0)} Likes`;
+      lBtn.textContent = `${isLiked ? '❤️' : '🤍'} ${Math.max(0, Number(curAnime.likes || 0))} Likes`;
       lBtn.style.borderColor = isLiked ? 'var(--primary)' : '';
       lBtn.style.background = isLiked ? 'rgba(255,94,0,0.18)' : '';
     }
@@ -1067,7 +1183,7 @@
       toast('लाइक हटा दिया गया');
     } else {
       likedMap[seriesKey] = true;
-      curAnime.likes = Number(curAnime.likes || 0) + 1;
+      curAnime.likes = Math.max(0, Number(curAnime.likes || 0)) + 1;
       lBtn.textContent = `❤️ ${curAnime.likes} Likes`;
       lBtn.style.borderColor = 'var(--primary)'; lBtn.style.background = 'rgba(255,94,0,0.18)';
       toast('लाइक सेव हो गया ❤️');
@@ -1096,8 +1212,49 @@
   };
   const spdList = [1, 1.25, 1.5, 2, 0.75]; let spdIdx = 0;
   window.cycleSpeed = () => { playUiSound('nav'); spdIdx = (spdIdx + 1) % spdList.length; document.getElementById('mainVideo').playbackRate = spdList[spdIdx]; document.getElementById('speedBtn').textContent = `${spdList[spdIdx]}x`; };
-  window.goLandscapeFull = () => { playUiSound('nav'); const st = document.getElementById('videoStage'); if (st.requestFullscreen) st.requestFullscreen().catch(() => {}); else if (document.getElementById('mainVideo').webkitEnterFullscreen) document.getElementById('mainVideo').webkitEnterFullscreen(); };
-  document.addEventListener('fullscreenchange', () => { try { if (document.fullscreenElement) screen.orientation?.lock?.('landscape').catch(() => {}); else screen.orientation?.unlock?.(); } catch (e) {} });
+
+  // हर फोन (Android / iOS / WebView) के लिए पक्का ऑटो लैंडस्केप फुल-स्क्रीन रोटेशन
+  window.goLandscapeFull = async () => {
+    playUiSound('nav');
+    const st = document.getElementById('videoStage');
+    const v = document.getElementById('mainVideo');
+    try {
+      if (st.requestFullscreen) {
+        await st.requestFullscreen();
+        if (screen.orientation && screen.orientation.lock) {
+          await screen.orientation.lock('landscape').catch(() => {});
+        }
+        return;
+      } else if (st.webkitRequestFullscreen) {
+        st.webkitRequestFullscreen();
+        return;
+      } else if (v.webkitEnterFullscreen) {
+        v.webkitEnterFullscreen();
+        return;
+      }
+    } catch (e) {}
+    // यदि फोन या ब्राउज़र ओरिएंटेशन लॉक ब्लॉक करे, तो CSS से पक्का लैंडस्केप रोटेट करें
+    st.classList.add('pseudo-landscape');
+  };
+
+  window.exitLandscapeFull = () => {
+    playUiSound('back');
+    const st = document.getElementById('videoStage');
+    st.classList.remove('pseudo-landscape');
+    if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    try { screen.orientation?.unlock?.(); } catch (e) {}
+  };
+
+  document.addEventListener('fullscreenchange', () => {
+    const st = document.getElementById('videoStage');
+    if (document.fullscreenElement) {
+      try { screen.orientation?.lock?.('landscape').catch(() => {}); } catch (e) {}
+    } else {
+      st.classList.remove('pseudo-landscape');
+      try { screen.orientation?.unlock?.(); } catch (e) {}
+    }
+  });
+
   window.toggleLock = () => { playUiSound('nav'); screenLocked = !screenLocked; document.getElementById('mainVideo').controls = !screenLocked; document.getElementById('lockBtn').textContent = screenLocked ? '🔒 Unlock' : '🔓 Lock'; };
 
   let lastProgressSave = 0;
@@ -1130,6 +1287,7 @@
   window.videoPlaybackError = () => { toast('वीडियो नहीं चला। लिंक या इंटरनेट कनेक्शन जाँचें।'); };
   window.closePlayer = (fromPop = false) => {
     if (!fromPop) playUiSound('back');
+    exitLandscapeFull();
     stopAutoplay();
     const v = document.getElementById('mainVideo'); v.pause(); v.removeAttribute('src'); v.load();
     const rBar = document.getElementById('resumeMiniBar'); if (rBar) rBar.style.display = 'none';
@@ -1192,10 +1350,16 @@
     } catch (e) {}
   };
 
+  // असली कमेंट काउंट और लाइव कमेंट लिस्ट
   function renderPlayerComments() {
     const box = document.getElementById('commentsContainer');
-    if (!curAnime || curAnime.id === 'trailer' || curAnime.id === 'offline') { box.innerHTML = ''; return; }
-    const list = [...(cloudState.comments[curAnime.id] || [])].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+    const hdr = document.getElementById('commentsHeaderTitle');
+    if (!curAnime || curAnime.id === 'trailer' || curAnime.id === 'offline') {
+      box.innerHTML = ''; if (hdr) hdr.textContent = 'कमेंट्स (0)'; return;
+    }
+    const rawList = cloudState.comments[curAnime.id] || [];
+    if (hdr) hdr.textContent = `कमेंट्स (${rawList.length})`;
+    const list = [...rawList].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
     box.innerHTML = list.length ? list.map(c => `<div class="c-item ${c.pinned ? 'pinned' : ''}"><div style="display:flex; justify-content:space-between; font-size:12px; font-weight:800;"><span>${escapeHtml(c.user)}${c.isAdmin ? '<span class="admin-badge">👑 एडमिन</span>' : ''} ${c.pinned ? '📌' : ''}</span>${adminOpen ? `<button class="p-pill" style="padding:2px 6px; font-size:10px;" onclick="pinComment(${jsArg(c.id)})">${c.pinned ? 'अनपिन' : 'पिन'}</button>` : ''}</div><div style="font-size:13px; margin-top:4px; white-space:pre-wrap; overflow-wrap:anywhere;">${escapeHtml(c.text)}</div></div>`).join('') : `<div style="font-size:12px; color:var(--muted);">No comments yet...</div>`;
   }
   window.addComment = async () => { const inp = document.getElementById('commentInp'), txt = (inp.value || '').trim(); if (!txt || !curAnime) return; playUiSound('like'); if (!cloudState.comments[curAnime.id]) cloudState.comments[curAnime.id] = []; cloudState.comments[curAnime.id].push({ id: 'c_' + Date.now(), user: userName, text: txt, isAdmin: adminOpen, pinned: false }); inp.value = ''; renderPlayerComments(); await saveCloudData(); };
@@ -1211,7 +1375,7 @@
     const wl = readJSON('m99_watchlist', []);
     const savedList = (cloudState.animeList || []).filter(a => wl.includes(a.id));
     document.getElementById('watchlistCountLabel').textContent = `${savedList.length} Saved`;
-    document.getElementById('profileWatchlistRow').innerHTML = savedList.length ? savedList.map(a => `<div class="poster-card h-item" onclick="launchPlayer(${jsArg(a.id)}, 0)"><span class="badge-saved">❤️ Saved</span><img loading="lazy" src="${escapeHtml(safeMediaUrl(a.poster, 'image'))}" /><div class="poster-title">${escapeHtml(a.title)}</div></div>`).join('') : `<div style="font-size:12px; color:var(--muted); padding:6px 0;">अभी My Watchlist खाली है</div>`;
+    document.getElementById('profileWatchlistRow').innerHTML = savedList.length ? savedList.map(a => `<div class="poster-card h-item" onclick="launchPlayer(${jsArg(a.id)}, 0)"><div class="poster-img-wrap"><span class="badge-saved">❤️ Saved</span><img loading="lazy" src="${escapeHtml(safeMediaUrl(a.poster, 'image'))}" /></div><div class="poster-title">${escapeHtml(a.title)}</div></div>`).join('') : `<div style="font-size:12px; color:var(--muted); padding:6px 0;">अभी My Watchlist खाली है</div>`;
   }
   window.saveProfileName = () => { const n = (document.getElementById('renameInp').value || '').trim(); if (!n) return; playUiSound('like'); userName = n; localStorage.setItem('m99_username', n); document.getElementById('renameInp').value = ''; refreshProfile(); toast('नाम बदल दिया गया ✓'); };
   window.toggleSound = () => { soundOn = !soundOn; localStorage.setItem('m99_sound', soundOn); if (soundOn) { splashSoundPlayed = false; playSplashChord(); } refreshProfile(); };
@@ -1293,7 +1457,7 @@
     document.getElementById('admTrailer').value = a.trailerUrl || ''; document.getElementById('admSeasonNum').value = ep.season || 1;
     document.getElementById('admEpNum').value = ep.num || 1; document.getElementById('admEpTitle').value = ep.title || '';
     document.getElementById('admUrl1').value = ep.url || ''; document.getElementById('admUrl2').value = ep.url2 || '';
-    document.getElementById('admLang').value = ep.lang || 'हिंदी डब'; document.getElementById('admSub').value = ep.subUrl || '';
+    document.getElementById('admLang').value = ep.lang || 'Hindi dub'; document.getElementById('admSub').value = ep.subUrl || '';
     toast(`Ep ${ep.num} एडिट के लिए लोड हो गया`);
   };
 
@@ -1344,7 +1508,7 @@
     if (!title || !url1) return toast('सीरीज़ का नाम और Server 1 वीडियो लिंक ज़रूरी है!');
     playUiSound('play');
     let series = sIdx >= 0 ? cloudState.animeList[sIdx] : cloudState.animeList.find(a => a.title.toLowerCase() === title.toLowerCase());
-    if (!series) { series = { id: 'anm_' + Date.now(), title, likes: 1, views: 1, episodes: [] }; cloudState.animeList.push(series); }
+    if (!series) { series = { id: 'anm_' + Date.now(), title, likes: 0, views: 0, episodes: [] }; cloudState.animeList.push(series); }
     series.title = title;
     const p = (document.getElementById('admPoster').value || '').trim(); if (p) series.poster = p;
     series.status = document.getElementById('admStatus').value; series.rating = document.getElementById('admRating').value || '5';

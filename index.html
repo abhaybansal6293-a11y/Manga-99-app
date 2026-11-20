@@ -56,6 +56,13 @@
     .splash-title span { color: var(--primary); }
     .splash-sub { color: var(--muted); font-size: 11px; letter-spacing: 2.2px; margin-top: 6px; font-weight: 700; }
 
+    /* 90° फुल-स्क्रीन में मुख्य हेडर (MANGA 99) और नेव पूरी तरह छिपेगा */
+    body.in-landscape-full header,
+    body.in-landscape-full nav.bottom-nav,
+    body.in-landscape-full .p-topbar {
+      display: none !important;
+    }
+
     /* मुख्य हेडर */
     header {
       position: sticky; top: 0; z-index: 120; background: rgba(7, 8, 12, 0.95); backdrop-filter: blur(12px);
@@ -312,12 +319,31 @@
       min-height: 28px;
     }
     .sg-opt.active { background: rgba(255,94,0,0.24); border-color: var(--primary); color: #ffb74d; }
-    .fast-loader-pill {
+    /* धीमे नेट या बफरिंग पर गोल-गोल घूमने वाला बफरिंग चक्र (Circular Buffering Spinner) */
+    .buffering-center-box {
       position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      background: rgba(0,0,0,0.78); color: #fff; padding: 7px 14px; border-radius: 20px;
-      font-size: 11px; font-weight: 800; z-index: 20; display: none; pointer-events: none;
+      z-index: 32; display: none; flex-direction: column; align-items: center; gap: 8px;
+      pointer-events: none; background: rgba(0, 0, 0, 0.62); padding: 12px 16px; border-radius: 16px;
     }
-    .fast-loader-pill.show { display: block; }
+    .buffering-center-box.show { display: flex; }
+    .circular-spinner {
+      width: 42px; height: 42px; border-radius: 50%;
+      border: 4px solid rgba(255, 255, 255, 0.22);
+      border-top-color: var(--primary);
+      animation: bufferSpin 0.85s linear infinite;
+    }
+    @keyframes bufferSpin { to { transform: rotate(360deg); } }
+    .buffer-net-msg {
+      font-size: 11px; font-weight: 800; color: #fff; text-align: center; white-space: nowrap;
+    }
+    /* Crunchyroll जैसा स्मूद दाएं-बाएं स्क्रॉल */
+    .h-row {
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+    }
+    .poster-card.h-item {
+      scroll-snap-align: start;
+    }
     .seek-flash {
       position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.75);
       color: #fff; padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: 900; display: none; z-index: 28; pointer-events: none;
@@ -386,14 +412,19 @@
     </div>
   </header>
 
-  <!-- टैब 1: एनिमे -->
+  <!-- टैब 1: एनिमे (Crunchyroll स्टाइल दाएं-बाएं स्क्रॉल + ऑटो शफ़ल) -->
   <div id="tabAnime" class="tab-page active">
     <div class="hero-wrap" id="heroContainer"></div>
 
     <div class="sec-head"><div class="sec-title">🆕 आज के नए एपिसोड (Latest)</div></div>
     <div class="h-row" id="latestRow"></div>
 
-    <div class="sec-head"><div class="sec-title">🔥 अनुशंसित एनिमे (Recommended)</div></div>
+    <div class="sec-head"><div class="sec-title">🔥 टॉप पिक्स आपके लिए (Top Picks)</div></div>
+    <div class="h-row" id="topPicksRow"></div>
+
+    <div id="crunchyGenreRows"></div>
+
+    <div class="sec-head"><div class="sec-title">🎬 सभी एनिमे एक्सप्लोर करें (Browse All)</div></div>
     <div class="chip-bar" id="filterChips">
       <button class="f-chip active" onclick="applyFilter('ALL', this)">All / सभी</button>
       <button class="f-chip" onclick="applyFilter('एक्शन', this)">⚔️ एक्शन</button>
@@ -584,9 +615,12 @@
     </div>
 
     <div class="video-stage" id="videoStage">
-      <video id="mainVideo" playsinline webkit-playsinline preload="auto" ontimeupdate="onVideoProgress()" onended="onVideoComplete()" onwaiting="onVideoBuffering()" onplaying="hideFastLoader()" oncanplay="hideFastLoader()" onerror="videoPlaybackError()"><track id="mainSubtitleTrack" kind="subtitles" srclang="hi" label="Subtitles" /></video>
+      <video id="mainVideo" playsinline webkit-playsinline preload="metadata" onloadstart="showFastLoader()" ontimeupdate="onVideoProgress()" onended="onVideoComplete()" onwaiting="onVideoBuffering()" onstalled="onVideoBuffering()" onplaying="hideFastLoader()" oncanplay="hideFastLoader()" onerror="videoPlaybackError()"><track id="mainSubtitleTrack" kind="subtitles" srclang="hi" label="Subtitles" /></video>
 
-      <div class="fast-loader-pill" id="fastLoaderPill">⚡ तेज़ लोड हो रहा है...</div>
+      <div class="buffering-center-box" id="fastLoaderPill">
+        <div class="circular-spinner"></div>
+        <div class="buffer-net-msg" id="bufferNetMsg">लोड हो रहा है...</div>
+      </div>
 
       <!-- टैप कैचर लेयर जब बटन छिपे हों -->
       <div class="yt-tap-layer" id="ytTapLayer" onclick="handleStageTap(event)"></div>
@@ -977,6 +1011,13 @@
     };
   }
 
+  // ऐप खुलते ही 0 सेकंड में लोकल कैश से तुरंत दिखाएं ताकि कोई देरी न हो
+  const initialCached = readJSON('m99_fb_cache', null);
+  if (initialCached) {
+    normalizeFirebaseData(initialCached);
+    setTimeout(() => renderEverything(), 0);
+  }
+
   onValue(fbRootRef, (snapshot) => {
     const val = snapshot.val();
     normalizeFirebaseData(val);
@@ -1071,9 +1112,23 @@
     renderRecommended();
   };
 
+  // हर बार ऐप काटकर दोबारा खोलने पर नया शफ़ल क्रम (Session Seed)
+  const SESSION_SHUFFLE_SEED = Math.floor(Math.random() * 999999) + 1;
+  function getSessionShuffledList(list) {
+    const arr = [...(list || [])];
+    let seed = SESSION_SHUFFLE_SEED;
+    for (let i = arr.length - 1; i > 0; i--) {
+      seed = (seed * 1664525 + 1013904223) % 4294967296;
+      const j = seed % (i + 1);
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
   function renderEverything() {
     renderHeroBanner();
     renderLatestUnique();
+    renderCrunchyrollRows();
     renderRecommended();
     renderSearch();
     renderHistoryAndSchedule();
@@ -1092,7 +1147,7 @@
   }
 
   function renderHeroBanner() {
-    const list = (cloudState.animeList || []).slice(0, 6);
+    const list = getSessionShuffledList(cloudState.animeList || []).slice(0, 6);
     const wl = readJSON('m99_watchlist', []);
     const heroBox = document.getElementById('heroContainer');
     clearInterval(heroAutoTimer);
@@ -1173,8 +1228,46 @@
     }).join('');
   }
 
+  function buildHorizontalPosterCard(a) {
+    const poster = safeMediaUrl(a.poster, 'image');
+    return `
+      <div class="poster-card h-item" onclick="launchPlayer(${jsArg(a.id)})">
+        <div class="poster-img-wrap">
+          <span class="badge-tl ${a.status === 'Ongoing' ? 'ongoing' : ''}">${escapeHtml(a.status || 'Completed')}</span>
+          <span class="badge-lang-tr">${escapeHtml(a.lang || 'Hindi dub')}</span>
+          <span class="badge-rating-br">★ ${escapeHtml(a.rating || '5')}</span>
+          ${poster ? `<img src="${escapeHtml(poster)}" loading="lazy" alt="${escapeHtml(a.title)}" />` : ''}
+        </div>
+        <div class="poster-title">${escapeHtml(a.title)}</div>
+      </div>`;
+  }
+
+  function renderCrunchyrollRows() {
+    const shuffled = getSessionShuffledList(cloudState.animeList || []);
+    const topPicksEl = document.getElementById('topPicksRow');
+    if (topPicksEl) {
+      topPicksEl.innerHTML = shuffled.slice(0, 14).map(buildHorizontalPosterCard).join('');
+    }
+    const genreWrap = document.getElementById('crunchyGenreRows');
+    if (!genreWrap) return;
+    const genres = [
+      { key: 'एक्शन', label: '⚔️ एक्शन और एडवेंचर (Action)' },
+      { key: 'रोमांस', label: '💖 रोमांस और ड्रामा (Romance)' },
+      { key: 'रहस्य', label: '🕵️ रहस्य और थ्रिलर (Mystery)' },
+      { key: 'कॉमेडी', label: '😂 कॉमेडी (Comedy)' }
+    ];
+    genreWrap.innerHTML = genres.map(g => {
+      const items = shuffled.filter(a => (a.mood || '') === g.key);
+      if (!items.length) return '';
+      return `
+        <div class="sec-head"><div class="sec-title">${g.label}</div></div>
+        <div class="h-row">${items.map(buildHorizontalPosterCard).join('')}</div>
+      `;
+    }).join('');
+  }
+
   function renderRecommended() {
-    let list = cloudState.animeList || [];
+    let list = getSessionShuffledList(cloudState.animeList || []);
     if (activeFilter !== 'ALL') {
       list = list.filter(a => (a.mood || '') === activeFilter);
     }
@@ -1467,14 +1560,34 @@
     toast(mode === 'auto' ? `क्वालिटी Auto (${activeAutoQuality}p) पर सेट की गई` : `क्वालिटी ${mode}p पर लॉक की गई ✓`);
   };
 
-  function showFastLoader() {
+  function showFastLoader(customText) {
     const el = document.getElementById('fastLoaderPill');
+    const msgEl = document.getElementById('bufferNetMsg');
+    if (msgEl) {
+      if (!navigator.onLine) {
+        msgEl.textContent = 'इंटरनेट बंद है • इंतज़ार हो रहा है...';
+      } else {
+        msgEl.textContent = customText || 'बफरिंग हो रही है...';
+      }
+    }
     if (el) el.classList.add('show');
   }
   window.hideFastLoader = () => {
     const el = document.getElementById('fastLoaderPill');
     if (el) el.classList.remove('show');
   };
+  window.addEventListener('offline', () => {
+    if (document.getElementById('playerScreen')?.style.display === 'flex') {
+      showFastLoader('इंटरनेट कनेक्शन नहीं है...');
+    }
+  });
+  window.addEventListener('online', () => {
+    const v = document.getElementById('mainVideo');
+    if (v && v.src && document.getElementById('playerScreen')?.style.display === 'flex') {
+      showFastLoader('नेट वापस आ गया • चालू हो रहा है...');
+      v.play().catch(() => {});
+    }
+  });
 
   window.onVideoBuffering = () => {
     showFastLoader();
@@ -1550,21 +1663,18 @@
     const resolved = resolveQualityUrl(curEp);
     updateQualityUI();
     const targetSrc = safeMediaUrl(resolved.url, 'video');
-    vid.pause(); vid.removeAttribute('src');
-    if (!targetSrc) { vid.load(); toast('इस एपिसोड का वीडियो लिंक सही नहीं है'); }
+    if (!targetSrc) { vid.pause(); vid.removeAttribute('src'); toast('इस एपिसोड का वीडियो लिंक सही नहीं है'); }
     else {
-      showFastLoader();
-      vid.src = targetSrc; vid.load();
+      showFastLoader('लोड हो रहा है...');
+      vid.src = targetSrc;
       const resumeProgress = () => {
         if (curAnime && curAnime.id !== 'offline' && curAnime.id !== 'trailer') {
           const p = readJSON('m99_progress', {})[`${curAnime.id}:${curEp.id}`];
           if (p && Number(p.time) > 15 && Number(p.time) < (vid.duration || 0) - 15) { try { vid.currentTime = Number(p.time); } catch(e) {} }
         }
-        vid.removeEventListener('loadedmetadata', resumeProgress);
       };
       vid.addEventListener('loadedmetadata', resumeProgress, { once: true });
       vid.play().catch(() => { hideFastLoader(); toast('वीडियो चलाने के लिए ▶ Play दबाएं'); });
-      preconnectNextEpisode();
     }
 
     renderEpisodesListForSeason(curSeason);
@@ -1765,10 +1875,12 @@
     isLandscapeLocked = !isLandscapeLocked;
     if (isLandscapeLocked) {
       st.classList.add('pseudo-landscape');
+      document.body.classList.add('in-landscape-full');
       if (btn) btn.textContent = '✕ Exit Full';
       document.body.style.overflow = 'hidden';
     } else {
       st.classList.remove('pseudo-landscape');
+      document.body.classList.remove('in-landscape-full');
       if (btn) btn.textContent = '⛶ Full';
       document.body.style.overflow = '';
     }
@@ -1780,6 +1892,7 @@
     const btn = document.getElementById('fullToggleBtn');
     isLandscapeLocked = false;
     if (st) st.classList.remove('pseudo-landscape');
+    document.body.classList.remove('in-landscape-full');
     if (btn) btn.textContent = '⛶ Full';
     document.body.style.overflow = '';
   };

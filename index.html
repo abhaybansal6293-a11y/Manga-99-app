@@ -222,6 +222,16 @@
     .video-stage video {
       position: relative; z-index: 2; width: 100% !important; height: 100% !important;
       display: block !important; object-fit: contain !important; background: #000;
+      pointer-events: none;
+    }
+    .video-stage video::-webkit-media-controls,
+    .video-stage video::-webkit-media-controls-enclosure,
+    .video-stage video::-webkit-media-controls-panel,
+    .video-stage video::-webkit-media-controls-overlay-play-button,
+    .video-stage video::-webkit-media-controls-start-playback-button {
+      display: none !important;
+      -webkit-appearance: none !important;
+      opacity: 0 !important;
     }
     /* ऐप (APK/WebView) और किसी भी फोन में पक्का 90-डिग्री लैंडस्केप रोटेट (जब तक Exit न दबाएं) */
     .video-stage.pseudo-landscape {
@@ -615,7 +625,7 @@
     </div>
 
     <div class="video-stage" id="videoStage">
-      <video id="mainVideo" playsinline webkit-playsinline preload="metadata" onloadstart="showFastLoader()" ontimeupdate="onVideoProgress()" onended="onVideoComplete()" onwaiting="onVideoBuffering()" onstalled="onVideoBuffering()" onplaying="hideFastLoader()" oncanplay="hideFastLoader()" onerror="videoPlaybackError()"><track id="mainSubtitleTrack" kind="subtitles" srclang="hi" label="Subtitles" /></video>
+      <video id="mainVideo" controls playsinline webkit-playsinline preload="metadata" onloadeddata="hideFastLoader()" ontimeupdate="hideFastLoader(); onVideoProgress()" onended="onVideoComplete()" onwaiting="onVideoBuffering()" onstalled="onVideoBuffering()" onplaying="hideFastLoader()" oncanplay="hideFastLoader()" onerror="videoPlaybackError()"><track id="mainSubtitleTrack" kind="subtitles" srclang="hi" label="Subtitles" /></video>
 
       <div class="buffering-center-box" id="fastLoaderPill">
         <div class="circular-spinner"></div>
@@ -1024,8 +1034,11 @@
     writeJSON('m99_fb_cache', cloudState);
     const badge = document.getElementById('liveBadge');
     if (badge) badge.textContent = 'Live Online ✓';
-    renderEverything();
-    if (curAnime && document.getElementById('playerScreen').style.display === 'flex') {
+    const isPlayerOpen = document.getElementById('playerScreen')?.style.display === 'flex';
+    if (!isPlayerOpen) {
+      renderEverything();
+    }
+    if (curAnime && isPlayerOpen) {
       const updated = cloudState.animeList.find(x => x.id === curAnime.id);
       if (updated) {
         curAnime = updated;
@@ -1125,7 +1138,25 @@
     return arr;
   }
 
+  function preconnectFirstVideoOrigin() {
+    const firstSeries = (cloudState.animeList || [])[0];
+    const firstEp = firstSeries?.episodes?.[0];
+    if (!firstEp) return;
+    const rawUrl = firstEp.url720 || firstEp.url || firstEp.url480 || firstEp.url1080 || '';
+    if (!rawUrl) return;
+    try {
+      const origin = new URL(rawUrl).origin;
+      if (!document.querySelector(`link[rel="preconnect"][href="${origin}"]`)) {
+        const lk = document.createElement('link');
+        lk.rel = 'preconnect';
+        lk.href = origin;
+        document.head.appendChild(lk);
+      }
+    } catch (e) {}
+  }
+
   function renderEverything() {
+    preconnectFirstVideoOrigin();
     renderHeroBanner();
     renderLatestUnique();
     renderCrunchyrollRows();
@@ -1430,15 +1461,42 @@
     return q;
   }
 
-  function pickAutoQualityKey(avail) {
-    if (dataSaver && avail['480']) return '480';
+  function getMobileNetworkProfile() {
     const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-    const eff = conn?.effectiveType || '';
-    const downlink = Number(conn?.downlink || 4);
-    if (eff === '2g' || eff === 'slow-2g' || eff === '3g' || downlink < 2.2) {
-      return avail['480'] ? '480' : (avail['720'] ? '720' : Object.keys(avail)[0]);
+    const eff = (conn?.effectiveType || '').toLowerCase();
+    const downlink = Number(conn?.downlink || 0);
+    const saveData = Boolean(conn?.saveData) || dataSaver;
+    if (saveData || eff === 'slow-2g' || eff === '2g' || (downlink > 0 && downlink < 1.5)) {
+      return { tier: 'slow', preferred: ['480', '720', '1080'], label: 'Slow Net' };
     }
-    return avail['720'] ? '720' : (avail['480'] ? '480' : (avail['1080'] ? '1080' : Object.keys(avail)[0]));
+    if (eff === '3g' || (downlink >= 1.5 && downlink < 5)) {
+      return { tier: 'medium', preferred: ['720', '480', '1080'], label: '4G Fast' };
+    }
+    if (downlink >= 5 || eff === '4g') {
+      return { tier: 'fast', preferred: downlink >= 8 ? ['1080', '720', '480'] : ['720', '1080', '480'], label: '5G/WiFi Ultra' };
+    }
+    return { tier: 'medium', preferred: ['720', '480', '1080'], label: 'Auto' };
+  }
+
+  function pickAutoQualityKey(avail) {
+    const profile = getMobileNetworkProfile();
+    for (const qKey of profile.preferred) {
+      if (avail[qKey]) return qKey;
+    }
+    return Object.keys(avail)[0] || '720';
+  }
+
+  // मोबाइल नेटवर्क बदलते ही (जैसे 5G से 4G या Slow होने पर) लाइव ऑटो-एडजस्ट
+  const netConn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+  if (netConn && typeof netConn.addEventListener === 'function') {
+    netConn.addEventListener('change', () => {
+      if (curAnime && curEp && document.getElementById('playerScreen')?.style.display === 'flex' && selectedQualityMode === 'auto') {
+        const nextAuto = pickAutoQualityKey(getAvailableQualitiesForEp(curEp));
+        if (nextAuto && nextAuto !== activeAutoQuality) {
+          setVideoQuality('auto');
+        }
+      }
+    });
   }
 
   function resolveQualityUrl(ep) {
@@ -1517,9 +1575,7 @@
     const curTime = Number(vid.currentTime) || 0;
     const wasPaused = vid.paused;
     showFastLoader();
-    vid.pause();
     vid.src = safe;
-    vid.load();
     vid.addEventListener('loadedmetadata', () => {
       try {
         if (curTime > 0 && Number.isFinite(vid.duration)) {
@@ -1545,9 +1601,7 @@
     const curTime = Number(vid.currentTime) || 0;
     const wasPaused = vid.paused;
     showFastLoader();
-    vid.pause();
     vid.src = safe;
-    vid.load();
     const restoreTime = () => {
       try {
         if (curTime > 0 && Number.isFinite(vid.duration)) {
@@ -1593,7 +1647,7 @@
     showFastLoader();
     if (selectedQualityMode !== 'auto' || !curEp) return;
     bufferFallbackCount++;
-    if (bufferFallbackCount < 3) return;
+    if (bufferFallbackCount < 1) return;
     bufferFallbackCount = 0;
     const avail = getAvailableQualitiesForEp(curEp);
     let nextDown = null;
@@ -1604,7 +1658,6 @@
       const vid = document.getElementById('mainVideo');
       const t = Number(vid.currentTime) || 0;
       vid.src = safeMediaUrl(avail[nextDown], 'video');
-      vid.load();
       vid.addEventListener('loadedmetadata', () => { try { vid.currentTime = t; } catch(e) {} vid.play().catch(()=>{}); }, { once: true });
       updateQualityUI();
       toast(`धीमे नेट के कारण Auto क्वालिटी ${nextDown}p की गई`);
@@ -1665,7 +1718,7 @@
     const targetSrc = safeMediaUrl(resolved.url, 'video');
     if (!targetSrc) { vid.pause(); vid.removeAttribute('src'); toast('इस एपिसोड का वीडियो लिंक सही नहीं है'); }
     else {
-      showFastLoader('लोड हो रहा है...');
+      hideFastLoader();
       vid.src = targetSrc;
       const resumeProgress = () => {
         if (curAnime && curAnime.id !== 'offline' && curAnime.id !== 'trailer') {
@@ -1674,7 +1727,7 @@
         }
       };
       vid.addEventListener('loadedmetadata', resumeProgress, { once: true });
-      vid.play().catch(() => { hideFastLoader(); toast('वीडियो चलाने के लिए ▶ Play दबाएं'); });
+      vid.play().catch(() => {});
     }
 
     renderEpisodesListForSeason(curSeason);
@@ -1878,11 +1931,20 @@
       document.body.classList.add('in-landscape-full');
       if (btn) btn.textContent = '✕ Exit Full';
       document.body.style.overflow = 'hidden';
+      try {
+        const docEl = document.documentElement;
+        if (docEl.requestFullscreen) docEl.requestFullscreen().catch(() => {});
+        else if (docEl.webkitRequestFullscreen) docEl.webkitRequestFullscreen();
+      } catch (e) {}
     } else {
       st.classList.remove('pseudo-landscape');
       document.body.classList.remove('in-landscape-full');
       if (btn) btn.textContent = '⛶ Full';
       document.body.style.overflow = '';
+      try {
+        if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+        else if (document.webkitFullscreenElement) document.webkitExitFullscreen();
+      } catch (e) {}
     }
     showYtControlsTemporarily();
   };
@@ -1895,6 +1957,10 @@
     document.body.classList.remove('in-landscape-full');
     if (btn) btn.textContent = '⛶ Full';
     document.body.style.overflow = '';
+    try {
+      if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+      else if (document.webkitFullscreenElement) document.webkitExitFullscreen();
+    } catch (e) {}
   };
 
   window.toggleLock = () => {
@@ -1962,7 +2028,7 @@
     const rBar = document.getElementById('resumeMiniBar'); if (rBar) rBar.style.display = 'none';
     pausedVideoOnTabSwitch = false;
     document.getElementById('playerScreen').style.display = 'none';
-    screenLocked = false; v.controls = false; document.getElementById('lockOnlyWrap').classList.remove('visible');
+    screenLocked = false; v.controls = true; document.getElementById('lockOnlyWrap').classList.remove('visible');
     if (offlineObjectUrl) { URL.revokeObjectURL(offlineObjectUrl); offlineObjectUrl = null; }
   };
 

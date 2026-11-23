@@ -399,6 +399,60 @@
       color: #fff; border: 1px solid var(--primary); padding: 9px 16px; border-radius: 20px;
       font-size: 12px; font-weight: 800; z-index: 9999; display: none; white-space: nowrap;
     }
+
+    /* Zero-flicker Hero Slider */
+    .hero-slide-layer {
+      position: absolute; inset: 0; transition: opacity 0.45s ease, transform 0.45s ease;
+    }
+    .hero-card { touch-action: pan-y; }
+
+    /* Continue Watching Progress Bar */
+    .cw-progress-track {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 4px;
+      background: rgba(255,255,255,0.22); z-index: 4;
+    }
+    .cw-progress-fill {
+      height: 100%; background: var(--primary); transition: width 0.25s ease;
+    }
+    .cw-ep-tag {
+      position: absolute; bottom: 8px; left: 7px; font-size: 9px; font-weight: 900;
+      padding: 3px 7px; border-radius: 6px; background: rgba(0,0,0,0.82); color: #fff; z-index: 3;
+    }
+
+    /* 24-Hour Ad-Free Pass Banner & Gate */
+    .ad-pass-banner {
+      margin: 10px 14px 4px;
+      background: linear-gradient(135deg, rgba(255, 94, 0, 0.22), rgba(255, 193, 7, 0.16));
+      border: 1px solid var(--primary);
+      border-radius: 14px;
+      padding: 12px 14px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      box-shadow: 0 8px 22px rgba(255, 94, 0, 0.18);
+    }
+    .ad-pass-banner.visible { display: flex; }
+    #adGateOverlay {
+      position: fixed; inset: 0; background: rgba(7, 8, 12, 0.96); z-index: 15000;
+      display: none; align-items: center; justify-content: center; padding: 18px;
+    }
+    .ad-gate-card {
+      width: 100%; max-width: 390px; background: var(--surface);
+      border: 1.5px solid var(--primary); border-radius: 20px; padding: 20px; text-align: center;
+      box-shadow: 0 18px 45px rgba(0,0,0,0.85);
+    }
+    .ad-frame-box {
+      width: 100%; min-height: 170px; background: #0b0d13; border: 1px dashed rgba(255, 193, 7, 0.55);
+      border-radius: 14px; margin: 12px 0; overflow: hidden; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; padding: 12px; position: relative;
+    }
+    .ad-timer-pill {
+      display: inline-block; background: rgba(255, 193, 7, 0.16); color: var(--gold);
+      border: 1px solid rgba(255, 193, 7, 0.45); padding: 5px 12px; border-radius: 20px;
+      font-size: 12px; font-weight: 900; margin-top: 6px;
+    }
+
   </style>
 </head>
 <body>
@@ -424,7 +478,25 @@
 
   <!-- टैब 1: एनिमे (Crunchyroll स्टाइल दाएं-बाएं स्क्रॉल + ऑटो शफ़ल) -->
   <div id="tabAnime" class="tab-page active">
+    <!-- 24-Hour Ad-Free Pass Banner (जब तक यूज़र 1 ऐड पूरा नहीं देखता, यह नहीं हटेगा) -->
+    <div class="ad-pass-banner" id="adPassBanner">
+      <div style="min-width:0;">
+        <div style="font-size:13px; font-weight:900; color:var(--gold);">🎁 1 Ad = 24 Hours Ad-Free • Watch Anime</div>
+        <div style="font-size:11px; color:#e2e8f0; margin-top:2px;">सिर्फ़ 1 छोटा ऐड देखें और पूरे 24 घंटे बिना किसी ऐड के एनिमे देखें!</div>
+      </div>
+      <button class="btn-orange" style="white-space:nowrap;" onclick="openAdGateModal(true)">▶ 1 Ad देखें</button>
+    </div>
+
     <div class="hero-wrap" id="heroContainer"></div>
+
+    <!-- देखना जारी रखें (Continue Watching) -->
+    <div id="continueWatchingWrap" style="display:none;">
+      <div class="sec-head">
+        <div class="sec-title">▶ देखना जारी रखें (Continue Watching)</div>
+        <span style="font-size:11px; color:var(--muted); font-weight:700;">यहीं से शुरू करें</span>
+      </div>
+      <div class="h-row" id="continueWatchingRow"></div>
+    </div>
 
     <div class="sec-head"><div class="sec-title">🆕 आज के नए एपिसोड (Latest)</div></div>
     <div class="h-row" id="latestRow"></div>
@@ -600,7 +672,39 @@
           <input type="text" class="inp" id="admSub" placeholder="सबटाइटल .vtt लिंक (वैकल्पिक)" />
         </div>
 
+        <div id="adminLangTracksBox" style="margin-top:8px;"></div>
+
         <button class="btn-orange" style="width:100%; margin-top:12px; justify-content:center; padding:12px;" onclick="publishEpisode()">🚀 एपिसोड पब्लिश / अपडेट करें</button>
+      </div>
+
+      <!-- एनिमे डालने के ठीक बगल/पास: Ad Customize & 24h Ad-Free Control -->
+      <div class="card-box" style="border-color:var(--primary);">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="font-size:15px; font-weight:900; color:var(--primary);">📢 Ad Customize (24-Hour Ad-Free सिस्टम)</div>
+          <button class="btn-orange" id="admMasterAdBtn" onclick="toggleMasterAdSystem()">OFF (बंद है)</button>
+        </div>
+        <div style="font-size:11px; color:var(--muted); margin-top:6px;">
+          • जब तक आप ऊपर से <b>ON</b> नहीं करेंगे, किसी भी यूज़र को कोई ऐड या बैनर नहीं दिखेगा।<br/>
+          • <b>ON</b> करने पर नए यूज़र या 24 घंटे बाद बैनर दिखेगा: <b>"1 Ad = 24 Hours Ad-Free • Watch Anime"</b> — और ऐड पूरा देखे बिना नहीं हटेगा।<br/>
+          • <b>एडमिन (80090034)</b> के लिए कभी कोई ऐड नहीं चलेगा।
+        </div>
+        <div class="row-2" style="margin-top:8px;">
+          <div>
+            <label style="font-size:11px; color:var(--muted); font-weight:800;">⏱️ ऐड सेकंड (Duration):</label>
+            <input type="number" class="inp" style="margin-top:4px;" id="admAdSeconds" value="8" min="3" max="60" placeholder="सेकंड (जैसे 8)" />
+          </div>
+          <div>
+            <label style="font-size:11px; color:var(--muted); font-weight:800;">🔄 फ्री पास अवधि (घंटे):</label>
+            <input type="number" class="inp" style="margin-top:4px;" id="admAdFreeHours" value="24" min="1" max="168" placeholder="24 घंटे" />
+          </div>
+        </div>
+        <input type="text" class="inp" id="admAdDirectUrl" placeholder="Adsterra Direct Link / Sponsor URL डालें *" />
+        <input type="text" class="inp" id="admAdBannerImg" placeholder="ऐड बैनर इमेज URL (वैकल्पिक)" />
+        <input type="text" class="inp" id="admAdHeadline" placeholder="ऐड शीर्षक (जैसे: 1 Ad = 24 Hours Ad-Free • Watch Anime)" value="1 Ad = 24 Hours Ad-Free • Watch Anime" />
+        <div class="row-2" style="margin-top:10px;">
+          <button class="btn-orange" style="justify-content:center;" onclick="saveAdSettings()">💾 Ad सेटिंग सेव करें</button>
+          <button class="btn-dark" onclick="previewAdAsAdmin()">👁️ Ad प्रिव्यू देखें</button>
+        </div>
       </div>
 
       <div class="card-box">
@@ -734,6 +838,26 @@
     </div>
   </div>
 
+  <!-- 24-Hour Ad-Free Gate Modal -->
+  <div id="adGateOverlay">
+    <div class="ad-gate-card">
+      <div style="font-size:11px; font-weight:900; color:var(--gold); letter-spacing:1px;">MANGA 99 • 24-HOUR AD-FREE PASS</div>
+      <div style="font-size:18px; font-weight:900; margin-top:6px;">1 Ad = 24 Hours Ad-Free • Watch Anime</div>
+      <div style="font-size:12px; color:var(--muted); margin-top:4px;">पूरा ऐड देखने के बाद यह बैनर अपने-आप हट जाएगा और 24 घंटे तक कोई ऐड नहीं आएगा।</div>
+
+      <div class="ad-frame-box" id="adFrameBox">
+        <div id="adCustomRenderArea" style="width:100%;"></div>
+      </div>
+
+      <div class="ad-timer-pill" id="adCountdownText">⏳ कृपया 5 सेकंड रुकें...</div>
+
+      <div style="display:flex; gap:8px; justify-content:center; margin-top:14px;">
+        <button class="btn-orange" id="adActionVisitBtn" style="display:none;" onclick="triggerAdLinkVisit()">🌐 ऐड लिंक खोलें</button>
+        <button class="btn-orange" id="adCompleteCloseBtn" style="display:none; background:linear-gradient(135deg,#00c853,#00e676); color:#04130a;" onclick="complete24hAdPass()">✅ 24h Ad-Free चालू करें व बंद करें</button>
+      </div>
+    </div>
+  </div>
+
   <!-- लोकल सुरक्षित खाता मोडल -->
   <div id="authModal">
     <div class="auth-box">
@@ -784,7 +908,20 @@
   const fbDb = getDatabase(fbApp);
   const fbRootRef = ref(fbDb, 'manga99_data');
 
-  let cloudState = { animeList: [], requests: [], comments: {} };
+  let cloudState = {
+    animeList: [],
+    requests: [],
+    comments: {},
+    users: {},
+    adConfig: {
+      enabled: false,
+      seconds: 8,
+      freeHours: 24,
+      directUrl: '',
+      bannerImg: '',
+      headline: '1 Ad = 24 Hours Ad-Free • Watch Anime'
+    }
+  };
   let curAnime = null, curEp = null, curSeason = 1, activeFilter = 'ALL', activeDay = 'सोमवार';
   let adminOpen = false, screenLocked = false, autoTimer = null, lastTap = 0;
   let activeAudioLang = '';
@@ -1014,10 +1151,22 @@
         cleanComments[k] = Array.isArray(v) ? v.filter(Boolean) : (v ? Object.values(v).filter(Boolean) : []);
       }
     }
+    const rawAd = (raw.adConfig && typeof raw.adConfig === 'object') ? raw.adConfig : {};
+    const cleanAdConfig = {
+      enabled: Boolean(rawAd.enabled),
+      seconds: Math.max(3, Math.min(60, Number(rawAd.seconds || 8))),
+      freeHours: Math.max(1, Math.min(168, Number(rawAd.freeHours || 24))),
+      directUrl: String(rawAd.directUrl || '').trim(),
+      bannerImg: String(rawAd.bannerImg || '').trim(),
+      headline: String(rawAd.headline || '1 Ad = 24 Hours Ad-Free • Watch Anime').trim()
+    };
+    const cleanUsers = (raw.users && typeof raw.users === 'object') ? raw.users : {};
     cloudState = {
       animeList: deduplicateAnimeList(cleanAnime),
       requests: rawReqs.filter(Boolean),
-      comments: cleanComments
+      comments: cleanComments,
+      users: cleanUsers,
+      adConfig: cleanAdConfig
     };
   }
 
@@ -1155,9 +1304,52 @@
     } catch (e) {}
   }
 
+  function renderContinueWatching() {
+    const wrap = document.getElementById('continueWatchingWrap');
+    const row = document.getElementById('continueWatchingRow');
+    if (!wrap || !row) return;
+    const progress = readJSON('m99_progress', {});
+    const list = cloudState.animeList || [];
+    const items = [];
+    for (const [k, p] of Object.entries(progress)) {
+      if (!p || Number(p.time) < 10) continue;
+      const [aId, epId] = k.split(':');
+      const anime = list.find(x => x.id === aId);
+      if (!anime) continue;
+      const epIdx = (anime.episodes || []).findIndex(e => e.id === epId);
+      if (epIdx < 0) continue;
+      const ep = anime.episodes[epIdx];
+      const dur = Number(p.duration) || 0;
+      const pct = dur > 0 ? Math.min(98, Math.max(4, Math.round((Number(p.time) / dur) * 100))) : 25;
+      if (pct >= 96) continue;
+      items.push({ anime, ep, epIdx, pct, time: Number(p.time), updatedAt: Number(p.updatedAt || 0) });
+    }
+    items.sort((a, b) => b.updatedAt - a.updatedAt);
+    if (!items.length) {
+      wrap.style.display = 'none';
+      return;
+    }
+    wrap.style.display = 'block';
+    row.innerHTML = items.slice(0, 12).map(it => {
+      const poster = safeMediaUrl(it.anime.poster, 'image');
+      return `
+        <div class="poster-card h-item" onclick="launchPlayer(${jsArg(it.anime.id)}, ${it.epIdx})">
+          <div class="poster-img-wrap">
+            <span class="badge-tl">▶ जारी रखें</span>
+            <span class="cw-ep-tag">S${escapeHtml(it.ep.season || 1)} Ep${escapeHtml(it.ep.num)} • ${escapeHtml(formatDurationCompact(it.time))}</span>
+            ${poster ? `<img src="${escapeHtml(poster)}" loading="lazy" alt="${escapeHtml(it.anime.title)}" />` : ''}
+            <div class="cw-progress-track"><div class="cw-progress-fill" style="width:${it.pct}%;"></div></div>
+          </div>
+          <div class="poster-title">${escapeHtml(it.anime.title)}</div>
+        </div>`;
+    }).join('');
+  }
+
   function renderEverything() {
     preconnectFirstVideoOrigin();
+    evaluate24hAdPass();
     renderHeroBanner();
+    renderContinueWatching();
     renderLatestUnique();
     renderCrunchyrollRows();
     renderRecommended();
@@ -1177,54 +1369,85 @@
     return 0;
   }
 
+  let heroBannerList = [];
+  function updateHeroSlideVisuals() {
+    const wl = readJSON('m99_watchlist', []);
+    heroBannerList.forEach((item, idx) => {
+      const layer = document.getElementById('heroSlide_' + idx);
+      const dot = document.getElementById('heroDot_' + idx);
+      const wlBtn = document.getElementById('heroWlBtn_' + idx);
+      if (layer) {
+        const isActive = idx === heroSlideIdx;
+        layer.style.opacity = isActive ? '1' : '0';
+        layer.style.pointerEvents = isActive ? 'auto' : 'none';
+      }
+      if (dot) dot.classList.toggle('active', idx === heroSlideIdx);
+      if (wlBtn) wlBtn.textContent = wl.includes(item.id) ? '✓ My Watchlist' : '+ My Watchlist';
+    });
+  }
+
   function renderHeroBanner() {
-    const list = getSessionShuffledList(cloudState.animeList || []).slice(0, 6);
+    heroBannerList = getSessionShuffledList(cloudState.animeList || []).slice(0, 6);
     const wl = readJSON('m99_watchlist', []);
     const heroBox = document.getElementById('heroContainer');
     clearInterval(heroAutoTimer);
 
-    if (list.length === 0) {
+    if (heroBannerList.length === 0) {
       heroBox.innerHTML = `<div class="card-box" style="margin:0; text-align:center; color:var(--muted);">Firebase से एनिमे लोड हो रहे हैं... एडमिन पैनल से पहला एनिमे जोड़ें।</div>`;
       return;
     }
+    if (heroSlideIdx >= heroBannerList.length) heroSlideIdx = 0;
 
-    if (heroSlideIdx >= list.length) heroSlideIdx = 0;
+    heroBox.innerHTML = `
+      <div class="hero-card" id="heroSwipeCard">
+        ${heroBannerList.map((top, idx) => {
+          const isSaved = wl.includes(top.id);
+          const poster = safeMediaUrl(top.poster, 'image');
+          const trailer = safeMediaUrl(top.trailerUrl, 'video');
+          const active = idx === heroSlideIdx;
+          return `
+            <div class="hero-slide-layer" id="heroSlide_${idx}" style="opacity:${active ? '1' : '0'}; pointer-events:${active ? 'auto' : 'none'};">
+              ${poster ? `<img src="${escapeHtml(poster)}" alt="${escapeHtml(top.title)}" />` : ''}
+              <div class="hero-grad">
+                <span class="trending-tag">TRENDING ★ ${idx + 1}</span>
+                <div class="hero-title">${escapeHtml(top.title)}</div>
+                <div class="hero-actions">
+                  <button class="btn-orange" onclick="launchPlayer(${jsArg(top.id)})">▶ Details &amp; Play</button>
+                  <button class="btn-dark" id="heroWlBtn_${idx}" onclick="toggleWatchlistId(${jsArg(top.id)})">${isSaved ? '✓ My Watchlist' : '+ My Watchlist'}</button>
+                  ${trailer ? `<button class="btn-dark" onclick="playTrailer(${jsArg(trailer)}, ${jsArg(top.title)})">🎬 ट्रेलर</button>` : ''}
+                </div>
+              </div>
+            </div>`;
+        }).join('')}
+        ${heroBannerList.length > 1 ? `<div class="hero-dots" style="position:absolute; bottom:8px; left:0; right:0; z-index:10;">${heroBannerList.map((_, dIdx) => `<span class="hero-dot ${dIdx === heroSlideIdx ? 'active' : ''}" id="heroDot_${dIdx}" onclick="setHeroSlide(${dIdx})"></span>`).join('')}</div>` : ''}
+      </div>`;
 
-    const drawSlide = () => {
-      const top = list[heroSlideIdx];
-      if (!top) return;
-      const isSaved = wl.includes(top.id);
-      const poster = safeMediaUrl(top.poster, 'image');
-      const trailer = safeMediaUrl(top.trailerUrl, 'video');
-      heroBox.innerHTML = `
-        <div class="hero-card">
-          ${poster ? `<img src="${escapeHtml(poster)}" alt="${escapeHtml(top.title)}" />` : ''}
-          <div class="hero-grad">
-            <span class="trending-tag">TRENDING ★ ${heroSlideIdx + 1}</span>
-            <div class="hero-title">${escapeHtml(top.title)}</div>
-            <div class="hero-actions">
-              <button class="btn-orange" onclick="launchPlayer(${jsArg(top.id)})">▶ Details &amp; Play</button>
-              <button class="btn-dark" onclick="toggleWatchlistId(${jsArg(top.id)})">${isSaved ? '✓ My Watchlist' : '+ My Watchlist'}</button>
-              ${trailer ? `<button class="btn-dark" onclick="playTrailer(${jsArg(trailer)}, ${jsArg(top.title)})">🎬 ट्रेलर</button>` : ''}
-            </div>
-            ${list.length > 1 ? `<div class="hero-dots">${list.map((_, dIdx) => `<span class="hero-dot ${dIdx === heroSlideIdx ? 'active' : ''}" onclick="setHeroSlide(${dIdx})"></span>`).join('')}</div>` : ''}
-          </div>
-        </div>`;
-    };
+    const swipeCard = document.getElementById('heroSwipeCard');
+    if (swipeCard && heroBannerList.length > 1) {
+      let startX = 0;
+      swipeCard.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+      swipeCard.addEventListener('touchend', e => {
+        const dx = e.changedTouches[0].clientX - startX;
+        if (Math.abs(dx) > 42) {
+          heroSlideIdx = dx < 0
+            ? (heroSlideIdx + 1) % heroBannerList.length
+            : (heroSlideIdx - 1 + heroBannerList.length) % heroBannerList.length;
+          updateHeroSlideVisuals();
+        }
+      }, { passive: true });
 
-    drawSlide();
-    if (list.length > 1) {
       heroAutoTimer = setInterval(() => {
-        heroSlideIdx = (heroSlideIdx + 1) % list.length;
-        drawSlide();
-      }, 4000);
+        if (document.hidden || document.getElementById('playerScreen')?.style.display === 'flex') return;
+        heroSlideIdx = (heroSlideIdx + 1) % heroBannerList.length;
+        updateHeroSlideVisuals();
+      }, 4500);
     }
   }
 
   window.setHeroSlide = (idx) => {
     playUiSound('nav');
     heroSlideIdx = idx;
-    renderHeroBanner();
+    updateHeroSlideVisuals();
   };
 
   function renderLatestUnique() {
@@ -1317,12 +1540,20 @@
     }).join('');
   }
 
+  function syncUserWatchlistToCloud() {
+    const loggedKey = localStorage.getItem('m99_logged_user_key');
+    if (!loggedKey || !cloudState.users || !cloudState.users[loggedKey]) return;
+    cloudState.users[loggedKey].watchlist = readJSON('m99_watchlist', []);
+    saveCloudData();
+  }
+
   window.toggleWatchlistId = (id) => {
     playUiSound('like');
     let wl = readJSON('m99_watchlist', []);
     wl = wl.includes(id) ? wl.filter(x => x !== id) : [...wl, id];
     localStorage.setItem('m99_watchlist', JSON.stringify(wl));
-    renderHeroBanner();
+    syncUserWatchlistToCloud();
+    updateHeroSlideVisuals();
     refreshProfile();
     if (curAnime && curAnime.id === id) {
       document.getElementById('pWatchlistBtn').textContent = wl.includes(id) ? '✓ My Watchlist' : '+ My Watchlist';
@@ -1426,8 +1657,13 @@
   window.changePlayerSeason = (sVal) => {
     playUiSound('nav');
     const viewSeason = Number(sVal || 1);
-    renderEpisodesListForSeason(viewSeason);
-    toast(`Season ${viewSeason} के एपिसोड नीचे दिखाए गए हैं`);
+    const firstIdx = (curAnime?.episodes || []).findIndex(e => Number(e.season || 1) === viewSeason);
+    if (firstIdx >= 0) {
+      loadPlayerEpisode(firstIdx);
+      toast(`Season ${viewSeason} • Ep ${curAnime.episodes[firstIdx].num} चालू किया गया`);
+    } else {
+      renderEpisodesListForSeason(viewSeason);
+    }
   };
 
   function renderEpisodesListForSeason(seasonToShow) {
@@ -1744,8 +1980,10 @@
       const isLiked = !!likedMap[seriesKey];
       if (!viewedMap[seriesKey]) {
         viewedMap[seriesKey] = true; writeJSON('m99_viewed_series', viewedMap);
-        curAnime.views = Math.max(0, Number(curAnime.views || 0)) + 1; saveCloudData();
+        curAnime.views = Math.max(0, Number(curAnime.views || 0)) + 1;
+        setTimeout(() => { saveCloudData(); }, 4000);
       }
+      setTimeout(() => { preconnectNextEpisode(); }, 2500);
       const viewedEpisodes = readJSON('m99_viewed_episodes', {});
       const episodeKey = `${curAnime.id}:${curEp.id}`;
       if (!viewedEpisodes[episodeKey]) {
@@ -1795,9 +2033,23 @@
 
   function formatYtTime(sec) {
     if (!Number.isFinite(sec) || sec < 0) return '00:00';
-    const m = Math.floor(sec / 60);
-    const s = Math.floor(sec % 60);
+    const total = Math.floor(sec);
+    const h = Math.floor(total / 3600);
+    const m = Math.floor((total % 3600) / 60);
+    const s = total % 60;
+    if (h > 0) {
+      return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
     return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  }
+
+  function formatDurationCompact(sec) {
+    const total = Math.max(0, Math.floor(Number(sec) || 0));
+    const h = Math.floor(total / 3600);
+    const m = Math.floor((total % 3600) / 60);
+    const s = total % 60;
+    if (h > 0) return `${h}h ${String(m).padStart(2, '0')}m`;
+    return `${m}m ${s}s`;
   }
 
   function showYtControlsTemporarily() {
@@ -1995,17 +2247,14 @@
     if (timeEl) {
       timeEl.textContent = `${formatYtTime(v.currentTime)} / ${formatYtTime(v.duration)}`;
     }
-    if (curAnime && curAnime.id !== 'trailer' && curAnime.id !== 'offline' && Date.now() - lastProgressSave > 10000) {
+    if (curAnime && curAnime.id !== 'trailer' && curAnime.id !== 'offline' && Date.now() - lastProgressSave > 12000) {
       const progress = readJSON('m99_progress', {});
       progress[`${curAnime.id}:${curEp.id}`] = { time: Math.floor(v.currentTime), duration: Math.floor(v.duration), updatedAt: Date.now() };
-      writeJSON('m99_progress', progress); lastProgressSave = Date.now();
-    }
-    const cur = v.currentTime;
-    if (curAnime && curAnime.id !== 'trailer' && curAnime.id !== 'offline' && Math.floor(cur) % 5 === 0) {
-      let hist = JSON.parse(localStorage.getItem('m99_history') || '[]').filter(h => h.animeId !== curAnime.id);
-      const m = Math.floor(cur / 60), s = Math.floor(cur % 60);
-      hist.unshift({ animeId: curAnime.id, title: curAnime.title, poster: curAnime.poster, epIdx: curAnime.episodes.findIndex(e => e.id === curEp.id), season: curSeason, epNum: curEp.num, timeStr: `${m}m ${s}s` });
-      localStorage.setItem('m99_history', JSON.stringify(hist.slice(0, 15)));
+      writeJSON('m99_progress', progress);
+      let hist = readJSON('m99_history', []).filter(h => h.animeId !== curAnime.id);
+      hist.unshift({ animeId: curAnime.id, title: curAnime.title, poster: curAnime.poster, epIdx: curAnime.episodes.findIndex(e => e.id === curEp.id), season: curSeason, epNum: curEp.num, timeStr: formatDurationCompact(v.currentTime) });
+      writeJSON('m99_history', hist.slice(0, 15));
+      lastProgressSave = Date.now();
     }
   };
   window.onVideoComplete = () => {
@@ -2030,6 +2279,7 @@
     document.getElementById('playerScreen').style.display = 'none';
     screenLocked = false; v.controls = true; document.getElementById('lockOnlyWrap').classList.remove('visible');
     if (offlineObjectUrl) { URL.revokeObjectURL(offlineObjectUrl); offlineObjectUrl = null; }
+    renderContinueWatching();
   };
 
   window.shareEpisode = () => { if (!curAnime || !curEp) return; playUiSound('nav'); const t = `MANGA 99: ${curAnime.title} — S${curSeason} Ep ${curEp.num}`; if (navigator.share) navigator.share({ title: 'MANGA 99', text: t }).catch(() => {}); else if (navigator.clipboard?.writeText) navigator.clipboard.writeText(t).then(() => toast('एपिसोड का नाम कॉपी हुआ'), () => {}); };
@@ -2125,22 +2375,134 @@
   };
   window.openAuthModal = () => { playUiSound('nav'); history.pushState({ m99Page: 'auth' }, ''); document.getElementById('authModal').style.display = 'flex'; };
   window.continueAsGuest = () => { playUiSound('nav'); document.getElementById('authModal').style.display = 'none'; };
-  window.handleAuth = (mode) => {
+  window.handleAuth = async (mode) => {
     const u = (document.getElementById('authUser').value || '').trim(), p = (document.getElementById('authPass').value || '');
     if (!u || !p) return toast('नाम और पासवर्ड दोनों लिखें');
     playUiSound('play');
-    const vault = readJSON('m99_local_accounts_vault', {}), k = u.toLowerCase();
+    const vault = readJSON('m99_local_accounts_vault', {}), k = u.toLowerCase().replace(/[.#$\[\]]/g, '_');
+    if (!cloudState.users) cloudState.users = {};
+    const cloudAcc = cloudState.users[k];
     if (mode === 'signup') {
-      if (vault[k]) return toast('यह नाम पहले से बना है, लॉगिन करें');
-      vault[k] = { name: u, p }; writeJSON('m99_local_accounts_vault', vault); toast('अकाउंट बन गया ✓');
+      if (vault[k] || cloudAcc) return toast('यह नाम पहले से बना है, लॉगिन करें');
+      const wl = readJSON('m99_watchlist', []);
+      vault[k] = { name: u, p };
+      cloudState.users[k] = { name: u, p, watchlist: wl };
+      writeJSON('m99_local_accounts_vault', vault);
+      await saveCloudData();
+      toast('अकाउंट बन गया और Cloud से जुड़ गया ✓');
     } else {
-      if (!vault[k] || vault[k].p !== p) return toast('गलत नाम या पासवर्ड!');
-      toast('लॉगिन सफल ✓');
+      const validLocal = vault[k] && vault[k].p === p;
+      const validCloud = cloudAcc && cloudAcc.p === p;
+      if (!validLocal && !validCloud) return toast('गलत नाम या पासवर्ड!');
+      const finalName = (cloudAcc && cloudAcc.name) || (vault[k] && vault[k].name) || u;
+      vault[k] = { name: finalName, p };
+      writeJSON('m99_local_accounts_vault', vault);
+      if (cloudAcc && Array.isArray(cloudAcc.watchlist)) {
+        const mergedWl = [...new Set([...readJSON('m99_watchlist', []), ...cloudAcc.watchlist])];
+        writeJSON('m99_watchlist', mergedWl);
+      }
+      toast('लॉगिन सफल • Watchlist सिंक हो गई ✓');
     }
-    userName = vault[k].name; localStorage.setItem('m99_username', userName);
-    document.getElementById('authModal').style.display = 'none'; refreshProfile();
+    userName = vault[k].name;
+    localStorage.setItem('m99_username', userName);
+    localStorage.setItem('m99_logged_user_key', k);
+    document.getElementById('authModal').style.display = 'none';
+    refreshProfile();
   };
   window.sendAnimeRequest = async () => { const inp = document.getElementById('reqAnimeInp'), t = (inp.value || '').trim(); if (!t) return toast('एनिमे का नाम लिखें'); playUiSound('like'); cloudState.requests.unshift({ user: userName, title: t }); inp.value = ''; const synced = await saveCloudData(); toast(synced ? 'आपकी मांग भेज दी गई ✓' : 'मांग सेव हुई'); };
+
+  // 24-Hour Ad-Free Pass System ("1 Ad = 24 Hours Ad-Free • Watch Anime")
+  let adCountdownInterval = null;
+  let adTimerFinished = false;
+
+  function is24hAdPassValid() {
+    if (adminOpen) return true; // एडमिन के लिए कभी कोई ऐड नहीं
+    const cfg = cloudState.adConfig || {};
+    if (!cfg.enabled) return true; // जब तक एडमिन ON न करे, कोई ऐड नहीं दिखेगा
+    const passUntil = Number(localStorage.getItem('m99_adfree_until') || '0');
+    return Date.now() < passUntil;
+  }
+
+  function evaluate24hAdPass() {
+    const banner = document.getElementById('adPassBanner');
+    const gate = document.getElementById('adGateOverlay');
+    const cfg = cloudState.adConfig || {};
+    if (adminOpen || !cfg.enabled) {
+      if (banner) banner.classList.remove('visible');
+      if (gate) gate.style.display = 'none';
+      return;
+    }
+    if (is24hAdPassValid()) {
+      if (banner) banner.classList.remove('visible');
+      if (gate) gate.style.display = 'none';
+    } else {
+      if (banner) banner.classList.add('visible');
+      if (gate && gate.style.display !== 'flex') {
+        openAdGateModal(false);
+      }
+    }
+  }
+
+  window.openAdGateModal = (isPreview = false) => {
+    const cfg = cloudState.adConfig || {};
+    if (!isPreview && (adminOpen || !cfg.enabled || is24hAdPassValid())) return;
+    const gate = document.getElementById('adGateOverlay');
+    const area = document.getElementById('adCustomRenderArea');
+    const timerEl = document.getElementById('adCountdownText');
+    const visitBtn = document.getElementById('adActionVisitBtn');
+    const doneBtn = document.getElementById('adCompleteCloseBtn');
+    if (!gate || !area) return;
+
+    adTimerFinished = false;
+    clearInterval(adCountdownInterval);
+    if (doneBtn) doneBtn.style.display = 'none';
+    if (visitBtn) visitBtn.style.display = cfg.directUrl ? 'inline-flex' : 'none';
+
+    const safeImg = safeMediaUrl(cfg.bannerImg, 'image');
+    const safeLink = safeMediaUrl(cfg.directUrl, 'video');
+    area.innerHTML = `
+      ${safeImg ? `<img src="${escapeHtml(safeImg)}" style="max-height:130px; border-radius:10px; margin-bottom:8px; cursor:pointer;" onclick="triggerAdLinkVisit()" />` : ''}
+      <div style="font-size:15px; font-weight:900; color:#fff;">${escapeHtml(cfg.headline || '1 Ad = 24 Hours Ad-Free • Watch Anime')}</div>
+      <div style="font-size:11px; color:var(--muted); margin-top:4px;">${safeLink ? 'नीचे "ऐड लिंक खोलें" पर क्लिक करें या टाइमर पूरा होने दें' : 'प्रायोजक संदेश चल रहा है...'}</div>
+    `;
+
+    gate.style.display = 'flex';
+    let left = Math.max(3, Number(cfg.seconds || 8));
+    timerEl.textContent = `⏳ कृपया ${left} सेकंड तक ऐड देखें...`;
+
+    adCountdownInterval = setInterval(() => {
+      left--;
+      if (left <= 0) {
+        clearInterval(adCountdownInterval);
+        adTimerFinished = true;
+        timerEl.textContent = `✅ 1 ऐड पूरा हुआ! अब ${cfg.freeHours || 24} घंटे फ्री पास चालू करें`;
+        if (doneBtn) doneBtn.style.display = 'inline-flex';
+      } else {
+        timerEl.textContent = `⏳ कृपया ${left} सेकंड तक ऐड देखें...`;
+      }
+    }, 1000);
+  };
+
+  window.triggerAdLinkVisit = () => {
+    const safeLink = safeMediaUrl(cloudState.adConfig?.directUrl, 'video');
+    if (safeLink) {
+      window.open(safeLink, '_blank', 'noopener,noreferrer');
+    }
+  };
+
+  window.complete24hAdPass = () => {
+    if (!adTimerFinished && !adminOpen) return;
+    playUiSound('play');
+    const hours = Math.max(1, Number(cloudState.adConfig?.freeHours || 24));
+    if (!adminOpen) {
+      localStorage.setItem('m99_adfree_until', String(Date.now() + hours * 3600 * 1000));
+    }
+    const gate = document.getElementById('adGateOverlay');
+    const banner = document.getElementById('adPassBanner');
+    if (gate) gate.style.display = 'none';
+    if (banner) banner.classList.remove('visible');
+    toast(`🎉 बधाई हो! अगले ${hours} घंटे तक कोई ऐड नहीं आएगा`);
+  };
 
   // एडमिन पैनल (प्रोमो कोड: 80090034)
   window.unlockAdmin = () => {
@@ -2149,17 +2511,74 @@
     if (entered === '80090034') {
       playUiSound('play'); adminOpen = true;
       document.getElementById('adminArea').style.display = 'block';
-      renderAdminLists(); field.value = ''; toast('एडमिन पैनल खुल गया ✓');
+      evaluate24hAdPass();
+      renderAdminLists(); field.value = ''; toast('एडमिन पैनल खुल गया ✓ (Admin Ad-Free Mode Active)');
     } else { playUiSound('back'); toast('गलत कोड'); }
   };
 
+  function syncAdminAdUI() {
+    const cfg = cloudState.adConfig || {};
+    const btn = document.getElementById('admMasterAdBtn');
+    if (btn) {
+      btn.textContent = cfg.enabled ? 'ON (चालू है ✓)' : 'OFF (बंद है)';
+      btn.style.background = cfg.enabled ? 'linear-gradient(135deg,#00c853,#00e676)' : 'var(--surface-2)';
+      btn.style.color = cfg.enabled ? '#04130a' : '#fff';
+    }
+    const secEl = document.getElementById('admAdSeconds');
+    const hrEl = document.getElementById('admAdFreeHours');
+    const urlEl = document.getElementById('admAdDirectUrl');
+    const imgEl = document.getElementById('admAdBannerImg');
+    const headEl = document.getElementById('admAdHeadline');
+    if (secEl) secEl.value = cfg.seconds || 8;
+    if (hrEl) hrEl.value = cfg.freeHours || 24;
+    if (urlEl) urlEl.value = cfg.directUrl || '';
+    if (imgEl) imgEl.value = cfg.bannerImg || '';
+    if (headEl) headEl.value = cfg.headline || '1 Ad = 24 Hours Ad-Free • Watch Anime';
+  }
+
+  window.toggleMasterAdSystem = async () => {
+    playUiSound('play');
+    if (!cloudState.adConfig) cloudState.adConfig = {};
+    cloudState.adConfig.enabled = !cloudState.adConfig.enabled;
+    syncAdminAdUI();
+    await saveCloudData();
+    toast(cloudState.adConfig.enabled ? '📢 24-Hour Ad-Free सिस्टम चालू (ON) कर दिया गया ✓' : '🔇 सभी ऐड बंद (OFF) कर दिए गए ✓');
+  };
+
+  window.saveAdSettings = async () => {
+    playUiSound('play');
+    cloudState.adConfig = {
+      enabled: Boolean(cloudState.adConfig?.enabled),
+      seconds: Math.max(3, Math.min(60, Number(document.getElementById('admAdSeconds').value || 8))),
+      freeHours: Math.max(1, Math.min(168, Number(document.getElementById('admAdFreeHours').value || 24))),
+      directUrl: (document.getElementById('admAdDirectUrl').value || '').trim(),
+      bannerImg: (document.getElementById('admAdBannerImg').value || '').trim(),
+      headline: (document.getElementById('admAdHeadline').value || '1 Ad = 24 Hours Ad-Free • Watch Anime').trim()
+    };
+    syncAdminAdUI();
+    const ok = await saveCloudData();
+    toast(ok ? 'Ad कस्टमाइज़ सेटिंग सेव हो गई ✓' : 'सेव करने में समस्या आई');
+  };
+
+  window.previewAdAsAdmin = () => {
+    openAdGateModal(true);
+  };
+
   function renderAdminLists() {
+    syncAdminAdUI();
     document.getElementById('existingSeriesDrop').innerHTML = `<option value="-1">-- नई सीरीज़ बनाएं या पुरानी चुनें --</option>` + (cloudState.animeList || []).map((a, i) => `<option value="${i}">${escapeHtml(a.title)}</option>`).join('');
     let tv = 0; (cloudState.animeList || []).forEach(a => tv += (a.views || 0));
     document.getElementById('adminStats').textContent = `कुल सीरीज़: ${(cloudState.animeList || []).length} • कुल व्यूज़: ${tv}`;
-    document.getElementById('adminReqList').innerHTML = (cloudState.requests || []).slice(0, 8).map(r => `<div style="font-size:12px; padding:6px; background:var(--surface-2); border-radius:8px; margin-top:4px;">📌 <b>${escapeHtml(r.title)}</b> — ${escapeHtml(r.user)}</div>`).join('');
+    document.getElementById('adminReqList').innerHTML = (cloudState.requests || []).slice(0, 8).map((r, rIdx) => `<div style="font-size:12px; padding:6px; background:var(--surface-2); border-radius:8px; margin-top:4px; display:flex; justify-content:space-between; align-items:center;"><span>📌 <b>${escapeHtml(r.title)}</b> — ${escapeHtml(r.user)}</span><button class="p-pill" style="padding:2px 7px; font-size:10px; color:#00e676;" onclick="removeRequestAdmin(${rIdx})">✓ पूर्ण</button></div>`).join('');
     document.getElementById('adminSeriesList').innerHTML = (cloudState.animeList || []).map((a, sIdx) => `<div style="background:var(--surface-2); padding:10px; border-radius:10px; margin-top:8px;"><div style="display:flex; justify-content:space-between; align-items:center;"><b>${escapeHtml(a.title)}</b><button class="p-pill" style="color:#ff5252;" onclick="deleteSeriesAdmin(${sIdx})">हटाएं</button></div><div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;">${(a.episodes || []).map((ep, eIdx) => { const langs = Object.keys(buildTracksForEpisode(ep, a.lang)).join(', '); return `<span style="display:inline-flex; gap:3px;"><button class="p-pill" onclick="loadEpForEdit(${sIdx}, ${eIdx})">✏️ S${escapeHtml(ep.season || 1)} Ep${escapeHtml(ep.num)} (${escapeHtml(langs)})</button><button class="p-pill" style="color:#ff5252;" onclick="deleteEpAdmin(${sIdx}, ${eIdx})">🗑️</button></span>`; }).join('')}</div></div>`).join('');
   }
+
+  window.removeRequestAdmin = async (rIdx) => {
+    cloudState.requests.splice(rIdx, 1);
+    renderAdminLists();
+    await saveCloudData();
+    toast('रिक्वेस्ट सूची से हटा दी गई ✓');
+  };
 
   window.addNewSeasonForAdmin = () => {
     playUiSound('like');
@@ -2192,6 +2611,66 @@
     document.getElementById('admEpNum').value = (a.episodes || []).filter(e => Number(e.season || 1) === maxS).length + 1;
   };
 
+  function renderAdminLanguageTracksManager(sIdx, eIdx) {
+    const box = document.getElementById('adminLangTracksBox');
+    if (!box) return;
+    if (sIdx < 0 || eIdx < 0 || !cloudState.animeList[sIdx]?.episodes?.[eIdx]) {
+      box.innerHTML = '';
+      return;
+    }
+    const a = cloudState.animeList[sIdx];
+    const ep = a.episodes[eIdx];
+    const trk = buildTracksForEpisode(ep, a.lang);
+    const langs = Object.keys(trk);
+    if (!langs.length) { box.innerHTML = ''; return; }
+    box.innerHTML = `
+      <div style="background:var(--surface-2); border:1px solid var(--border); border-radius:10px; padding:8px; margin-top:6px;">
+        <div style="font-size:11px; font-weight:800; color:var(--gold); margin-bottom:6px;">🎧 इस एपिसोड में मौजूद भाषाएं (क्लिक करके एडिट या 🗑️ से हटाएं):</div>
+        <div style="display:flex; gap:6px; flex-wrap:wrap;">
+          ${langs.map(lk => `
+            <span style="display:inline-flex; align-items:center; gap:4px; background:rgba(255,255,255,0.06); padding:4px 8px; border-radius:8px; font-size:11px; font-weight:800;">
+              <span style="cursor:pointer;" onclick="fillAdminTrackForLang(${sIdx}, ${eIdx}, ${jsArg(lk)})">✏️ ${escapeHtml(lk)}</span>
+              ${langs.length > 1 ? `<button type="button" style="background:none; border:none; color:#ff5252; cursor:pointer; font-size:12px; min-height:20px;" onclick="deleteAdminTrackLang(${sIdx}, ${eIdx}, ${jsArg(lk)})">🗑️</button>` : ''}
+            </span>
+          `).join('')}
+        </div>
+      </div>`;
+  }
+
+  window.fillAdminTrackForLang = (sIdx, eIdx, langKey) => {
+    const a = cloudState.animeList[sIdx];
+    const ep = a?.episodes?.[eIdx];
+    if (!ep) return;
+    const trk = buildTracksForEpisode(ep, a.lang);
+    const qData = trk[langKey] || {};
+    document.getElementById('admLang').value = langKey;
+    document.getElementById('admUrl1080').value = qData['1080'] || '';
+    document.getElementById('admUrl720').value = qData['720'] || '';
+    document.getElementById('admUrl480').value = qData['480'] || '';
+    toast(`${langKey} के लिंक लोड हो गए`);
+  };
+
+  window.deleteAdminTrackLang = async (sIdx, eIdx, langKey) => {
+    const a = cloudState.animeList[sIdx];
+    const ep = a?.episodes?.[eIdx];
+    if (!ep || !confirm(`क्या इस एपिसोड से '${langKey}' हटाना चाहते हैं?`)) return;
+    const trk = buildTracksForEpisode(ep, a.lang);
+    delete trk[langKey];
+    const remLangs = Object.keys(trk);
+    if (!remLangs.length) return toast('कम से कम एक भाषा होनी ज़रूरी है');
+    ep.tracks = trk;
+    ep.lang = remLangs[0];
+    const pQ = trk[ep.lang] || {};
+    ep.url1080 = pQ['1080'] || '';
+    ep.url720 = pQ['720'] || '';
+    ep.url480 = pQ['480'] || '';
+    ep.url = ep.url720 || ep.url1080 || ep.url480;
+    await saveCloudData();
+    renderAdminLanguageTracksManager(sIdx, eIdx);
+    renderAdminLists();
+    toast(`${langKey} हटा दिया गया ✓`);
+  };
+
   window.loadEpForEdit = (sIdx, eIdx) => {
     playUiSound('nav'); const a = cloudState.animeList[sIdx], ep = a.episodes[eIdx];
     document.getElementById('editSeriesIdx').value = sIdx; document.getElementById('editEpIdx').value = eIdx;
@@ -2202,19 +2681,17 @@
     document.getElementById('admEpNum').value = ep.num || 1; document.getElementById('admEpTitle').value = ep.title || '';
     const trk = buildTracksForEpisode(ep, a.lang);
     const editLang = ep.lang || Object.keys(trk)[0] || 'Hindi dub';
-    const qData = trk[editLang] || {};
-    document.getElementById('admUrl1080').value = qData['1080'] || ep.url1080 || '';
-    document.getElementById('admUrl720').value = qData['720'] || ep.url720 || ep.url || '';
-    document.getElementById('admUrl480').value = qData['480'] || ep.url480 || '';
-    document.getElementById('admLang').value = editLang; document.getElementById('admSub').value = ep.subUrl || '';
-    toast(`Ep ${ep.num} एडिट के लिए लोड हो गया (नई भाषा चुनकर भी जोड़ सकते हैं)`);
+    fillAdminTrackForLang(sIdx, eIdx, editLang);
+    document.getElementById('admSub').value = ep.subUrl || '';
+    renderAdminLanguageTracksManager(sIdx, eIdx);
+    toast(`Ep ${ep.num} एडिट के लिए लोड हो गया`);
   };
 
   window.resetAdminFields = () => {
     document.getElementById('editSeriesIdx').value = '-1'; document.getElementById('editEpIdx').value = '-1';
     document.getElementById('admSeasonNum').value = '1';
     ['admTitle','admPoster','admTrailer','admEpNum','admEpTitle','admUrl1080','admUrl720','admUrl480','admSub'].forEach(id => document.getElementById(id).value = '');
-    document.getElementById('existingSeriesDrop').value = '-1';
+    document.getElementById('existingSeriesDrop').value = '-1'; const lBox = document.getElementById('adminLangTracksBox'); if (lBox) lBox.innerHTML = '';
   };
 
   function compressImg(file, maxW = 480, q = 0.65) {

@@ -718,7 +718,7 @@
     </div>
 
     <div class="video-stage" id="videoStage">
-      <video id="mainVideo" controls playsinline webkit-playsinline preload="auto" onloadeddata="hideFastLoader()" ontimeupdate="hideFastLoader(); onVideoProgress()" onended="onVideoComplete()" onwaiting="onVideoBuffering()" onstalled="onVideoBuffering()" onplaying="hideFastLoader()" oncanplay="hideFastLoader()" onerror="videoPlaybackError()"><track id="mainSubtitleTrack" kind="subtitles" srclang="hi" label="Subtitles" /></video>
+      <video id="mainVideo" controls playsinline webkit-playsinline preload="auto" onloadedmetadata="hideFastLoader()" onloadeddata="hideFastLoader()" oncanplay="hideFastLoader()" oncanplaythrough="hideFastLoader()" onseeked="hideFastLoader()" ontimeupdate="hideFastLoader(); onVideoProgress()" onended="onVideoComplete()" onwaiting="onVideoBuffering()" onstalled="onVideoBuffering()" onplaying="hideFastLoader()" onerror="videoPlaybackError()"><track id="mainSubtitleTrack" kind="subtitles" srclang="hi" label="Subtitles" /></video>
 
       <div class="buffering-center-box" id="fastLoaderPill">
         <div class="circular-spinner"></div>
@@ -823,22 +823,22 @@
     </div>
   </div>
 
-  <!-- 24-Hour Ad-Free Gate Modal (तय सेकंड पूरे होने पर कोने में ❌ बटन आएगा) -->
+  <!-- 24-Hour Ad-Free Gate Modal (ऐड चलाने के बाद ही सेकंड चलेगा, फिर कोने में ❌ बटन आएगा) -->
   <div id="adGateOverlay">
     <div class="ad-gate-card">
       <button class="ad-corner-close" id="adCompleteCloseBtn" onclick="complete24hAdPass()" title="बंद करें">❌</button>
       <div style="font-size:11px; font-weight:900; color:var(--gold); letter-spacing:1px;">MANGA 99 • 24-HOUR AD-FREE PASS</div>
       <div style="font-size:18px; font-weight:900; margin-top:6px;">1 Ad = 24 Hours Ad-Free • Watch Anime</div>
-      <div style="font-size:12px; color:var(--muted); margin-top:4px;">तय सेकंड पूरे होने पर कोने में ❌ बटन आएगा, उसे दबाकर 24 घंटे फ्री देखें।</div>
+      <div style="font-size:12px; color:var(--muted); margin-top:4px;">पहले नीचे "▶ ऐड चलाएं" दबाएं — ऐड चलने के बाद सेकंड शुरू होंगे और फिर कोने में ❌ आएगा।</div>
 
-      <div class="ad-frame-box" id="adFrameBox">
+      <div class="ad-frame-box" id="adFrameBox" style="cursor:pointer;" onclick="startAdPlaybackAndTimer()">
         <div id="adCustomRenderArea" style="width:100%;"></div>
       </div>
 
-      <div class="ad-timer-pill" id="adCountdownText">⏳ कृपया 8 सेकंड रुकें...</div>
+      <div class="ad-timer-pill" id="adCountdownText" style="display:none;">⏳ कृपया 8 सेकंड रुकें...</div>
 
       <div style="display:flex; gap:8px; justify-content:center; margin-top:14px;">
-        <button class="btn-orange" id="adActionVisitBtn" style="display:none;" onclick="triggerAdLinkVisit()">🌐 ऐड लिंक खोलें</button>
+        <button class="btn-orange" id="adStartRunBtn" style="padding:11px 18px; font-size:13px;" onclick="startAdPlaybackAndTimer()">▶ ऐड चलाएं</button>
       </div>
     </div>
   </div>
@@ -877,7 +877,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+  import { getDatabase, ref, set, get, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDSRWztrtVdn7h6zKwXN3DuQkDJHH2UIq8",
@@ -892,6 +892,56 @@
   const fbApp = initializeApp(firebaseConfig);
   const fbDb = getDatabase(fbApp);
   const fbRootRef = ref(fbDb, 'manga99_data');
+
+
+  /* --- CRASH-PROOF MEDIA & DATA GUARD (PHOTOS + VIDEOS NEVER CRASH OR VANISH) --- */
+  function openFullBackupDB() {
+    return new Promise((res, rej) => {
+      if (!('indexedDB' in window)) return rej(new Error('No IDB'));
+      const r = indexedDB.open('Manga99FullBackupDB', 1);
+      r.onupgradeneeded = e => {
+        if (!e.target.result.objectStoreNames.contains('snapshots')) {
+          e.target.result.createObjectStore('snapshots', { keyPath: 'key' });
+        }
+      };
+      r.onsuccess = () => res(r.result);
+      r.onerror = () => rej(r.error);
+    });
+  }
+
+  async function saveFullSnapshotIDB(stateObj) {
+    try {
+      if (!stateObj || !Array.isArray(stateObj.animeList) || !stateObj.animeList.length) return;
+      const db = await openFullBackupDB();
+      const tx = db.transaction('snapshots', 'readwrite');
+      tx.objectStore('snapshots').put({ key: 'latest_valid', data: JSON.parse(JSON.stringify(stateObj)), savedAt: Date.now() });
+      await new Promise((res, rej) => { tx.oncomplete = res; tx.onerror = rej; });
+      db.close();
+    } catch (e) {}
+  }
+
+  async function restoreFullSnapshotIDB() {
+    try {
+      const db = await openFullBackupDB();
+      const rec = await new Promise((res, rej) => {
+        const req = db.transaction('snapshots', 'readonly').objectStore('snapshots').get('latest_valid');
+        req.onsuccess = () => res(req.result);
+        req.onerror = () => rej(req.error);
+      });
+      db.close();
+      return rec && rec.data ? rec.data : null;
+    } catch (e) { return null; }
+  }
+
+  window.addEventListener('error', (ev) => {
+    if (ev && ev.target && (ev.target.tagName === 'IMG' || ev.target.tagName === 'VIDEO')) {
+      ev.preventDefault();
+    }
+  }, true);
+
+  window.addEventListener('unhandledrejection', (ev) => {
+    ev.preventDefault();
+  });
 
   let cloudState = {
     animeList: [],
@@ -913,7 +963,8 @@
   let activeAudioLang = '';
   let isLandscapeLocked = false;
   let ytControlsTimer = null;
-  let selectedQualityMode = 'auto';
+  let selectedQualityMode = 'auto'; // 'auto' या लॉक की गई क्वालिटी ('1080', '720', '480')
+  let lockedQualityMode = '';     // जब यूज़र खुद किसी एक क्वालिटी पर दबाए तो वह यहाँ लॉक हो जाएगी
   let activeAutoQuality = '720';
   let bufferFallbackCount = 0;
   let heroSlideIdx = 0, heroAutoTimer = null;
@@ -1041,7 +1092,22 @@
   }
   function writeJSON(key, value) {
     try { localStorage.setItem(key, JSON.stringify(value)); return true; }
-    catch (e) { return false; }
+    catch (e) {
+      if (key === 'm99_fb_cache' && value && Array.isArray(value.animeList)) {
+        try {
+          const slim = {
+            ...value,
+            animeList: value.animeList.map(a => ({
+              ...a,
+              poster: (a.poster && a.poster.startsWith('data:image/')) ? '' : (a.poster || '')
+            }))
+          };
+          localStorage.setItem(key, JSON.stringify(slim));
+          return true;
+        } catch (e2) {}
+      }
+      return false;
+    }
   }
 
   function buildTracksForEpisode(e, fallbackLang) {
@@ -1075,7 +1141,7 @@
         map.set(key, { ...item, episodes: [...(item.episodes || [])] });
       } else {
         const existing = map.get(key);
-        if (!existing.poster && item.poster) existing.poster = item.poster;
+        if (item.poster) existing.poster = item.poster;
         if (item.trailerUrl && !existing.trailerUrl) existing.trailerUrl = item.trailerUrl;
         existing.likes = Math.max(Number(existing.likes || 0), Number(item.likes || 0));
         existing.views = Math.max(Number(existing.views || 0), Number(item.views || 0));
@@ -1088,7 +1154,17 @@
               ...buildTracksForEpisode(prevEp, existing.lang),
               ...buildTracksForEpisode(ep, item.lang)
             };
-            existing.episodes[epDup] = { ...prevEp, ...ep, season: sNum, tracks: mergedTracks };
+            existing.episodes[epDup] = {
+              ...prevEp,
+              ...ep,
+              url1080: ep.url1080 || prevEp.url1080 || '',
+              url720: ep.url720 || prevEp.url720 || '',
+              url480: ep.url480 || prevEp.url480 || '',
+              url: ep.url || prevEp.url || '',
+              subUrl: ep.subUrl || prevEp.subUrl || '',
+              season: sNum,
+              tracks: mergedTracks
+            };
           } else {
             existing.episodes.push({ ...ep, season: sNum, tracks: buildTracksForEpisode(ep, item.lang) });
           }
@@ -1104,7 +1180,9 @@
       cloudState = { animeList: [], requests: [], comments: {}, users: {}, userStats: { total: 0, active: 0, deleted: 0, log: [] }, adConfig: cloudState.adConfig };
       return;
     }
-    const rawAnime = Array.isArray(raw.animeList) ? raw.animeList : (raw.animeList ? Object.values(raw.animeList) : []);
+    const rawAnime = Array.isArray(raw.animeList)
+      ? raw.animeList
+      : (raw.animeList ? Object.values(raw.animeList).sort((a, b) => Number(a?._order ?? 9999) - Number(b?._order ?? 9999)) : []);
     const cleanAnime = rawAnime.filter(Boolean).map((item, idx) => {
       const rawEps = Array.isArray(item.episodes) ? item.episodes : (item.episodes ? Object.values(item.episodes) : []);
       const eps = rawEps.filter(Boolean).map((e, eIdx) => {
@@ -1180,7 +1258,14 @@
   const initialCached = readJSON('m99_fb_cache', null);
   if (initialCached) {
     normalizeFirebaseData(initialCached);
-    setTimeout(() => renderEverything(), 0);
+    hydratePostersFromIDB(cloudState.animeList).then(() => renderEverything());
+  } else {
+    restoreFullSnapshotIDB().then(snapData => {
+      if (snapData && (!cloudState.animeList || !cloudState.animeList.length)) {
+        normalizeFirebaseData(snapData);
+        hydratePostersFromIDB(cloudState.animeList).then(() => renderEverything());
+      }
+    });
   }
 
   let lastCloudHash = '';
@@ -1190,6 +1275,13 @@
     if (rawJson === lastCloudHash) return;
     lastCloudHash = rawJson;
     normalizeFirebaseData(val);
+    savePostersToIDB(cloudState.animeList);
+    saveFullSnapshotIDB(cloudState);
+    hydratePostersFromIDB(cloudState.animeList).then(restored => {
+      if (restored && document.getElementById('playerScreen')?.style.display !== 'flex') {
+        renderEverything();
+      }
+    });
     writeJSON('m99_fb_cache', cloudState);
     const badge = document.getElementById('liveBadge');
     if (badge) badge.textContent = 'Live Online ✓';
@@ -1229,15 +1321,89 @@
     }
   };
 
+  function openPosterCacheDB() {
+    return new Promise((res, rej) => {
+      if (!('indexedDB' in window)) return rej(new Error('No IDB'));
+      const r = indexedDB.open('Manga99PosterCacheDB', 1);
+      r.onupgradeneeded = e => {
+        if (!e.target.result.objectStoreNames.contains('posters')) {
+          e.target.result.createObjectStore('posters', { keyPath: 'id' });
+        }
+      };
+      r.onsuccess = () => res(r.result);
+      r.onerror = () => rej(r.error);
+    });
+  }
+
+  async function savePostersToIDB(list) {
+    try {
+      const db = await openPosterCacheDB();
+      const tx = db.transaction('posters', 'readwrite');
+      const store = tx.objectStore('posters');
+      (list || []).forEach(a => {
+        if (a && a.id && a.poster) {
+          store.put({ id: a.id, titleKey: (a.title || '').trim().toLowerCase(), poster: a.poster });
+        }
+      });
+      await new Promise((res, rej) => { tx.oncomplete = res; tx.onerror = rej; });
+      db.close();
+    } catch (e) {}
+  }
+
+  async function hydratePostersFromIDB(list) {
+    try {
+      const db = await openPosterCacheDB();
+      const all = await new Promise((res, rej) => {
+        const req = db.transaction('posters', 'readonly').objectStore('posters').getAll();
+        req.onsuccess = () => res(req.result || []);
+        req.onerror = () => rej(req.error);
+      });
+      db.close();
+      if (!all.length) return false;
+      const byId = new Map(all.map(x => [x.id, x.poster]));
+      const byTitle = new Map(all.map(x => [x.titleKey, x.poster]));
+      let changed = false;
+      (list || []).forEach(a => {
+        if (!a.poster) {
+          const found = byId.get(a.id) || byTitle.get((a.title || '').trim().toLowerCase());
+          if (found) { a.poster = found; changed = true; }
+        }
+      });
+      return changed;
+    } catch (e) { return false; }
+  }
+
   async function saveCloudData() {
     writeJSON('m99_fb_cache', cloudState);
+    savePostersToIDB(cloudState.animeList);
+    saveFullSnapshotIDB(cloudState);
     try {
-      await set(fbRootRef, cloudState);
+      // Save each anime series individually + top-level keys so large payloads with many full-size photos/videos never fail
+      const updates = {
+        requests: cloudState.requests || [],
+        comments: cloudState.comments || {},
+        users: cloudState.users || {},
+        userStats: cloudState.userStats || { total: 0, active: 0, deleted: 0, log: [] },
+        adConfig: cloudState.adConfig || {}
+      };
+      const animeMap = {};
+      (cloudState.animeList || []).forEach((item, idx) => {
+        if (item && item.id) {
+          animeMap[item.id] = { ...item, _order: idx };
+        }
+      });
+      updates.animeList = animeMap;
+      await update(fbRootRef, updates);
       const badge = document.getElementById('liveBadge');
       if (badge) badge.textContent = 'Live Online ✓';
       return true;
     } catch (e) {
-      return false;
+      try {
+        await set(fbRootRef, cloudState);
+        return true;
+      } catch (e2) {
+        return false;
+      }
     }
   }
 
@@ -1344,7 +1510,7 @@
         <div class="poster-card h-item" onclick="launchPlayer(${jsArg(it.anime.id)}, ${it.epIdx})">
           <div class="poster-img-wrap">
             <span class="cw-ep-tag">S${escapeHtml(it.ep.season || 1)} Ep${escapeHtml(it.ep.num)} • ${escapeHtml(formatDurationCompact(it.time))}</span>
-            ${poster ? `<img src="${escapeHtml(poster)}" loading="lazy" alt="${escapeHtml(it.anime.title)}" onerror="if(this.dataset.fb)return;this.dataset.fb=1;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='600' viewBox='0 0 400 600'%3E%3Crect width='400' height='600' fill='%23161922'/%3E%3Ctext x='50%25' y='48%25' dominant-baseline='middle' text-anchor='middle' fill='%23ff5e00' font-family='sans-serif' font-size='44' font-weight='bold'%3EMANGA 99%3C/text%3E%3Ctext x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' fill='%238e96aa' font-family='sans-serif' font-size='20'%3EPoster Unavailable%3C/text%3E%3C/svg%3E';" />` : ''}
+            ${poster ? `<img src=\"${escapeHtml(poster)}\" loading="lazy" alt="${escapeHtml(it.anime.title)}" onerror="if(this.dataset.fb)return;this.dataset.fb=1;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='600' viewBox='0 0 400 600'%3E%3Crect width='400' height='600' fill='%23161922'/%3E%3Ctext x='50%25' y='48%25' dominant-baseline='middle' text-anchor='middle' fill='%23ff5e00' font-family='sans-serif' font-size='44' font-weight='bold'%3EMANGA 99%3C/text%3E%3Ctext x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' fill='%238e96aa' font-family='sans-serif' font-size='20'%3EPoster Unavailable%3C/text%3E%3C/svg%3E';" />` : `<img src=\"data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='600' viewBox='0 0 400 600'%3E%3Crect width='400' height='600' fill='%23161922'/%3E%3Ctext x='50%25' y='47%25' dominant-baseline='middle' text-anchor='middle' fill='%23ff5e00' font-family='sans-serif' font-size='42' font-weight='bold'%3EMANGA 99%3C/text%3E%3Ctext x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' fill='%238e96aa' font-family='sans-serif' font-size='18'%3EPoster Unavailable%3C/text%3E%3C/svg%3E\" loading=\"lazy\" decoding=\"async\" />`}
             <div class="cw-progress-track"><div class="cw-progress-fill" style="width:${it.pct}%;"></div></div>
           </div>
           <div class="poster-title">${escapeHtml(it.anime.title)}</div>
@@ -1415,7 +1581,7 @@
           const active = idx === heroSlideIdx;
           return `
             <div class="hero-slide-layer" id="heroSlide_${idx}" style="opacity:${active ? '1' : '0'}; pointer-events:${active ? 'auto' : 'none'};">
-              ${poster ? `<img src="${escapeHtml(poster)}" alt="${escapeHtml(top.title)}" />` : ''}
+              ${poster ? `<img src=\"${escapeHtml(poster)}\" alt="${escapeHtml(top.title)}" />` : `<img src=\"data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='600' viewBox='0 0 400 600'%3E%3Crect width='400' height='600' fill='%23161922'/%3E%3Ctext x='50%25' y='47%25' dominant-baseline='middle' text-anchor='middle' fill='%23ff5e00' font-family='sans-serif' font-size='42' font-weight='bold'%3EMANGA 99%3C/text%3E%3Ctext x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' fill='%238e96aa' font-family='sans-serif' font-size='18'%3EPoster Unavailable%3C/text%3E%3C/svg%3E\" loading=\"lazy\" decoding=\"async\" />`}
               <div class="hero-grad">
                 <span class="trending-tag">TRENDING ★ ${idx + 1}</span>
                 <div class="hero-title">${escapeHtml(top.title)}</div>
@@ -1480,9 +1646,9 @@
       return `
       <div class="poster-card h-item" onclick="launchPlayer(${jsArg(it.a.id)})">
         <div class="poster-img-wrap">
-          <span class="badge-tl ${it.a.status === 'Ongoing' ? 'ongoing' : ''}">${escapeHtml(it.a.status || 'Completed')}</span>
+          <span class="badge-tl">नया • Ep ${escapeHtml(it.latestEp.num)}</span>
           <span class="badge-lang-tr">${escapeHtml(it.latestEp.lang || it.a.lang || 'Hindi dub')}</span>
-          ${poster ? `<img src="${escapeHtml(poster)}" loading="lazy" decoding="async" alt="${escapeHtml(it.a.title)}" onerror="if(this.dataset.fb)return;this.dataset.fb=1;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='600' viewBox='0 0 400 600'%3E%3Crect width='400' height='600' fill='%23161922'/%3E%3Ctext x='50%25' y='48%25' dominant-baseline='middle' text-anchor='middle' fill='%23ff5e00' font-family='sans-serif' font-size='44' font-weight='bold'%3EMANGA 99%3C/text%3E%3Ctext x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' fill='%238e96aa' font-family='sans-serif' font-size='20'%3EPoster Unavailable%3C/text%3E%3C/svg%3E';" />` : ''}
+          ${poster ? `<img src=\"${escapeHtml(poster)}\" loading="lazy" decoding="async" alt="${escapeHtml(it.a.title)}" onerror="if(this.dataset.fb)return;this.dataset.fb=1;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='600' viewBox='0 0 400 600'%3E%3Crect width='400' height='600' fill='%23161922'/%3E%3Ctext x='50%25' y='48%25' dominant-baseline='middle' text-anchor='middle' fill='%23ff5e00' font-family='sans-serif' font-size='44' font-weight='bold'%3EMANGA 99%3C/text%3E%3Ctext x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' fill='%238e96aa' font-family='sans-serif' font-size='20'%3EPoster Unavailable%3C/text%3E%3C/svg%3E';" />` : `<img src=\"data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='600' viewBox='0 0 400 600'%3E%3Crect width='400' height='600' fill='%23161922'/%3E%3Ctext x='50%25' y='47%25' dominant-baseline='middle' text-anchor='middle' fill='%23ff5e00' font-family='sans-serif' font-size='42' font-weight='bold'%3EMANGA 99%3C/text%3E%3Ctext x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' fill='%238e96aa' font-family='sans-serif' font-size='18'%3EPoster Unavailable%3C/text%3E%3C/svg%3E\" loading=\"lazy\" decoding=\"async\" />`}
         </div>
         <div class="poster-title">${escapeHtml(it.a.title)}</div>
         
@@ -1497,7 +1663,7 @@
         <div class="poster-img-wrap">
           <span class="badge-tl ${a.status === 'Ongoing' ? 'ongoing' : ''}">${escapeHtml(a.status || 'Completed')}</span>
           <span class="badge-lang-tr">${escapeHtml(a.lang || 'Hindi dub')}</span>
-          ${poster ? `<img src="${escapeHtml(poster)}" loading="lazy" decoding="async" alt="${escapeHtml(a.title)}" onerror="if(this.dataset.fb)return;this.dataset.fb=1;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='600' viewBox='0 0 400 600'%3E%3Crect width='400' height='600' fill='%23161922'/%3E%3Ctext x='50%25' y='48%25' dominant-baseline='middle' text-anchor='middle' fill='%23ff5e00' font-family='sans-serif' font-size='44' font-weight='bold'%3EMANGA 99%3C/text%3E%3Ctext x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' fill='%238e96aa' font-family='sans-serif' font-size='20'%3EPoster Unavailable%3C/text%3E%3C/svg%3E';" />` : ''}
+          ${poster ? `<img src=\"${escapeHtml(poster)}\" loading="lazy" decoding="async" alt="${escapeHtml(a.title)}" onerror="if(this.dataset.fb)return;this.dataset.fb=1;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='600' viewBox='0 0 400 600'%3E%3Crect width='400' height='600' fill='%23161922'/%3E%3Ctext x='50%25' y='48%25' dominant-baseline='middle' text-anchor='middle' fill='%23ff5e00' font-family='sans-serif' font-size='44' font-weight='bold'%3EMANGA 99%3C/text%3E%3Ctext x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' fill='%238e96aa' font-family='sans-serif' font-size='20'%3EPoster Unavailable%3C/text%3E%3C/svg%3E';" />` : `<img src=\"data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='600' viewBox='0 0 400 600'%3E%3Crect width='400' height='600' fill='%23161922'/%3E%3Ctext x='50%25' y='47%25' dominant-baseline='middle' text-anchor='middle' fill='%23ff5e00' font-family='sans-serif' font-size='42' font-weight='bold'%3EMANGA 99%3C/text%3E%3Ctext x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' fill='%238e96aa' font-family='sans-serif' font-size='18'%3EPoster Unavailable%3C/text%3E%3C/svg%3E\" loading=\"lazy\" decoding=\"async\" />`}
         </div>
         <div class="poster-title">${escapeHtml(a.title)}</div>
         
@@ -1546,7 +1712,7 @@
         <div class="poster-img-wrap">
           <span class="badge-tl ${a.status === 'Ongoing' ? 'ongoing' : ''}">${escapeHtml(a.status || 'Completed')}</span>
           <span class="badge-lang-tr">${escapeHtml(a.lang || 'Hindi dub')}</span>
-          ${poster ? `<img src="${escapeHtml(poster)}" loading="lazy" decoding="async" alt="${escapeHtml(a.title)}" onerror="if(this.dataset.fb)return;this.dataset.fb=1;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='600' viewBox='0 0 400 600'%3E%3Crect width='400' height='600' fill='%23161922'/%3E%3Ctext x='50%25' y='48%25' dominant-baseline='middle' text-anchor='middle' fill='%23ff5e00' font-family='sans-serif' font-size='44' font-weight='bold'%3EMANGA 99%3C/text%3E%3Ctext x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' fill='%238e96aa' font-family='sans-serif' font-size='20'%3EPoster Unavailable%3C/text%3E%3C/svg%3E';" />` : ''}
+          ${poster ? `<img src=\"${escapeHtml(poster)}\" loading="lazy" decoding="async" alt="${escapeHtml(a.title)}" onerror="if(this.dataset.fb)return;this.dataset.fb=1;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='600' viewBox='0 0 400 600'%3E%3Crect width='400' height='600' fill='%23161922'/%3E%3Ctext x='50%25' y='48%25' dominant-baseline='middle' text-anchor='middle' fill='%23ff5e00' font-family='sans-serif' font-size='44' font-weight='bold'%3EMANGA 99%3C/text%3E%3Ctext x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' fill='%238e96aa' font-family='sans-serif' font-size='20'%3EPoster Unavailable%3C/text%3E%3C/svg%3E';" />` : `<img src=\"data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='600' viewBox='0 0 400 600'%3E%3Crect width='400' height='600' fill='%23161922'/%3E%3Ctext x='50%25' y='47%25' dominant-baseline='middle' text-anchor='middle' fill='%23ff5e00' font-family='sans-serif' font-size='42' font-weight='bold'%3EMANGA 99%3C/text%3E%3Ctext x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' fill='%238e96aa' font-family='sans-serif' font-size='18'%3EPoster Unavailable%3C/text%3E%3C/svg%3E\" loading=\"lazy\" decoding=\"async\" />`}
         </div>
         <div class="poster-title">${escapeHtml(a.title)}</div>
         
@@ -1582,7 +1748,7 @@
         <div class="poster-img-wrap">
           <span class="badge-tl ${a.status === 'Ongoing' ? 'ongoing' : ''}">${escapeHtml(a.status || 'Completed')}</span>
           <span class="badge-lang-tr">${escapeHtml(a.lang || 'Hindi dub')}</span>
-          ${poster ? `<img src="${escapeHtml(poster)}" loading="lazy" decoding="async" alt="${escapeHtml(a.title)}" onerror="if(this.dataset.fb)return;this.dataset.fb=1;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='600' viewBox='0 0 400 600'%3E%3Crect width='400' height='600' fill='%23161922'/%3E%3Ctext x='50%25' y='48%25' dominant-baseline='middle' text-anchor='middle' fill='%23ff5e00' font-family='sans-serif' font-size='44' font-weight='bold'%3EMANGA 99%3C/text%3E%3Ctext x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' fill='%238e96aa' font-family='sans-serif' font-size='20'%3EPoster Unavailable%3C/text%3E%3C/svg%3E';" />` : ''}
+          ${poster ? `<img src=\"${escapeHtml(poster)}\" loading="lazy" decoding="async" alt="${escapeHtml(a.title)}" onerror="if(this.dataset.fb)return;this.dataset.fb=1;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='600' viewBox='0 0 400 600'%3E%3Crect width='400' height='600' fill='%23161922'/%3E%3Ctext x='50%25' y='48%25' dominant-baseline='middle' text-anchor='middle' fill='%23ff5e00' font-family='sans-serif' font-size='44' font-weight='bold'%3EMANGA 99%3C/text%3E%3Ctext x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' fill='%238e96aa' font-family='sans-serif' font-size='20'%3EPoster Unavailable%3C/text%3E%3C/svg%3E';" />` : `<img src=\"data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='600' viewBox='0 0 400 600'%3E%3Crect width='400' height='600' fill='%23161922'/%3E%3Ctext x='50%25' y='47%25' dominant-baseline='middle' text-anchor='middle' fill='%23ff5e00' font-family='sans-serif' font-size='42' font-weight='bold'%3EMANGA 99%3C/text%3E%3Ctext x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' fill='%238e96aa' font-family='sans-serif' font-size='18'%3EPoster Unavailable%3C/text%3E%3C/svg%3E\" loading=\"lazy\" decoding=\"async\" />`}
         </div>
         <div class="poster-title">${escapeHtml(a.title)}</div>
         
@@ -1651,7 +1817,7 @@
     const hist = readJSON('m99_history', []);
     document.getElementById('fullHistoryList').innerHTML = hist.length ? hist.map((h, i) => {
       const poster = safeMediaUrl(h.poster, 'image');
-      return `<div class="hist-card"><div style="display:flex; align-items:center; gap:10px; flex:1; cursor:pointer;" onclick="launchPlayer(${jsArg(h.animeId)}, ${Number(h.epIdx) || 0})">${poster ? `<img src="${escapeHtml(poster)}" style="width:58px; height:44px; border-radius:8px; object-fit:cover;" />` : ''}<div><b>${escapeHtml(h.title)} S${escapeHtml(h.season || 1)} Ep${escapeHtml(h.epNum)}</b><div style="font-size:11px; color:var(--primary);">▶ यहीं से देखें (${escapeHtml(h.timeStr || '0m 10s')})</div></div></div><button class="p-pill" onclick="removeHistoryItem(${i})">🗑️</button></div>`;
+      return `<div class="hist-card"><div style="display:flex; align-items:center; gap:10px; flex:1; cursor:pointer;" onclick="launchPlayer(${jsArg(h.animeId)}, ${Number(h.epIdx) || 0})">${poster ? `<img src=\"${escapeHtml(poster)}\" style="width:58px; height:44px; border-radius:8px; object-fit:cover;" />` : `<img src=\"data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='600' viewBox='0 0 400 600'%3E%3Crect width='400' height='600' fill='%23161922'/%3E%3Ctext x='50%25' y='47%25' dominant-baseline='middle' text-anchor='middle' fill='%23ff5e00' font-family='sans-serif' font-size='42' font-weight='bold'%3EMANGA 99%3C/text%3E%3Ctext x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' fill='%238e96aa' font-family='sans-serif' font-size='18'%3EPoster Unavailable%3C/text%3E%3C/svg%3E\" loading=\"lazy\" decoding=\"async\" />`}<div><b>${escapeHtml(h.title)} S${escapeHtml(h.season || 1)} Ep${escapeHtml(h.epNum)}</b><div style="font-size:11px; color:var(--primary);">▶ यहीं से देखें (${escapeHtml(h.timeStr || '0m 10s')})</div></div></div><button class="p-pill" onclick="removeHistoryItem(${i})">🗑️</button></div>`;
     }).join('') : `<div style="text-align:center; color:var(--muted); font-size:12px; padding:16px;">इतिहास खाली है।</div>`;
 
     const offBox = document.getElementById('offlineVaultList');
@@ -1747,30 +1913,51 @@
     return q;
   }
 
-  function pickDefaultQualityKey(avail) {
-    const keys = Object.keys(avail);
-    if (keys.length === 1) return keys[0];
-    if (dataSaver && avail['480']) return '480';
+  function getNetworkAutoQuality(avail) {
+    const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    const eff = (conn?.effectiveType || '').toLowerCase();
+    const downlink = Number(conn?.downlink || 0);
+    const saveData = Boolean(conn?.saveData) || dataSaver;
+    if (saveData && avail['480']) return '480';
+    if (eff === 'slow-2g' || eff === '2g' || (downlink > 0 && downlink < 1.5)) {
+      if (avail['480']) return '480';
+      if (avail['720']) return '720';
+      return Object.keys(avail)[0] || '720';
+    }
+    if (downlink >= 6 || eff === '4g') {
+      if (avail['1080']) return '1080';
+      if (avail['720']) return '720';
+      return Object.keys(avail)[0] || '720';
+    }
     if (avail['720']) return '720';
     if (avail['1080']) return '1080';
-    return keys[0] || '720';
+    if (avail['480']) return '480';
+    return Object.keys(avail)[0] || '720';
+  }
+
+  function pickDefaultQualityKey(avail) {
+    const keys = Object.keys(avail);
+    if (!keys.length) return '720';
+    if (lockedQualityMode && avail[lockedQualityMode]) return lockedQualityMode;
+    return getNetworkAutoQuality(avail);
   }
 
   function resolveQualityUrl(ep) {
     const avail = getAvailableQualitiesForEp(ep);
     const keys = Object.keys(avail);
-    if (keys.length === 1) {
-      const onlyKey = keys[0];
-      selectedQualityMode = onlyKey;
-      activeAutoQuality = onlyKey;
-      return { url: avail[onlyKey], label: onlyKey + 'p' };
+    if (!keys.length) return { url: '', label: '720p' };
+
+    // यदि यूज़र ने किसी एक क्वालिटी को दबाकर लॉक किया है, तो उसी को रखें (बदलें नहीं)
+    if (lockedQualityMode && avail[lockedQualityMode]) {
+      selectedQualityMode = lockedQualityMode;
+      return { url: avail[lockedQualityMode], label: lockedQualityMode + 'p' };
     }
-    if (selectedQualityMode !== 'auto' && avail[selectedQualityMode]) {
-      return { url: avail[selectedQualityMode], label: selectedQualityMode + 'p' };
-    }
-    const chosenKey = pickDefaultQualityKey(avail);
+
+    // अन्यथा Auto मोड में नेटवर्क के अनुसार चुनें
+    selectedQualityMode = 'auto';
+    const chosenKey = getNetworkAutoQuality(avail);
     activeAutoQuality = chosenKey;
-    return { url: avail[chosenKey] || '', label: chosenKey + 'p' };
+    return { url: avail[chosenKey] || avail[keys[0]] || '', label: `Auto (${chosenKey}p)` };
   }
 
   function updateQualityUI() {
@@ -1780,10 +1967,14 @@
     const avail = getAvailableQualitiesForEp(curEp);
     const qKeys = Object.keys(avail);
 
+    const isLockedNow = Boolean(lockedQualityMode && avail[lockedQualityMode]);
     const topBadge = document.getElementById('topQualityBadge');
     if (topBadge) {
-      const curLabel = (selectedQualityMode !== 'auto' && avail[selectedQualityMode]) ? selectedQualityMode : activeAutoQuality;
-      topBadge.innerHTML = `Quality: <span>${curLabel}p</span>`;
+      if (isLockedNow) {
+        topBadge.innerHTML = `Quality: <span>${lockedQualityMode}p 🔒</span>`;
+      } else {
+        topBadge.innerHTML = `Quality: Auto <span>${activeAutoQuality}p</span>`;
+      }
     }
     const pLangB = document.getElementById('pLangBadge');
     if (pLangB) pLangB.textContent = activeAudioLang;
@@ -1793,16 +1984,11 @@
     const qCol = document.getElementById('gearQualityCol');
     const lCol = document.getElementById('gearLangCol');
     if (qCol) {
-      if (qKeys.length <= 1) {
-        const single = qKeys[0] || '720';
-        qCol.innerHTML = `<button class="sg-opt active" onclick="setVideoQuality('${single}')"><span>${single}p HD</span><span>✓</span></button>`;
-      } else {
-        let qHtml = '';
-        if (avail['1080']) qHtml += `<button class="sg-opt ${(selectedQualityMode === '1080' || (selectedQualityMode === 'auto' && activeAutoQuality === '1080')) ? 'active' : ''}" onclick="setVideoQuality('1080')"><span>1080p HD</span>${(selectedQualityMode === '1080' || (selectedQualityMode === 'auto' && activeAutoQuality === '1080')) ? '<span>✓</span>' : ''}</button>`;
-        if (avail['720']) qHtml += `<button class="sg-opt ${(selectedQualityMode === '720' || (selectedQualityMode === 'auto' && activeAutoQuality === '720')) ? 'active' : ''}" onclick="setVideoQuality('720')"><span>720p HD</span>${(selectedQualityMode === '720' || (selectedQualityMode === 'auto' && activeAutoQuality === '720')) ? '<span>✓</span>' : ''}</button>`;
-        if (avail['480']) qHtml += `<button class="sg-opt ${(selectedQualityMode === '480' || (selectedQualityMode === 'auto' && activeAutoQuality === '480')) ? 'active' : ''}" onclick="setVideoQuality('480')"><span>480p HD</span>${(selectedQualityMode === '480' || (selectedQualityMode === 'auto' && activeAutoQuality === '480')) ? '<span>✓</span>' : ''}</button>`;
-        qCol.innerHTML = qHtml;
-      }
+      let qHtml = `<button class="sg-opt ${!isLockedNow ? 'active' : ''}" onclick="setVideoQuality('auto')"><span>Auto</span>${!isLockedNow ? '<span>✓</span>' : ''}</button>`;
+      if (avail['1080']) qHtml += `<button class="sg-opt ${lockedQualityMode === '1080' ? 'active' : ''}" onclick="setVideoQuality('1080')"><span>1080p 🔒</span>${lockedQualityMode === '1080' ? '<span>✓</span>' : ''}</button>`;
+      if (avail['720']) qHtml += `<button class="sg-opt ${lockedQualityMode === '720' ? 'active' : ''}" onclick="setVideoQuality('720')"><span>720p 🔒</span>${lockedQualityMode === '720' ? '<span>✓</span>' : ''}</button>`;
+      if (avail['480']) qHtml += `<button class="sg-opt ${lockedQualityMode === '480' ? 'active' : ''}" onclick="setVideoQuality('480')"><span>480p 🔒</span>${lockedQualityMode === '480' ? '<span>✓</span>' : ''}</button>`;
+      qCol.innerHTML = qHtml;
     }
     if (lCol) {
       lCol.innerHTML = availLangs.map(langKey => `
@@ -1853,8 +2039,13 @@
 
   window.setVideoQuality = (mode) => {
     playUiSound('nav');
-    selectedQualityMode = mode;
-    if (mode !== 'auto') activeAutoQuality = mode;
+    if (mode === 'auto') {
+      lockedQualityMode = '';
+      selectedQualityMode = 'auto';
+    } else {
+      lockedQualityMode = mode;
+      selectedQualityMode = mode;
+    }
     document.getElementById('qualityMenu').classList.remove('open');
     if (!curEp) return;
     const resolved = resolveQualityUrl(curEp);
@@ -1891,6 +2082,7 @@
     if (el) el.classList.add('show');
   }
   window.hideFastLoader = () => {
+    clearTimeout(bufferRecoveryTimer);
     const el = document.getElementById('fastLoaderPill');
     if (el) el.classList.remove('show');
   };
@@ -1907,8 +2099,45 @@
     }
   });
 
+  let bufferRecoveryTimer = null;
   window.onVideoBuffering = () => {
+    const vid = document.getElementById('mainVideo');
+    if (vid && vid.readyState >= 3) {
+      hideFastLoader();
+      return;
+    }
     showFastLoader();
+    clearTimeout(bufferRecoveryTimer);
+    bufferRecoveryTimer = setTimeout(() => {
+      const v = document.getElementById('mainVideo');
+      if (!v || v.readyState >= 3) {
+        hideFastLoader();
+        return;
+      }
+      if (curEp && !lockedQualityMode) {
+        const avail = getAvailableQualitiesForEp(curEp);
+        const keys = Object.keys(avail);
+        if (keys.length > 1) {
+          const curKey = selectedQualityMode !== 'auto' ? selectedQualityMode : activeAutoQuality;
+          const fallbackOrder = ['480', '720', '1080'].filter(k => k !== curKey && avail[k]);
+          if (fallbackOrder.length) {
+            const nextQ = fallbackOrder[0];
+            selectedQualityMode = nextQ;
+            activeAutoQuality = nextQ;
+            updateQualityUI();
+            const t = Number(v.currentTime) || 0;
+            v.src = safeMediaUrl(avail[nextQ], 'video');
+            v.addEventListener('loadedmetadata', () => {
+              try { if (t > 0 && Number.isFinite(v.duration)) v.currentTime = Math.min(t, Math.max(0, v.duration - 1)); } catch(e) {}
+              v.play().catch(() => {});
+            }, { once: true });
+            return;
+          }
+        }
+      }
+      v.play().catch(() => {});
+      setTimeout(() => hideFastLoader(), 2500);
+    }, 4500);
   };
 
   function preconnectNextEpisode() {
@@ -1932,9 +2161,11 @@
 
   window.loadPlayerEpisode = (idx) => {
     stopAutoplay();
+    clearTimeout(bufferRecoveryTimer);
     curEp = curAnime.episodes[idx];
     curSeason = Number(curEp.season || 1);
     bufferFallbackCount = 0;
+    lockedQualityMode = '';
     selectedQualityMode = 'auto';
 
     const tracks = getEpisodeTracksMap(curEp);
@@ -1974,6 +2205,7 @@
         }
       };
       vid.addEventListener('loadedmetadata', resumeProgress, { once: true });
+      try { vid.load(); } catch (e) {}
       vid.play().catch(() => {});
     }
 
@@ -1981,7 +2213,7 @@
     const sim = (cloudState.animeList || []).filter(x => x.id !== curAnime.id);
     document.getElementById('similarRow').innerHTML = sim.map(item => {
       const poster = safeMediaUrl(item.poster, 'image');
-      return `<div class="poster-card h-item" onclick="launchPlayer(${jsArg(item.id)})"><div class="poster-img-wrap">${poster ? `<img src="${escapeHtml(poster)}" />` : ''}</div><div class="poster-title">${escapeHtml(item.title)}</div></div>`;
+      return `<div class="poster-card h-item" onclick="launchPlayer(${jsArg(item.id)})"><div class="poster-img-wrap">${poster ? `<img src="${escapeHtml(poster)}" loading="lazy" decoding="async" onerror="if(this.dataset.fb)return;this.dataset.fb=1;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='600' viewBox='0 0 400 600'%3E%3Crect width='400' height='600' fill='%23161922'/%3E%3Ctext x='50%25' y='47%25' dominant-baseline='middle' text-anchor='middle' fill='%23ff5e00' font-family='sans-serif' font-size='42' font-weight='bold'%3EMANGA 99%3C/text%3E%3Ctext x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' fill='%238e96aa' font-family='sans-serif' font-size='18'%3EPoster Unavailable%3C/text%3E%3C/svg%3E';" />` : `<img src="data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='600' viewBox='0 0 400 600'%3E%3Crect width='400' height='600' fill='%23161922'/%3E%3Ctext x='50%25' y='47%25' dominant-baseline='middle' text-anchor='middle' fill='%23ff5e00' font-family='sans-serif' font-size='42' font-weight='bold'%3EMANGA 99%3C/text%3E%3Ctext x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' fill='%238e96aa' font-family='sans-serif' font-size='18'%3EPoster Unavailable%3C/text%3E%3C/svg%3E" loading="lazy" decoding="async" />`}</div><div class="poster-title">${escapeHtml(item.title)}</div></div>`;
     }).join('');
 
     if (curAnime.id !== 'trailer' && curAnime.id !== 'offline') {
@@ -2397,7 +2629,7 @@
     document.getElementById('watchlistCountLabel').textContent = `${savedList.length} Saved`;
     document.getElementById('profileWatchlistRow').innerHTML = savedList.length ? savedList.map(a => {
       const poster = safeMediaUrl(a.poster, 'image');
-      return `<div class="poster-card h-item" onclick="launchPlayer(${jsArg(a.id)})"><div class="poster-img-wrap"><span class="badge-saved">❤️ Saved</span>${poster ? `<img src="${escapeHtml(poster)}" />` : ''}</div><div class="poster-title">${escapeHtml(a.title)}</div></div>`;
+      return `<div class="poster-card h-item" onclick="launchPlayer(${jsArg(a.id)})"><div class="poster-img-wrap"><span class="badge-saved">❤️ Saved</span>${poster ? `<img src="${escapeHtml(poster)}" loading="lazy" decoding="async" onerror="if(this.dataset.fb)return;this.dataset.fb=1;this.src='data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='600' viewBox='0 0 400 600'%3E%3Crect width='400' height='600' fill='%23161922'/%3E%3Ctext x='50%25' y='47%25' dominant-baseline='middle' text-anchor='middle' fill='%23ff5e00' font-family='sans-serif' font-size='42' font-weight='bold'%3EMANGA 99%3C/text%3E%3Ctext x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' fill='%238e96aa' font-family='sans-serif' font-size='18'%3EPoster Unavailable%3C/text%3E%3C/svg%3E';" />` : `<img src="data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='600' viewBox='0 0 400 600'%3E%3Crect width='400' height='600' fill='%23161922'/%3E%3Ctext x='50%25' y='47%25' dominant-baseline='middle' text-anchor='middle' fill='%23ff5e00' font-family='sans-serif' font-size='42' font-weight='bold'%3EMANGA 99%3C/text%3E%3Ctext x='50%25' y='56%25' dominant-baseline='middle' text-anchor='middle' fill='%238e96aa' font-family='sans-serif' font-size='18'%3EPoster Unavailable%3C/text%3E%3C/svg%3E" loading="lazy" decoding="async" />`}</div><div class="poster-title">${escapeHtml(a.title)}</div></div>`;
     }).join('') : `<div style="font-size:12px; color:var(--muted); padding:6px 0;">अभी My Watchlist खाली है</div>`;
   }
   window.saveProfileName = () => { const n = (document.getElementById('renameInp').value || '').trim(); if (!n) return; playUiSound('like'); userName = n; localStorage.setItem('m99_username', n); document.getElementById('renameInp').value = ''; refreshProfile(); };
@@ -2444,9 +2676,10 @@
   };
   window.sendAnimeRequest = async () => { const inp = document.getElementById('reqAnimeInp'), t = (inp.value || '').trim(); if (!t) return; playUiSound('like'); cloudState.requests.unshift({ user: userName, title: t }); inp.value = ''; await saveCloudData(); };
 
-  // 24-Hour Ad-Free Pass System
+  // 24-Hour Ad-Free Pass System (पहले ऐड चलेगा, उसके बाद सेकंड दिखेंगे, फिर कोने में ❌ आएगा)
   let adCountdownInterval = null;
   let adTimerFinished = false;
+  let adHasStartedRunning = false;
 
   function is24hAdPassValid() {
     if (adminOpen) return true;
@@ -2479,45 +2712,81 @@
     const gate = document.getElementById('adGateOverlay');
     const area = document.getElementById('adCustomRenderArea');
     const timerEl = document.getElementById('adCountdownText');
-    const visitBtn = document.getElementById('adActionVisitBtn');
+    const startBtn = document.getElementById('adStartRunBtn');
     const doneBtn = document.getElementById('adCompleteCloseBtn');
     if (!gate || !area) return;
 
     adTimerFinished = false;
+    adHasStartedRunning = false;
     clearInterval(adCountdownInterval);
     if (doneBtn) doneBtn.classList.remove('visible');
-    if (visitBtn) visitBtn.style.display = cfg.directUrl ? 'inline-flex' : 'none';
+    if (timerEl) timerEl.style.display = 'none';
+    if (startBtn) {
+      startBtn.style.display = 'inline-flex';
+      startBtn.disabled = false;
+      startBtn.textContent = '▶ ऐड चलाएं';
+    }
 
     const safeImg = safeMediaUrl(cfg.bannerImg, 'image');
-    const safeLink = safeMediaUrl(cfg.directUrl, 'video');
     area.innerHTML = `
-      ${safeImg ? `<img src="${escapeHtml(safeImg)}" style="max-height:130px; border-radius:10px; margin-bottom:8px; cursor:pointer;" onclick="triggerAdLinkVisit()" />` : ''}
+      ${safeImg ? `<img src="${escapeHtml(safeImg)}" style="max-height:130px; border-radius:10px; margin-bottom:8px;" />` : ''}
       <div style="font-size:15px; font-weight:900; color:#fff;">${escapeHtml(cfg.headline || '1 Ad = 24 Hours Ad-Free • Watch Anime')}</div>
-      <div style="font-size:11px; color:var(--muted); margin-top:4px;">${safeLink ? 'नीचे "ऐड लिंक खोलें" पर क्लिक करें या टाइमर पूरा होने दें' : 'प्रायोजक संदेश चल रहा है...'}</div>
+      <div style="font-size:11px; color:var(--gold); margin-top:6px; font-weight:800;">👇 ऐड चलाने के लिए नीचे बटन दबाएं</div>
     `;
 
     gate.style.display = 'flex';
+  };
+
+  window.startAdPlaybackAndTimer = () => {
+    if (adHasStartedRunning) return;
+    adHasStartedRunning = true;
+    playUiSound('play');
+
+    const cfg = cloudState.adConfig || {};
+    const area = document.getElementById('adCustomRenderArea');
+    const timerEl = document.getElementById('adCountdownText');
+    const startBtn = document.getElementById('adStartRunBtn');
+    const doneBtn = document.getElementById('adCompleteCloseBtn');
+
+    // 1. पहले ऐड चलाएं (Adsterra / Sponsor लिंक खोलें और ऐड स्क्रीन सक्रिय करें)
+    const safeLink = safeMediaUrl(cfg.directUrl, 'video');
+    if (safeLink) {
+      window.open(safeLink, '_blank', 'noopener,noreferrer');
+    }
+
+    if (startBtn) startBtn.style.display = 'none';
+
+    const safeImg = safeMediaUrl(cfg.bannerImg, 'image');
+    if (area) {
+      area.innerHTML = `
+        ${safeImg ? `<img src="${escapeHtml(safeImg)}" style="max-height:130px; border-radius:10px; margin-bottom:8px;" />` : ''}
+        <div style="font-size:14px; font-weight:900; color:var(--green);">📢 ऐड चल रहा है...</div>
+        <div style="font-size:11px; color:#e2e8f0; margin-top:4px;">${escapeHtml(cfg.headline || '1 Ad = 24 Hours Ad-Free • Watch Anime')}</div>
+      `;
+    }
+
+    // 2. ऐड चलने के बाद ही सेकंड दिखेंगे और गिनती शुरू होगी
     let left = Math.max(3, Number(cfg.seconds || 8));
-    timerEl.textContent = `⏳ कृपया ${left} सेकंड तक ऐड देखें...`;
+    if (timerEl) {
+      timerEl.style.display = 'inline-block';
+      timerEl.textContent = `⏱️ ${left} सेकंड बाकी...`;
+    }
 
     adCountdownInterval = setInterval(() => {
       left--;
       if (left <= 0) {
         clearInterval(adCountdownInterval);
         adTimerFinished = true;
-        timerEl.textContent = `✅ अब ऊपर कोने में ❌ दबाकर ${cfg.freeHours || 24} घंटे फ्री देखें`;
+        if (timerEl) timerEl.textContent = `✅ समय पूरा! अब ऊपर कोने में ❌ दबाएं`;
         if (doneBtn) doneBtn.classList.add('visible');
       } else {
-        timerEl.textContent = `⏳ कृपया ${left} सेकंड तक ऐड देखें...`;
+        if (timerEl) timerEl.textContent = `⏱️ ${left} सेकंड बाकी...`;
       }
     }, 1000);
   };
 
   window.triggerAdLinkVisit = () => {
-    const safeLink = safeMediaUrl(cloudState.adConfig?.directUrl, 'video');
-    if (safeLink) {
-      window.open(safeLink, '_blank', 'noopener,noreferrer');
-    }
+    startAdPlaybackAndTimer();
   };
 
   window.complete24hAdPass = () => {
@@ -2767,13 +3036,17 @@
     });
   }
 
-  window.uploadPosterToImgbb = async (e) => {
+  window.uploadPosterToImgbb = (e) => {
     const f = e.target.files && e.target.files[0]; if (!f) return;
-    try {
-      const b64 = await compressImg(f, 420, 0.68);
-      document.getElementById('admPoster').value = b64;
-    } catch (err) {}
-    finally { e.target.value = ''; }
+    const reader = new FileReader();
+    reader.onload = ev => {
+      if (ev.target && ev.target.result) {
+        document.getElementById('admPoster').value = ev.target.result;
+      }
+      e.target.value = '';
+    };
+    reader.onerror = () => { e.target.value = ''; };
+    reader.readAsDataURL(f);
   };
 
   window.publishEpisode = async () => {
@@ -2791,6 +3064,7 @@
     series.title = title;
     const p = (document.getElementById('admPoster').value || '').trim();
     if (p) series.poster = p;
+    else if (!series.poster) series.poster = '';
     const checkedGenres = Array.from(document.querySelectorAll('.adm-genre-cb:checked')).map(cb => cb.value);
     series.status = document.getElementById('admStatus').value; 
     series.genres = checkedGenres.length ? checkedGenres : ['एक्शन'];
